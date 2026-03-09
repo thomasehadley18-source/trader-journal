@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server"
 import Stripe from "stripe"
+import { headers } from "next/headers"
 import { createClient } from "@supabase/supabase-js"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -12,44 +12,42 @@ const supabase = createClient(
 )
 
 export async function POST(req: Request) {
-  const body = await req.text()
-  const sig = req.headers.get("stripe-signature")!
 
-  let event
+  const body = await req.text()
+
+  const sig = headers().get("stripe-signature")!
+
+  let event: Stripe.Event
 
   try {
+
     event = stripe.webhooks.constructEvent(
       body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     )
-  } catch (err) {
-    return NextResponse.json(
-      { error: `Webhook signature verification failed.` },
-      { status: 400 }
-    )
-  }
 
-  const session = event.data.object
+  } catch (err) {
+
+    return new Response("Webhook Error", { status: 400 })
+
+  }
 
   if (event.type === "checkout.session.completed") {
-    const userId = session.metadata.userId
 
-    await supabase.from("subscriptions").upsert({
-      user_id: userId,
-      stripe_customer_id: session.customer,
-      stripe_subscription_id: session.subscription,
-      status: "active",
-      current_period_end: new Date(),
-    })
+    const session = event.data.object as Stripe.Checkout.Session
+
+    const userId = session.metadata?.userId
+
+    if (userId) {
+
+      await supabase
+        .from("profiles")
+        .update({ plan: "pro" })
+        .eq("id", userId)
+
+    }
   }
 
-  if (event.type === "customer.subscription.deleted") {
-    await supabase
-      .from("subscriptions")
-      .update({ status: "canceled" })
-      .eq("stripe_subscription_id", session.id)
-  }
-
-  return NextResponse.json({ received: true })
+  return new Response("ok")
 }

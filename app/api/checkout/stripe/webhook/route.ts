@@ -13,7 +13,12 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   const body = await req.text()
-  const sig = headers().get("stripe-signature")!
+  const headerList = await headers()
+  const sig = headerList.get("stripe-signature")
+
+  if (!sig) {
+    return new Response("Missing stripe signature", { status: 400 })
+  }
 
   let event: Stripe.Event
 

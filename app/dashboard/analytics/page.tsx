@@ -5,8 +5,8 @@ export default function AnalyticsPage() {
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold">Analytics</h1>
 
-      <div className="border p-4 rounded">
-        <p>Analytics charts coming soon.</p>
+      <div className="border rounded p-4">
+        Analytics charts will appear here.
       </div>
     </div>
   )

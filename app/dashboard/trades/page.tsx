@@ -3,7 +3,7 @@
 import { useState } from "react"
 
 export default function TradesPage() {
-  const [refresh, setRefresh] = useState(false)
+  const [refresh] = useState(false)
 
   return (
     <div className="p-6">

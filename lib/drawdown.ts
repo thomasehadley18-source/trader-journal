@@ -1,22 +1,19 @@
 export function calculateDrawdown(trades: any[]) {
-
   let equity = 0
   let peak = 0
-  let maxDD = 0
+  let maxDrawdown = 0
 
-  trades.forEach((t) => {
-
-    equity += t.pnl
+  for (const trade of trades) {
+    equity += Number(trade.pnl || 0)
 
     if (equity > peak) peak = equity
 
     const dd = peak - equity
 
-    if (dd > maxDD) maxDD = dd
-
-  })
-
-  return {
-    maxDrawdown: maxDD
+    if (dd > maxDrawdown) {
+      maxDrawdown = dd
+    }
   }
+
+  return { maxDrawdown }
 }

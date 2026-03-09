@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       },
     ],
     success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard`,
-    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/billing`,
+    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}`,
     metadata: { userId },
   })
 

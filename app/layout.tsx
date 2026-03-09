@@ -2,7 +2,7 @@ import "./globals.css"
 
 export const metadata = {
   title: "Trader Journal",
-  description: "Track your trades and analyze performance",
+  description: "Trading journal SaaS",
 }
 
 export default function RootLayout({

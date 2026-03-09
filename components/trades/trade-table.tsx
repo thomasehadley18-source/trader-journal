@@ -3,22 +3,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableCell,
-  TableBody,
-} from "@/components/ui/table"
-
-import { Button } from "@/components/ui/button"
-
-import { EditTradeDialog } from "./edit-trade-dialog"
-import TradeCoach from "@/components/ai/trade-coach"
-
-export function TradeTable({ refresh }: { refresh: boolean }) {
-
+export default function TradeTable({ refresh }: { refresh: boolean }) {
   const [trades, setTrades] = useState<any[]>([])
 
   useEffect(() => {
@@ -26,7 +11,6 @@ export function TradeTable({ refresh }: { refresh: boolean }) {
   }, [refresh])
 
   async function load() {
-
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -43,127 +27,59 @@ export function TradeTable({ refresh }: { refresh: boolean }) {
   }
 
   async function remove(id: string) {
-
-    await supabase
-      .from("trades")
-      .delete()
-      .eq("id", id)
-
+    await supabase.from("trades").delete().eq("id", id)
     load()
   }
 
   return (
-    <div className="border border-border rounded-lg p-4">
+    <div className="card">
+      <h2 style={{ marginBottom: 16 }}>Your Trades</h2>
 
-      <h2 className="text-lg font-medium mb-4">
-        Your Trades
-      </h2>
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Pair</th>
+            <th>Side</th>
+            <th>PnL</th>
+            <th>Strategy</th>
+            <th>Tags</th>
+            <th>Source</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
 
-      <Table>
-
-        <TableHeader>
-
-          <TableRow>
-            <TableHead>Date</TableHead>
-            <TableHead>Pair</TableHead>
-            <TableHead>Side</TableHead>
-            <TableHead>PnL</TableHead>
-            <TableHead>Strategy</TableHead>
-            <TableHead>Tags</TableHead>
-            <TableHead>Sessions</TableHead>
-            <TableHead>Source</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-
-        </TableHeader>
-
-        <TableBody>
-
+        <tbody>
           {trades.map((t) => (
-
-            <TableRow key={t.id}>
-
-              <TableCell>
-                {new Date(t.trade_date).toLocaleDateString()}
-              </TableCell>
-
-              <TableCell>{t.pair}</TableCell>
-
-              <TableCell>{t.direction}</TableCell>
-
-              <TableCell
-                className={
-                  t.pnl >= 0
-                    ? "text-green-500 font-medium"
-                    : "text-red-500 font-medium"
-                }
-              >
+            <tr key={t.id}>
+              <td>{new Date(t.trade_date).toLocaleDateString()}</td>
+              <td>{t.pair}</td>
+              <td>{t.direction}</td>
+              <td className={Number(t.pnl) >= 0 ? "green" : "red"}>
                 {Number(t.pnl).toFixed(2)}
-              </TableCell>
-
-              <TableCell>
-                {t.strategy || "—"}
-              </TableCell>
-
-              <TableCell>
-                {Array.isArray(t.tags) && t.tags.length > 0
-                  ? t.tags.join(", ")
-                  : "—"}
-              </TableCell>
-
-              <TableCell>
-                {Array.isArray(t.sessions_active) &&
-                t.sessions_active.length > 0
-                  ? t.sessions_active.join(", ")
-                  : "—"}
-              </TableCell>
-
-              <TableCell>
-                {t.import_source || "manual"}
-              </TableCell>
-
-              <TableCell className="flex gap-2">
-
-                <EditTradeDialog
-                  trade={t}
-                  onUpdate={load}
-                />
-
-                <TradeCoach trade={t} />
-
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => remove(t.id)}
-                >
+              </td>
+              <td>{t.strategy || "—"}</td>
+              <td>
+                {Array.isArray(t.tags) && t.tags.length ? t.tags.join(", ") : "—"}
+              </td>
+              <td>{t.import_source || "manual"}</td>
+              <td>
+                <button className="btn btn-secondary" onClick={() => remove(t.id)}>
                   Delete
-                </Button>
-
-              </TableCell>
-
-            </TableRow>
-
+                </button>
+              </td>
+            </tr>
           ))}
 
           {trades.length === 0 && (
-
-            <TableRow>
-
-              <TableCell
-                colSpan={9}
-                className="text-center text-muted-foreground"
-              >
-                No trades found.
-              </TableCell>
-
-            </TableRow>
-
+            <tr>
+              <td colSpan={8} className="muted">
+                No trades yet.
+              </td>
+            </tr>
           )}
-
-        </TableBody>
-
-      </Table>
-
+        </tbody>
+      </table>
     </div>
   )
 }

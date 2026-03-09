@@ -3,77 +3,70 @@
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import { calculatePerformance } from "@/lib/performance"
-import { calculateDrawdown } from "@/lib/drawdown"
-import EquityCurve from "@/components/dashboard/equity-curve"
-import StatCard from "@/components/dashboard/stat-card"
 
-export default function DashboardPage() {
-  const [trades, setTrades] = useState<any[]>([])
-  const [stats, setStats] = useState<any>(null)
+export default function AnalyticsPage() {
+  const [summary, setSummary] = useState({
+    totalTrades: 0,
+    winRate: "0.0",
+    avgWin: "0.00",
+    avgLoss: "0.00",
+    expectancy: "0.00",
+  })
 
   useEffect(() => {
     load()
   }, [])
 
   async function load() {
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) return
 
     const { data } = await supabase
       .from("trades")
       .select("*")
-      .eq("user_id", user?.id)
-      .order("trade_date", { ascending: true })
+      .eq("user_id", user.id)
 
-    const list = data || []
+    const trades = data || []
+    const perf = calculatePerformance(trades)
 
-    setTrades(list)
-
-    const perf = calculatePerformance(list)
-    const dd = calculateDrawdown(list)
-
-    setStats({
-      totalTrades: list.length,
+    setSummary({
+      totalTrades: trades.length,
       winRate: (perf.winRate * 100).toFixed(1),
+      avgWin: perf.avgWin.toFixed(2),
+      avgLoss: perf.avgLoss.toFixed(2),
       expectancy: perf.expectancy.toFixed(2),
-      maxDrawdown: dd.maxDrawdown.toFixed(2),
     })
   }
 
-  if (!stats) return <div className="p-6">Loading dashboard...</div>
-
   return (
-    <div className="p-6 space-y-8">
-
-      <h1 className="text-2xl font-bold">
-        Pro Dashboard
-      </h1>
-
-      <div className="grid grid-cols-4 gap-4">
-
-        <StatCard
-          label="Total Trades"
-          value={stats.totalTrades}
-        />
-
-        <StatCard
-          label="Win Rate"
-          value={`${stats.winRate}%`}
-        />
-
-        <StatCard
-          label="Expectancy"
-          value={stats.expectancy}
-        />
-
-        <StatCard
-          label="Max Drawdown"
-          value={stats.maxDrawdown}
-        />
-
+    <div className="grid-4">
+      <div className="card">
+        <div className="muted">Total Trades</div>
+        <div style={{ fontSize: 24, fontWeight: 700 }}>{summary.totalTrades}</div>
       </div>
 
-      <EquityCurve trades={trades} />
+      <div className="card">
+        <div className="muted">Win Rate</div>
+        <div style={{ fontSize: 24, fontWeight: 700 }}>{summary.winRate}%</div>
+      </div>
 
+      <div className="card">
+        <div className="muted">Average Win</div>
+        <div style={{ fontSize: 24, fontWeight: 700 }}>{summary.avgWin}</div>
+      </div>
+
+      <div className="card">
+        <div className="muted">Average Loss</div>
+        <div style={{ fontSize: 24, fontWeight: 700 }}>{summary.avgLoss}</div>
+      </div>
+
+      <div className="card">
+        <div className="muted">Expectancy</div>
+        <div style={{ fontSize: 24, fontWeight: 700 }}>{summary.expectancy}</div>
+      </div>
     </div>
   )
 }

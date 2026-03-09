@@ -1,11 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import ModeToggle from "@/components/mode-toggle"
-import { MobileSidebar } from "@/components/mobile-sidebar"
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { Button } from "@/components/ui/button"
 
 export default function Navbar() {
   const [user, setUser] = useState<any>(null)
@@ -23,16 +20,11 @@ export default function Navbar() {
     <header className="border-b border-border bg-background sticky top-0 z-50">
       <div className="flex items-center justify-between h-16 px-6">
 
-        <div className="lg:hidden">
-          <MobileSidebar />
-        </div>
-
         <Link href="/" className="font-bold text-xl">
           TradeJournal Pro
         </Link>
 
         <div className="flex items-center gap-3">
-          <ModeToggle />
 
           {!user && (
             <>
@@ -42,10 +34,14 @@ export default function Navbar() {
           )}
 
           {user && (
-            <Button variant="secondary" onClick={logout}>
+            <button
+              onClick={logout}
+              className="border px-3 py-1 rounded"
+            >
               Logout
-            </Button>
+            </button>
           )}
+
         </div>
       </div>
     </header>

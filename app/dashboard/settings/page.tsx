@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 
 export default function SettingsPage() {
   const [user, setUser] = useState<any>(null)
@@ -18,31 +16,27 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-6">
       <h1 className="text-2xl font-semibold">Settings</h1>
 
-      <Card className="max-w-lg">
-        <CardHeader>
-          <CardTitle>Account Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <p>
-            <span className="text-muted-foreground">Email: </span>
-            {user?.email || "—"}
-          </p>
-        </CardContent>
-      </Card>
+      <div className="border rounded-lg p-4 max-w-lg">
+        <h2 className="font-semibold mb-2">Account Information</h2>
+        <p>
+          <span className="text-muted-foreground">Email: </span>
+          {user?.email || "—"}
+        </p>
+      </div>
 
-      <Card className="max-w-lg">
-        <CardHeader>
-          <CardTitle>Account Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button variant="destructive" onClick={logout}>
-            Logout
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="border rounded-lg p-4 max-w-lg">
+        <h2 className="font-semibold mb-2">Account Actions</h2>
+
+        <button
+          onClick={logout}
+          className="bg-red-500 text-white px-4 py-2 rounded"
+        >
+          Logout
+        </button>
+      </div>
     </div>
   )
 }

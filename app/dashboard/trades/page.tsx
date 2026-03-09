@@ -1,8 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { TradeForm } from "@/components/trades/trade-form"
-import { TradeTable } from "@/components/trades/trade-table"
 
 export default function TradesPage() {
   const [refresh, setRefresh] = useState(false)
@@ -12,9 +10,18 @@ export default function TradesPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <TradeForm onSubmit={reload} />
-      <TradeTable refresh={refresh} />
+    <div className="space-y-8 p-6">
+
+      <div className="border rounded p-4">
+        <h2 className="font-semibold mb-2">Trade Form</h2>
+        <p>Trade form component coming soon.</p>
+      </div>
+
+      <div className="border rounded p-4">
+        <h2 className="font-semibold mb-2">Trade Table</h2>
+        <p>Trade table component coming soon.</p>
+      </div>
+
     </div>
   )
 }

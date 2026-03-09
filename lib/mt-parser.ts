@@ -12,6 +12,8 @@ export type ParsedTrade = {
   commission: number
   swap: number
   profit: number
+  pnl: number
+  raw: string[]
 }
 
 export function parseMTExport(csvText: string): ParsedTrade[] {
@@ -34,6 +36,8 @@ export function parseMTExport(csvText: string): ParsedTrade[] {
         return null
       }
 
+      const profit = Number(row[12] || 0)
+
       return {
         ticket: row[0],
         openTime: row[1],
@@ -47,7 +51,9 @@ export function parseMTExport(csvText: string): ParsedTrade[] {
         exit: Number(row[9] || 0),
         commission: Number(row[10] || 0),
         swap: Number(row[11] || 0),
-        profit: Number(row[12] || 0),
+        profit,
+        pnl: profit,
+        raw: row,
       }
     })
     .filter((trade): trade is ParsedTrade => trade !== null)

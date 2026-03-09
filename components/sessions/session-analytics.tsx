@@ -1,90 +1,108 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { useMemo } from "react"
 
-import { StatCard } from "@/components/ui/stat-card"
-import { WinLossChart } from "@/components/analytics/win-loss-chart"
-import { PnLHistogram } from "@/components/analytics/pnl-histogram"
-import { EquityCurve } from "@/components/charts/equity-chart"
+export default function SessionAnalytics({ trades = [] }: { trades?: any[] }) {
+  const stats = useMemo(() => {
+    const grouped: Record<
+      string,
+      { count: number; pnl: number; wins: number; losses: number }
+    > = {}
 
-export function SessionAnalytics({ session }: { session: string }) {
-  const [trades, setTrades] = useState<any[]>([])
+    for (const trade of trades) {
+      const sessions = Array.isArray(trade.sessions_active)
+        ? trade.sessions_active
+        : ["Unknown"]
 
-  useEffect(() => {
-    load()
-  }, [session])
+      for (const session of sessions) {
+        if (!grouped[session]) {
+          grouped[session] = {
+            count: 0,
+            pnl: 0,
+            wins: 0,
+            losses: 0,
+          }
+        }
 
-  async function load() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+        grouped[session].count += 1
+        grouped[session].pnl += Number(trade.pnl || 0)
 
-    let query = supabase.from("trades").select("*").eq("user_id", user.id)
-
-    if (session !== "All") {
-      query = query.contains("sessions_active", [session])
+        if (Number(trade.pnl || 0) >= 0) {
+          grouped[session].wins += 1
+        } else {
+          grouped[session].losses += 1
+        }
+      }
     }
 
-    const { data } = await query
-    setTrades(data || [])
-  }
+    return Object.entries(grouped).map(([session, value]) => {
+      const winRate =
+        value.count > 0 ? ((value.wins / value.count) * 100).toFixed(1) : "0.0"
 
-  const total = trades.length
-  const wins = trades.filter((t) => t.pnl > 0).length
-  const winRate = total ? ((wins / total) * 100).toFixed(1) : 0
-
-  const avgWin =
-    wins > 0
-      ? (
-          trades.filter((t) => t.pnl > 0).reduce((a, b) => a + b.pnl, 0) / wins
-        ).toFixed(2)
-      : 0
-
-  const losses = trades.filter((t) => t.pnl < 0)
-  const avgLoss =
-    losses.length > 0
-      ? (losses.reduce((a, b) => a + b.pnl, 0) / losses.length).toFixed(2)
-      : 0
-
-  // Equity Curve
-  let running = 0
-  const equityData = trades.map((t) => {
-    running += t.pnl
-    return {
-      date: new Date(t.trade_date).toLocaleDateString(),
-      equity: running,
-    }
-  })
-
-  // Histogram
-  const histogram = []
-  const bucket = 50
-  for (let i = -500; i <= 500; i += bucket) {
-    histogram.push({
-      bucket: `${i} to ${i + bucket}`,
-      count: trades.filter((t) => t.pnl >= i && t.pnl < i + bucket).length,
+      return {
+        session,
+        ...value,
+        winRate,
+      }
     })
-  }
+  }, [trades])
 
   return (
-    <div className="space-y-10 mt-6">
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <StatCard title="Total Trades" value={total} />
-        <StatCard title="Win Rate" value={`${winRate}%`} />
-        <StatCard title="Avg Win" value={avgWin} />
-        <StatCard title="Avg Loss" value={avgLoss} />
+    <div className="space-y-6">
+      <div className="border rounded-lg p-4">
+        <h2 className="text-xl font-semibold">Session Analytics</h2>
+        <p className="text-sm text-muted-foreground">
+          Performance grouped by trading session.
+        </p>
       </div>
 
-      <div className="border border-border rounded-lg p-4">
-        <h2 className="text-lg font-medium mb-4">Equity Curve</h2>
-        <EquityCurve data={equityData} />
-      </div>
+      {stats.length === 0 ? (
+        <div className="border rounded-lg p-4 text-sm text-muted-foreground">
+          No session data available yet.
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {stats.map((item) => (
+            <div key={item.session} className="border rounded-lg p-4">
+              <h3 className="text-lg font-medium">{item.session}</h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        <WinLossChart wins={wins} losses={total - wins} />
-        <PnLHistogram data={histogram} />
-      </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                <div>
+                  <div className="text-sm text-muted-foreground">Trades</div>
+                  <div className="text-xl font-semibold">{item.count}</div>
+                </div>
+
+                <div>
+                  <div className="text-sm text-muted-foreground">PnL</div>
+                  <div
+                    className={
+                      item.pnl >= 0
+                        ? "text-xl font-semibold text-green-500"
+                        : "text-xl font-semibold text-red-500"
+                    }
+                  >
+                    {item.pnl.toFixed(2)}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-sm text-muted-foreground">Win Rate</div>
+                  <div className="text-xl font-semibold">{item.winRate}%</div>
+                </div>
+
+                <div>
+                  <div className="text-sm text-muted-foreground">
+                    Wins / Losses
+                  </div>
+                  <div className="text-xl font-semibold">
+                    {item.wins} / {item.losses}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

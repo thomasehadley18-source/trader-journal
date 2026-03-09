@@ -1,10 +1,5 @@
-import Stripe from "stripe"
-import { headers } from "next/headers"
+import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-02-25.clover",
-})
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,42 +7,50 @@ const supabase = createClient(
 )
 
 export async function POST(req: Request) {
-
-  const body = await req.text()
-
-  const sig = headers().get("stripe-signature")!
-
-  let event: Stripe.Event
-
   try {
+    const payload = await req.json()
 
-    event = stripe.webhooks.constructEvent(
-      body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    )
+    const userId = payload.userId || payload.user_id || null
+    const pair = payload.symbol || payload.pair || payload.ticker || ""
+    const direction = payload.side || payload.direction || payload.order || "Buy"
+    const entry = Number(payload.entry || payload.price || payload.open || 0)
+    const exit = Number(payload.exit || payload.close || entry || 0)
+    const lotSize = Number(payload.size || payload.qty || payload.volume || 1)
+    const pnl = Number(payload.pnl || 0)
 
-  } catch (err) {
-
-    return new Response("Webhook Error", { status: 400 })
-
-  }
-
-  if (event.type === "checkout.session.completed") {
-
-    const session = event.data.object as Stripe.Checkout.Session
-
-    const userId = session.metadata?.userId
-
-    if (userId) {
-
-      await supabase
-        .from("profiles")
-        .update({ plan: "pro" })
-        .eq("id", userId)
-
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: "Missing userId" },
+        { status: 400 }
+      )
     }
-  }
 
-  return new Response("ok")
+    const { error } = await supabase.from("trades").insert({
+      user_id: userId,
+      trade_date: new Date().toISOString(),
+      pair,
+      direction,
+      entry,
+      exit,
+      lot_size: lotSize,
+      pnl,
+      import_source: "tradingview",
+      raw_payload: payload,
+      sessions_active: [],
+    })
+
+    if (error) {
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ success: true })
+  } catch {
+    return NextResponse.json(
+      { success: false, error: "Invalid request" },
+      { status: 400 }
+    )
+  }
 }

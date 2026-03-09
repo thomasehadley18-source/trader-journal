@@ -52,3 +52,7 @@ export function parseMTExport(csvText: string): ParsedTrade[] {
     })
     .filter((trade): trade is ParsedTrade => trade !== null)
 }
+
+export function parseMTCSV(csvText: string): ParsedTrade[] {
+  return parseMTExport(csvText)
+}

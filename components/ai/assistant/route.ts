@@ -1,27 +1,49 @@
 import { NextResponse } from "next/server"
 import OpenAI from "openai"
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-})
-
 export async function POST(req: Request) {
-  const { messages } = await req.json()
+  try {
+    const apiKey = process.env.OPENAI_API_KEY
 
-  const completion = await client.chat.completions.create({
-    model: "gpt-4.1-mini",
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are a professional trading psychologist & performance coach. Give concise, actionable insights about trading discipline, mistakes, emotions, and improvement.",
-      },
-      ...messages,
-    ],
-    temperature: 0.8,
-  })
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "Missing OPENAI_API_KEY" },
+        { status: 500 }
+      )
+    }
 
-  return NextResponse.json({
-    reply: completion.choices[0].message.content,
-  })
+    const openai = new OpenAI({ apiKey })
+
+    const body = await req.json().catch(() => ({}))
+    const message =
+      body?.message ||
+      "Give concise trading assistant feedback."
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a trading journal assistant. Give practical, concise, risk-aware trading feedback.",
+        },
+        {
+          role: "user",
+          content: message,
+        },
+      ],
+    })
+
+    const reply =
+      completion.choices?.[0]?.message?.content || "No response generated."
+
+    return NextResponse.json({ reply })
+  } catch (error) {
+    console.error("AI assistant route error:", error)
+
+    return NextResponse.json(
+      { error: "Failed to generate assistant response" },
+      { status: 500 }
+    )
+  }
 }

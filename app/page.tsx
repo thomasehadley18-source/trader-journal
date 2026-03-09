@@ -1,14 +1,14 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
 import { StatCard } from "@/components/ui/stat-card"
 import { RecentTrades } from "@/components/dashboard/recent-trades"
 import { EquityCurve } from "@/components/charts/equity-chart"
-import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
 
-export default function DashboardPage() {
+export default function DashboardHome() {
   const [trades, setTrades] = useState<any[]>([])
-  const [equityData, setEquityData] = useState<any[]>([])
+  const [equity, setEquity] = useState<any[]>([])
 
   useEffect(() => {
     load()
@@ -36,7 +36,7 @@ export default function DashboardPage() {
       }
     })
 
-    setEquityData(curve)
+    setEquity(curve)
   }
 
   const totalTrades = trades.length
@@ -46,21 +46,20 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-
-      {/* STAT CARDS */}
+      {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard title="Total Trades" value={totalTrades} />
         <StatCard title="Win Rate" value={`${winRate}%`} />
-        <StatCard title="Total PnL" value={`${totalPnL}`} />
+        <StatCard title="Total PnL" value={totalPnL} />
       </div>
 
-      {/* EQUITY CURVE */}
+      {/* Equity Curve */}
       <div className="border border-border rounded-lg p-4">
         <h2 className="text-lg font-medium mb-4">Equity Curve</h2>
-        <EquityCurve data={equityData} />
+        <EquityCurve data={equity} />
       </div>
 
-      {/* RECENT TRADES */}
+      {/* Recent Trades */}
       <RecentTrades />
     </div>
   )

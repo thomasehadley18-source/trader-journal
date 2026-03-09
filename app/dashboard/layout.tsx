@@ -1,19 +1,5 @@
-import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
+import AppShell from "@/components/app-shell"
 
-export const metadata = {
-  title: "TradeJournal Pro",
-  description: "A premium trading journal platform"
-}
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-        </ThemeProvider>
-      </body>
-    </html>
-  )
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return <AppShell>{children}</AppShell>
 }

@@ -17,7 +17,7 @@ export function AssistantInput({ onSend }: { onSend: (msg: string) => void }) {
   return (
     <div className="flex gap-2 border-t border-border pt-4">
       <Input
-        placeholder="Ask the AI assistant about your trading..."
+        placeholder="Ask the AI about your trades, mistakes, emotions..."
         value={msg}
         onChange={(e) => setMsg(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && submit()}

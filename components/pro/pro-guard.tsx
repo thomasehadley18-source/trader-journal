@@ -9,8 +9,7 @@ export function ProGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     async function check() {
-      const allowed = await isProUser()
-      setAllowed(allowed)
+      setAllowed(await isProUser())
     }
     check()
   }, [])
@@ -21,13 +20,13 @@ export function ProGuard({ children }: { children: React.ReactNode }) {
 
   if (!allowed) {
     return (
-      <div className="border border-border p-6 rounded-lg max-w-lg">
-        <h2 className="text-2xl font-semibold">Pro Feature</h2>
-        <p className="text-muted-foreground mt-2">
-          This feature requires a Pro subscription.
+      <div className="border border-border rounded-lg p-6 space-y-3 max-w-md">
+        <h2 className="text-xl font-semibold">Pro Feature</h2>
+        <p className="text-muted-foreground">
+          This feature is available only to Pro members.
         </p>
         <a href="/dashboard/billing">
-          <Button className="mt-4 w-full">Upgrade to Pro</Button>
+          <Button className="w-full">Upgrade to Pro</Button>
         </a>
       </div>
     )

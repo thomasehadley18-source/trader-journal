@@ -22,7 +22,7 @@ export function EditTradeDialog({ trade, onUpdate }: any) {
     notes: trade.notes,
   })
 
-  async function handleSave() {
+  async function save() {
     await supabase.from("trades").update({
       pair: form.pair,
       entry: Number(form.entry),
@@ -45,8 +45,9 @@ export function EditTradeDialog({ trade, onUpdate }: any) {
           <DialogTitle>Edit Trade</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
+        <div className="space-y-3">
+
+          <div className="space-y-1">
             <Label>Pair</Label>
             <Input
               value={form.pair}
@@ -54,7 +55,7 @@ export function EditTradeDialog({ trade, onUpdate }: any) {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <Label>Entry</Label>
             <Input
               type="number"
@@ -63,7 +64,7 @@ export function EditTradeDialog({ trade, onUpdate }: any) {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <Label>Exit</Label>
             <Input
               type="number"
@@ -72,7 +73,7 @@ export function EditTradeDialog({ trade, onUpdate }: any) {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <Label>Lot Size</Label>
             <Input
               type="number"
@@ -81,7 +82,7 @@ export function EditTradeDialog({ trade, onUpdate }: any) {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <Label>Notes</Label>
             <Input
               value={form.notes}
@@ -89,7 +90,7 @@ export function EditTradeDialog({ trade, onUpdate }: any) {
             />
           </div>
 
-          <Button onClick={handleSave}>Save Changes</Button>
+          <Button onClick={save}>Save Changes</Button>
         </div>
       </DialogContent>
     </Dialog>

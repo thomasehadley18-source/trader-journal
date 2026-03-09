@@ -2,16 +2,19 @@
 
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
+
 import {
   Table,
-  TableHead,
   TableHeader,
   TableRow,
+  TableHead,
   TableCell,
   TableBody,
 } from "@/components/ui/table"
+
 import { Button } from "@/components/ui/button"
 import { EditTradeDialog } from "./edit-trade-dialog"
+import { calculateTradeSessions } from "@/lib/sessions"
 
 export function TradeTable({ refresh }: { refresh: boolean }) {
   const [trades, setTrades] = useState<any[]>([])
@@ -37,7 +40,7 @@ export function TradeTable({ refresh }: { refresh: boolean }) {
   }
 
   return (
-    <div className="border border-border p-4 rounded-lg">
+    <div className="border border-border rounded-lg p-4">
       <h2 className="text-lg font-medium mb-4">Your Trades</h2>
 
       <Table>
@@ -45,8 +48,9 @@ export function TradeTable({ refresh }: { refresh: boolean }) {
           <TableRow>
             <TableHead>Date</TableHead>
             <TableHead>Pair</TableHead>
-            <TableHead>Direction</TableHead>
+            <TableHead>Side</TableHead>
             <TableHead>PnL</TableHead>
+            <TableHead>Sessions</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -54,17 +58,32 @@ export function TradeTable({ refresh }: { refresh: boolean }) {
         <TableBody>
           {trades.map((t) => (
             <TableRow key={t.id}>
-              <TableCell>{new Date(t.trade_date).toLocaleDateString()}</TableCell>
+              <TableCell>
+                {new Date(t.trade_date).toLocaleDateString()}
+              </TableCell>
+
               <TableCell>{t.pair}</TableCell>
+
               <TableCell>{t.direction}</TableCell>
+
               <TableCell
                 className={t.pnl >= 0 ? "text-green-500" : "text-red-500"}
               >
                 {t.pnl.toFixed(2)}
               </TableCell>
+
+              <TableCell>
+                {t.sessions_active?.join(", ") || "—"}
+              </TableCell>
+
               <TableCell className="flex gap-2">
                 <EditTradeDialog trade={t} onUpdate={load} />
-                <Button variant="destructive" size="sm" onClick={() => remove(t.id)}>
+
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => remove(t.id)}
+                >
                   Delete
                 </Button>
               </TableCell>
@@ -73,7 +92,10 @@ export function TradeTable({ refresh }: { refresh: boolean }) {
 
           {trades.length === 0 && (
             <TableRow>
-              <TableCell colSpan={5} className="text-center text-muted-foreground">
+              <TableCell
+                colSpan={6}
+                className="text-center text-muted-foreground"
+              >
                 No trades yet.
               </TableCell>
             </TableRow>

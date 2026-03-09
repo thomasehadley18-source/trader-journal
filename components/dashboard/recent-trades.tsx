@@ -41,19 +41,18 @@ export function RecentTrades() {
           <TableRow>
             <TableHead>Date</TableHead>
             <TableHead>Pair</TableHead>
-            <TableHead>Direction</TableHead>
+            <TableHead>Side</TableHead>
             <TableHead>PnL</TableHead>
           </TableRow>
         </TableHeader>
+
         <TableBody>
           {trades.map((t) => (
             <TableRow key={t.id}>
               <TableCell>{new Date(t.trade_date).toLocaleDateString()}</TableCell>
               <TableCell>{t.pair}</TableCell>
               <TableCell>{t.direction}</TableCell>
-              <TableCell
-                className={t.pnl >= 0 ? "text-green-500" : "text-red-500"}
-              >
+              <TableCell className={t.pnl >= 0 ? "text-green-500" : "text-red-500"}>
                 {t.pnl.toFixed(2)}
               </TableCell>
             </TableRow>
@@ -62,7 +61,7 @@ export function RecentTrades() {
           {trades.length === 0 && (
             <TableRow>
               <TableCell colSpan={4} className="text-center text-muted-foreground">
-                No trades yet.
+                No trades found.
               </TableCell>
             </TableRow>
           )}

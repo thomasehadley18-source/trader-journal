@@ -3,19 +3,21 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
+  LayoutDashboard,
   BarChart3,
+  CalendarDays,
   BookOpen,
   CreditCard,
-  LayoutDashboard,
-  LineChart,
   Settings,
-  ListOrdered,
+  LineChart,
 } from "lucide-react"
 
 const links = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/trades", label: "Trades", icon: ListOrdered },
-  { href: "/dashboard/analytics", label: "Analytics", icon: LineChart },
+  { href: "/dashboard/insights", label: "Insights", icon: LineChart },
+  { href: "/dashboard/performance", label: "Performance", icon: BarChart3 },
+  { href: "/dashboard/calendar", label: "Calendar", icon: CalendarDays },
+  { href: "/dashboard/trades", label: "Trades", icon: BookOpen },
   { href: "/dashboard/journal", label: "Journal", icon: BookOpen },
   { href: "/dashboard/billing", label: "Billing", icon: CreditCard },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },

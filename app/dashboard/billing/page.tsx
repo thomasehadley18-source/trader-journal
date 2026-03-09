@@ -1,17 +1,25 @@
 "use client"
 
 import { supabase } from "@/lib/supabase"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
+import { ProStatus } from "@/components/pro/pro-status"
 
 export default function BillingPage() {
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    supabase.auth.getUser().then((res) => setUser(res.data.user))
+  }, [])
+
   async function upgrade() {
-    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
 
     const res = await fetch("/api/stripe/checkout", {
       method: "POST",
       body: JSON.stringify({
-        userId: user?.id,
-        email: user?.email,
+        userId: user.id,
+        email: user.email,
       }),
     })
 
@@ -20,13 +28,22 @@ export default function BillingPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Billing</h1>
-      <p className="text-muted-foreground">Unlock all pro features.</p>
+    <div className="space-y-8">
+      <h1 className="text-2xl font-semibold">Billing</h1>
 
-      <Button onClick={upgrade} className="w-48">
-        Upgrade — $19/month
-      </Button>
+      <ProStatus />
+
+      <div className="border border-border p-6 rounded-lg space-y-4 max-w-lg">
+        <h2 className="text-xl font-medium">Upgrade to Pro</h2>
+
+        <p className="text-muted-foreground">
+          Unlock advanced analytics, AI journaling, unlimited trades, and more.
+        </p>
+
+        <Button onClick={upgrade} className="w-full">
+          Subscribe — $19/month
+        </Button>
+      </div>
     </div>
   )
 }

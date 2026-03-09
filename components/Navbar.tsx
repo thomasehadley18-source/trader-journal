@@ -20,30 +20,31 @@ export default function Navbar() {
   }
 
   return (
-    <header className="border-b border-border bg-background/50 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center justify-between px-6">
-        
+    <header className="border-b border-border bg-background sticky top-0 z-50">
+      <div className="flex items-center justify-between h-16 px-6">
+
         <div className="lg:hidden">
           <MobileSidebar />
         </div>
 
-        <Link href="/" className="font-semibold text-xl">
+        <Link href="/" className="font-bold text-xl">
           TradeJournal Pro
         </Link>
 
-        <div className="flex items-center gap-4">
-
+        <div className="flex items-center gap-3">
           <ModeToggle />
 
           {!user && (
             <>
-              <Link href="/login" className="text-sm underline">Login</Link>
-              <Link href="/register" className="text-sm underline">Register</Link>
+              <Link href="/login" className="underline text-sm">Login</Link>
+              <Link href="/register" className="underline text-sm">Register</Link>
             </>
           )}
 
           {user && (
-            <Button variant="secondary" onClick={logout}>Logout</Button>
+            <Button variant="secondary" onClick={logout}>
+              Logout
+            </Button>
           )}
         </div>
       </div>

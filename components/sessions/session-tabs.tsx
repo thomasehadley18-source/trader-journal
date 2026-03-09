@@ -1,26 +1,40 @@
 "use client"
 
 import { useState } from "react"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { SessionAnalytics } from "./session-analytics"
+import SessionAnalytics from "./session-analytics"
 
-export function SessionTabs() {
+export function SessionTabs({ trades = [] }: { trades?: any[] }) {
   const [session, setSession] = useState("All")
 
+  const sessionOptions = ["All", "Asia", "London", "New York"]
+
+  const filteredTrades =
+    session === "All"
+      ? trades
+      : trades.filter((trade) =>
+          Array.isArray(trade.sessions_active)
+            ? trade.sessions_active.includes(session)
+            : false
+        )
+
   return (
-    <Tabs value={session} onValueChange={setSession} className="w-full">
+    <div className="space-y-6">
+      <div className="flex gap-2 flex-wrap">
+        {sessionOptions.map((item) => (
+          <button
+            key={item}
+            type="button"
+            className={`border rounded px-4 py-2 ${
+              session === item ? "bg-black text-white" : ""
+            }`}
+            onClick={() => setSession(item)}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
 
-      <TabsList className="grid grid-cols-4 w-full">
-        <TabsTrigger value="All">All Sessions</TabsTrigger>
-        <TabsTrigger value="Asia">Asia</TabsTrigger>
-        <TabsTrigger value="London">London</TabsTrigger>
-        <TabsTrigger value="New York">New York</TabsTrigger>
-      </TabsList>
-
-      <TabsContent value={session}>
-        <SessionAnalytics session={session} />
-      </TabsContent>
-
-    </Tabs>
+      <SessionAnalytics trades={filteredTrades} />
+    </div>
   )
 }

@@ -10,26 +10,36 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { supabase } from "@/lib/supabase"
 import { useState } from "react"
 
 export function EditTradeDialog({ trade, onUpdate }: any) {
   const [form, setForm] = useState({
     pair: trade.pair,
+    direction: trade.direction,
     entry: trade.entry,
     exit: trade.exit,
     lot_size: trade.lot_size,
-    notes: trade.notes,
+    notes: trade.notes || "",
+    strategy: trade.strategy || "",
+    tags: Array.isArray(trade.tags) ? trade.tags.join(", ") : "",
   })
 
   async function save() {
-    await supabase.from("trades").update({
-      pair: form.pair,
-      entry: Number(form.entry),
-      exit: Number(form.exit),
-      lot_size: Number(form.lot_size),
-      notes: form.notes,
-    }).eq("id", trade.id)
+    await supabase
+      .from("trades")
+      .update({
+        pair: form.pair,
+        direction: form.direction,
+        entry: Number(form.entry),
+        exit: Number(form.exit),
+        lot_size: Number(form.lot_size),
+        notes: form.notes,
+        strategy: form.strategy,
+        tags: form.tags ? form.tags.split(",").map(t => t.trim()) : [],
+      })
+      .eq("id", trade.id)
 
     onUpdate()
   }
@@ -45,9 +55,9 @@ export function EditTradeDialog({ trade, onUpdate }: any) {
           <DialogTitle>Edit Trade</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
 
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Label>Pair</Label>
             <Input
               value={form.pair}
@@ -55,7 +65,19 @@ export function EditTradeDialog({ trade, onUpdate }: any) {
             />
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-2">
+            <Label>Direction</Label>
+            <select
+              className="border p-2 rounded bg-background"
+              value={form.direction}
+              onChange={(e) => setForm({ ...form, direction: e.target.value })}
+            >
+              <option>Buy</option>
+              <option>Sell</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
             <Label>Entry</Label>
             <Input
               type="number"
@@ -64,7 +86,7 @@ export function EditTradeDialog({ trade, onUpdate }: any) {
             />
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Label>Exit</Label>
             <Input
               type="number"
@@ -73,7 +95,7 @@ export function EditTradeDialog({ trade, onUpdate }: any) {
             />
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Label>Lot Size</Label>
             <Input
               type="number"
@@ -82,17 +104,26 @@ export function EditTradeDialog({ trade, onUpdate }: any) {
             />
           </div>
 
-          <div className="space-y-1">
-            <Label>Notes</Label>
+          <div className="space-y-2">
+            <Label>Strategy</Label>
             <Input
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              value={form.strategy}
+              onChange={(e) => setForm({ ...form, strategy: e.target.value })}
+              placeholder="Breakout, Pullback, etc."
             />
           </div>
 
-          <Button onClick={save}>Save Changes</Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  )
-}
+          <div className="space-y-2">
+            <Label>Tags (comma separated)</Label>
+            <Input
+              value={form.tags}
+              onChange={(e) => setForm({ ...form, tags: e.target.value })}
+              placeholder="FOMO, Overtrade, A+ Setup"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Notes</Label>
+            <Textarea
+              value={form.notes}
+              onChange={(e) => setForm({ ...

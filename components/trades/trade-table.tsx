@@ -14,7 +14,6 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { EditTradeDialog } from "./edit-trade-dialog"
-import { calculateTradeSessions } from "@/lib/sessions"
 
 export function TradeTable({ refresh }: { refresh: boolean }) {
   const [trades, setTrades] = useState<any[]>([])
@@ -25,6 +24,7 @@ export function TradeTable({ refresh }: { refresh: boolean }) {
 
   async function load() {
     const { data: { user } } = await supabase.auth.getUser()
+
     const { data } = await supabase
       .from("trades")
       .select("*")
@@ -50,7 +50,10 @@ export function TradeTable({ refresh }: { refresh: boolean }) {
             <TableHead>Pair</TableHead>
             <TableHead>Side</TableHead>
             <TableHead>PnL</TableHead>
+            <TableHead>Strategy</TableHead>
+            <TableHead>Tags</TableHead>
             <TableHead>Sessions</TableHead>
+            <TableHead>Source</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -58,50 +61,55 @@ export function TradeTable({ refresh }: { refresh: boolean }) {
         <TableBody>
           {trades.map((t) => (
             <TableRow key={t.id}>
+
+              {/* DATE */}
               <TableCell>
                 {new Date(t.trade_date).toLocaleDateString()}
               </TableCell>
 
+              {/* PAIR */}
               <TableCell>{t.pair}</TableCell>
 
+              {/* DIRECTION */}
               <TableCell>{t.direction}</TableCell>
 
+              {/* PNL */}
               <TableCell
-                className={t.pnl >= 0 ? "text-green-500" : "text-red-500"}
+                className={
+                  t.pnl >= 0 ? "text-green-500 font-medium" : "text-red-500 font-medium"
+                }
               >
                 {t.pnl.toFixed(2)}
               </TableCell>
 
+              {/* STRATEGY */}
               <TableCell>
-                {t.sessions_active?.join(", ") || "—"}
+                {t.strategy || "—"}
               </TableCell>
 
+              {/* TAGS */}
+              <TableCell>
+                {Array.isArray(t.tags) && t.tags.length > 0
+                  ? t.tags.join(", ")
+                  : "—"}
+              </TableCell>
+
+              {/* SESSIONS */}
+              <TableCell>
+                {Array.isArray(t.sessions_active) && t.sessions_active.length > 0
+                  ? t.sessions_active.join(", ")
+                  : "—"}
+              </TableCell>
+
+              {/* IMPORT SOURCE */}
+              <TableCell>
+                {t.import_source || "manual"}
+              </TableCell>
+
+              {/* ACTIONS */}
               <TableCell className="flex gap-2">
                 <EditTradeDialog trade={t} onUpdate={load} />
-
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={() => remove(t.id)}
-                >
-                  Delete
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-
-          {trades.length === 0 && (
-            <TableRow>
-              <TableCell
-                colSpan={6}
-                className="text-center text-muted-foreground"
-              >
-                No trades yet.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
-  )
-}
+                  on

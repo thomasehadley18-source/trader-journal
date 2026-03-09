@@ -1,25 +1,15 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
-import { RecentTrades } from "@/components/dashboard/recent-trades"
-
-export default function DashboardPage() {
-  const [user, setUser] = useState<any>(null)
-
-  useEffect(() => {
-    supabase.auth.getUser().then((res) => setUser(res.data.user))
-  }, [])
-
+export default function HomePage() {
   return (
-    <div className="space-y-8 p-6">
-
-      <h1 className="text-2xl font-bold">
-        Dashboard
+    <div className="p-10 text-center">
+      <h1 className="text-3xl font-bold">
+        Trader Journal
       </h1>
 
-      <RecentTrades />
-
+      <p className="mt-4">
+        Track your trades and analyze performance.
+      </p>
     </div>
   )
 }

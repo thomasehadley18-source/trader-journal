@@ -1,87 +1,81 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useState } from "react"
 
-export function TradingViewWebhook() {
-  const [secret, setSecret] = useState("")
-  const [status, setStatus] = useState("")
+export default function MyFxBookConnect() {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState("")
 
-  useEffect(() => {
-    load()
-  }, [])
+  async function handleConnect(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setMessage("")
 
-  async function load() {
-    const { data: { user } } = await supabase.auth.getUser()
+    try {
+      const res = await fetch("/api/import/myfxbook-connect", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      })
 
-    const { data } = await supabase
-      .from("trade_accounts")
-      .select("*")
-      .eq("user_id", user?.id)
-      .eq("provider", "tradingview")
-      .maybeSingle()
+      const data = await res.json()
 
-    if (data?.api_key) {
-      setSecret(data.api_key)
+      if (!res.ok) {
+        setMessage(data.error || "Failed to connect MyFxBook")
+      } else {
+        setMessage("MyFxBook connected successfully.")
+      }
+    } catch {
+      setMessage("Something went wrong.")
+    } finally {
+      setLoading(false)
     }
   }
 
-  async function generateKey() {
-    const newKey = Math.random().toString(36).substring(2, 15)
-
-    const { data: { user } } = await supabase.auth.getUser()
-
-    await supabase.from("trade_accounts").upsert({
-      user_id: user?.id,
-      provider: "tradingview",
-      api_key: newKey,
-    })
-
-    setSecret(newKey)
-    setStatus("Secret key generated!")
-  }
-
-  const webhookUrl = secret
-    ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/webhooks/tradingview?user=USER_ID&key=${secret}`
-    : ""
-
   return (
     <div className="space-y-4 border p-6 rounded-lg max-w-md">
-      <h2 className="text-xl font-semibold">TradingView Webhook</h2>
+      <h2 className="text-xl font-semibold">Connect MyFxBook</h2>
 
-      {!secret && (
-        <Button onClick={generateKey} className="w-full">
-          Generate Webhook Key
-        </Button>
-      )}
+      <form onSubmit={handleConnect} className="space-y-4">
+        <div className="space-y-2">
+          <label className="block text-sm">Email</label>
+          <input
+            type="email"
+            className="w-full border rounded px-3 py-2"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+          />
+        </div>
 
-      {secret && (
-        <>
-          <div className="space-y-2">
-            <Label>Your Secret Key</Label>
-            <Input value={secret} readOnly />
-          </div>
+        <div className="space-y-2">
+          <label className="block text-sm">Password</label>
+          <input
+            type="password"
+            className="w-full border rounded px-3 py-2"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="MyFxBook password"
+          />
+        </div>
 
-          <div className="space-y-2">
-            <Label>Webhook URL</Label>
-            <Input value={webhookUrl} readOnly />
-          </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className="border rounded px-4 py-2"
+        >
+          {loading ? "Connecting..." : "Connect"}
+        </button>
+      </form>
 
-          <p className="text-sm text-muted-foreground">
-            Use this URL in TradingView alert settings.
-          </p>
-
-          <p className="text-xs text-muted-foreground">
-            Replace USER_ID with your actual user ID
-            (I can automate this for you if you want).
-          </p>
-        </>
-      )}
-
-      <p className="text-sm text-muted-foreground">{status}</p>
+      {message && <p className="text-sm">{message}</p>}
     </div>
   )
 }

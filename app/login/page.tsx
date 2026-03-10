@@ -2,11 +2,9 @@
 
 import { useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 
 export default function LoginPage() {
-  const router = useRouter()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -14,17 +12,14 @@ export default function LoginPage() {
   const [message, setMessage] = useState("")
 
   async function login() {
+
     setLoading(true)
     setMessage("")
-
-    console.log("LOGIN BUTTON CLICKED")
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
-
-    console.log("LOGIN RESPONSE", data, error)
 
     if (error) {
       setMessage(error.message)
@@ -32,7 +27,13 @@ export default function LoginPage() {
       return
     }
 
-    router.push("/dashboard")
+    if (data.session) {
+      window.location.href = "/dashboard"
+      return
+    }
+
+    setMessage("Login failed. No session returned.")
+    setLoading(false)
   }
 
   return (
@@ -64,6 +65,7 @@ export default function LoginPage() {
         </p>
 
         <div style={{ display: "grid", gap: "16px" }}>
+
           <div>
             <label>Email</label>
             <input
@@ -113,6 +115,7 @@ export default function LoginPage() {
           >
             {loading ? "Logging in..." : "Login"}
           </button>
+
         </div>
 
         {message && (
@@ -127,6 +130,7 @@ export default function LoginPage() {
             Register
           </Link>
         </p>
+
       </div>
     </div>
   )

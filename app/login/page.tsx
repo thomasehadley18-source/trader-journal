@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { supabase } from "@/lib/supabase"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -13,29 +13,18 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState("")
 
-  // If already logged in, go to dashboard
-  useEffect(() => {
-    checkSession()
-  }, [])
-
-  async function checkSession() {
-    const { data } = await supabase.auth.getSession()
-
-    if (data.session) {
-      router.push("/dashboard")
-    }
-  }
-
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault()
-
+  async function login() {
     setLoading(true)
     setMessage("")
+
+    console.log("LOGIN BUTTON CLICKED")
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
+
+    console.log("LOGIN RESPONSE", data, error)
 
     if (error) {
       setMessage(error.message)
@@ -43,16 +32,7 @@ export default function LoginPage() {
       return
     }
 
-    // Confirm session exists
-    const { data: sessionData } = await supabase.auth.getSession()
-
-    if (sessionData.session) {
-      router.push("/dashboard")
-    } else {
-      setMessage("Login succeeded but session not detected.")
-    }
-
-    setLoading(false)
+    router.push("/dashboard")
   }
 
   return (
@@ -77,22 +57,19 @@ export default function LoginPage() {
           padding: "24px",
         }}
       >
-        <h1 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "8px" }}>
-          Login
-        </h1>
+        <h1 style={{ fontSize: "28px", fontWeight: 700 }}>Login</h1>
 
         <p style={{ color: "#94a3b8", marginBottom: "20px" }}>
           Welcome back.
         </p>
 
-        <form onSubmit={handleLogin} style={{ display: "grid", gap: "16px" }}>
+        <div style={{ display: "grid", gap: "16px" }}>
           <div>
             <label>Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
               style={{
                 width: "100%",
                 padding: "12px",
@@ -110,7 +87,6 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
               style={{
                 width: "100%",
                 padding: "12px",
@@ -123,7 +99,7 @@ export default function LoginPage() {
           </div>
 
           <button
-            type="submit"
+            onClick={login}
             disabled={loading}
             style={{
               padding: "12px",
@@ -137,7 +113,7 @@ export default function LoginPage() {
           >
             {loading ? "Logging in..." : "Login"}
           </button>
-        </form>
+        </div>
 
         {message && (
           <p style={{ marginTop: "16px", color: "#f87171" }}>

@@ -1,93 +1,126 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 
 export default function LoginPage() {
-
-  const router = useRouter()
-
-  const [email,setEmail] = useState("")
-  const [password,setPassword] = useState("")
-  const [loading,setLoading] = useState(false)
-  const [error,setError] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState("")
 
   async function handleLogin(e: React.FormEvent) {
-
     e.preventDefault()
 
     setLoading(true)
-    setError("")
+    setMessage("")
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
 
-    setLoading(false)
+      if (error) {
+        setMessage(error.message)
+        setLoading(false)
+        return
+      }
 
-    if (error) {
-      setError(error.message)
-      return
+      window.location.href = "/dashboard"
+    } catch (err: any) {
+      setMessage(err?.message || "Login failed")
+      setLoading(false)
     }
-
-    router.push("/dashboard")
-
   }
 
   return (
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#020817",
+        color: "white",
+        padding: "24px",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "420px",
+          background: "#0f172a",
+          border: "1px solid #1e293b",
+          borderRadius: "16px",
+          padding: "24px",
+        }}
+      >
+        <h1 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "8px" }}>
+          Login
+        </h1>
 
-    <div style={{
-      minHeight:"100vh",
-      display:"flex",
-      alignItems:"center",
-      justifyContent:"center",
-      background:"#020817"
-    }}>
+        <p style={{ color: "#94a3b8", marginBottom: "20px" }}>
+          Welcome back.
+        </p>
 
-      <div style={{
-        width:420,
-        padding:30,
-        borderRadius:12,
-        background:"#0f172a",
-        color:"white"
-      }}>
-
-        <h2>Login</h2>
-
-        <form onSubmit={handleLogin} style={{display:"grid",gap:12}}>
-
+        <form onSubmit={handleLogin} style={{ display: "grid", gap: "16px" }}>
           <input
             type="email"
             placeholder="Email"
             value={email}
-            onChange={(e)=>setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             required
+            style={{
+              width: "100%",
+              padding: "12px",
+              borderRadius: "10px",
+              border: "1px solid #334155",
+              background: "#111827",
+              color: "white",
+            }}
           />
 
           <input
             type="password"
             placeholder="Password"
             value={password}
-            onChange={(e)=>setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             required
+            style={{
+              width: "100%",
+              padding: "12px",
+              borderRadius: "10px",
+              border: "1px solid #334155",
+              background: "#111827",
+              color: "white",
+            }}
           />
 
-          <button disabled={loading}>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              padding: "12px",
+              borderRadius: "10px",
+              border: "none",
+              background: "#2563eb",
+              color: "white",
+              fontWeight: 600,
+              cursor: "pointer",
+              opacity: loading ? 0.7 : 1,
+            }}
+          >
             {loading ? "Logging in..." : "Login"}
           </button>
-
         </form>
 
-        {error && (
-          <p style={{color:"red"}}>{error}</p>
+        {message && (
+          <p style={{ marginTop: "16px", color: "#f87171" }}>
+            {message}
+          </p>
         )}
-
       </div>
-
     </div>
-
   )
-
 }

@@ -6,22 +6,21 @@ import { supabase } from "@/lib/supabase"
 
 export default function LoginPage() {
 
-  
   const router = useRouter()
 
   const [email,setEmail] = useState("")
   const [password,setPassword] = useState("")
-  const [error,setError] = useState("")
   const [loading,setLoading] = useState(false)
+  const [error,setError] = useState("")
 
   async function handleLogin(e: React.FormEvent) {
 
     e.preventDefault()
 
-    setError("")
     setLoading(true)
+    setError("")
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     })
@@ -33,7 +32,11 @@ export default function LoginPage() {
       return
     }
 
-    router.push("/dashboard")
+    if (data.session) {
+      router.push("/dashboard")
+      router.refresh()
+    }
+
   }
 
   return (
@@ -54,7 +57,8 @@ export default function LoginPage() {
         color:"white"
       }}>
 
-        <h2>Login</h2>
+        <h2 style={{marginBottom:10}}>Login</h2>
+        <p style={{marginBottom:20}}>Welcome back.</p>
 
         <form onSubmit={handleLogin} style={{display:"grid",gap:12}}>
 
@@ -81,7 +85,7 @@ export default function LoginPage() {
         </form>
 
         {error && (
-          <p style={{color:"red"}}>{error}</p>
+          <p style={{color:"red",marginTop:10}}>{error}</p>
         )}
 
       </div>

@@ -4,6 +4,8 @@ import { useState } from "react"
 import { supabase } from "@/lib/supabase"
 import Link from "next/link"
 
+const DEBUG_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "missing"
+
 export default function RegisterPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -16,7 +18,7 @@ export default function RegisterPage() {
     setMessage("")
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       })
@@ -27,9 +29,13 @@ export default function RegisterPage() {
         return
       }
 
-      setMessage("Account created. Check your email to confirm your account.")
-    } catch (err) {
-      setMessage("Failed to connect to authentication service.")
+      setMessage(
+        data.user
+          ? "Account created. Check your email to confirm your account."
+          : "Signup completed."
+      )
+    } catch (err: any) {
+      setMessage(String(err?.message || err || "Unknown signup error"))
     }
 
     setLoading(false)
@@ -61,8 +67,12 @@ export default function RegisterPage() {
           Create an Account
         </h1>
 
-        <p style={{ color: "#94a3b8", marginBottom: "20px" }}>
+        <p style={{ color: "#94a3b8", marginBottom: "8px" }}>
           Start tracking your trades.
+        </p>
+
+        <p style={{ color: "#fbbf24", marginBottom: "20px", wordBreak: "break-all" }}>
+          Debug URL: {DEBUG_SUPABASE_URL}
         </p>
 
         <form onSubmit={handleRegister} style={{ display: "grid", gap: "16px" }}>

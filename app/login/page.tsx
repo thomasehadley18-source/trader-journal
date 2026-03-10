@@ -15,27 +15,25 @@ export default function LoginPage() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
+
     setLoading(true)
     setMessage("")
 
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
 
-      if (error) {
-        setMessage(error.message)
-        setLoading(false)
-        return
-      }
-
-      router.push("/dashboard")
-    } catch {
-      setMessage("Failed to connect to authentication service.")
+    if (error) {
+      setMessage(error.message)
+      setLoading(false)
+      return
     }
 
-    setLoading(false)
+    console.log("LOGIN SUCCESS", data)
+
+    // force redirect
+    window.location.href = "/dashboard"
   }
 
   return (
@@ -70,7 +68,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} style={{ display: "grid", gap: "16px" }}>
           <div>
-            <label style={{ display: "block", marginBottom: "8px" }}>Email</label>
+            <label>Email</label>
             <input
               type="email"
               value={email}
@@ -88,7 +86,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label style={{ display: "block", marginBottom: "8px" }}>Password</label>
+            <label>Password</label>
             <input
               type="password"
               value={password}

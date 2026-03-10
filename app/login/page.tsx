@@ -19,10 +19,14 @@ export default function LoginPage() {
     setLoading(true)
     setMessage("")
 
+    console.log("Attempting login...")
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
+
+    console.log("LOGIN RESPONSE:", { data, error })
 
     if (error) {
       setMessage(error.message)
@@ -30,10 +34,15 @@ export default function LoginPage() {
       return
     }
 
-    console.log("LOGIN SUCCESS", data)
+    if (!data.session) {
+      setMessage("Login failed. No session returned.")
+      setLoading(false)
+      return
+    }
 
-    // force redirect
-    window.location.href = "/dashboard"
+    console.log("LOGIN SUCCESS")
+
+    router.push("/dashboard")
   }
 
   return (
@@ -114,7 +123,6 @@ export default function LoginPage() {
               color: "white",
               fontWeight: 600,
               cursor: "pointer",
-              opacity: loading ? 0.7 : 1,
             }}
           >
             {loading ? "Logging in..." : "Login"}
@@ -122,7 +130,7 @@ export default function LoginPage() {
         </form>
 
         {message && (
-          <p style={{ marginTop: "16px", color: "#fca5a5" }}>
+          <p style={{ marginTop: "16px", color: "#f87171" }}>
             {message}
           </p>
         )}

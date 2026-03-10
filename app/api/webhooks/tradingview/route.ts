@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
 export async function POST(req: Request) {
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl || !serviceKey) {
+    return NextResponse.json({ error: "Supabase not configured" }, { status: 500 })
+  }
+
+  const supabase = createClient(supabaseUrl, serviceKey)
+
   try {
     const payload = await req.json()
 
@@ -47,6 +52,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true })
+
   } catch {
     return NextResponse.json(
       { success: false, error: "Invalid request" },

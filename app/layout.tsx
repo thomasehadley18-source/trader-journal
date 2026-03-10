@@ -1,13 +1,16 @@
-import "./globals.css"
-
-export default function RootLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#020817",
+      }}
+    >
+      {children}
+    </div>
   )
 }

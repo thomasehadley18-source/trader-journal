@@ -27,7 +27,8 @@ export default function LoginPage() {
         return
       }
 
-      window.location.href = "/dashboard"
+      setMessage("Login successful. Redirecting...")
+      window.location.replace("/dashboard")
     } catch (err: any) {
       setMessage(err?.message || "Login failed")
       setLoading(false)

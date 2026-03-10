@@ -7,13 +7,13 @@ import { calculateDrawdown } from "@/lib/drawdown"
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
+  const [email, setEmail] = useState("")
   const [stats, setStats] = useState({
     totalTrades: 0,
     winRate: "0.0",
     expectancy: "0.00",
     maxDrawdown: "0.00",
   })
-  const [email, setEmail] = useState("")
 
   useEffect(() => {
     load()
@@ -56,16 +56,14 @@ export default function DashboardPage() {
     }
   }
 
+  async function logout() {
+    await supabase.auth.signOut()
+    window.location.replace("/login")
+  }
+
   if (loading) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          background: "#020817",
-          color: "white",
-          padding: "40px",
-        }}
-      >
+      <div style={{ padding: "40px", color: "white" }}>
         Loading dashboard...
       </div>
     )
@@ -80,11 +78,35 @@ export default function DashboardPage() {
         minHeight: "100vh",
       }}
     >
-      <div style={{ marginBottom: "24px" }}>
-        <h1 style={{ fontSize: 32, marginBottom: 8 }}>Trader Dashboard</h1>
-        <p style={{ color: "#94a3b8" }}>
-          {email ? `Logged in as ${email}` : "Dashboard loaded"}
-        </p>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "24px",
+        }}
+      >
+        <div>
+          <h1 style={{ fontSize: 32, marginBottom: 8 }}>Trader Dashboard</h1>
+          <p style={{ color: "#94a3b8" }}>
+            {email ? `Logged in as ${email}` : "Not logged in"}
+          </p>
+        </div>
+
+        <button
+          onClick={logout}
+          style={{
+            padding: "10px 14px",
+            borderRadius: "10px",
+            border: "none",
+            background: "#2563eb",
+            color: "white",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          Logout
+        </button>
       </div>
 
       <div

@@ -8,8 +8,8 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState("")
+  const [loading, setLoading] = useState(false)
 
   async function login() {
 
@@ -18,7 +18,7 @@ export default function LoginPage() {
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      password,
+      password
     })
 
     if (error) {
@@ -32,7 +32,7 @@ export default function LoginPage() {
       return
     }
 
-    setMessage("Login failed. No session returned.")
+    setMessage("Login failed.")
     setLoading(false)
   }
 
@@ -45,7 +45,7 @@ export default function LoginPage() {
         justifyContent: "center",
         background: "#020817",
         color: "white",
-        padding: "24px",
+        padding: "24px"
       }}
     >
       <div
@@ -55,30 +55,31 @@ export default function LoginPage() {
           background: "#0f172a",
           border: "1px solid #1e293b",
           borderRadius: "16px",
-          padding: "24px",
+          padding: "24px"
         }}
       >
-        <h1 style={{ fontSize: "28px", fontWeight: 700 }}>Login</h1>
 
-        <p style={{ color: "#94a3b8", marginBottom: "20px" }}>
+        <h1 style={{ fontSize: 28, fontWeight: 700 }}>Login</h1>
+
+        <p style={{ color: "#94a3b8", marginBottom: 20 }}>
           Welcome back.
         </p>
 
-        <div style={{ display: "grid", gap: "16px" }}>
+        <div style={{ display: "grid", gap: 16 }}>
 
           <div>
             <label>Email</label>
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e)=>setEmail(e.target.value)}
               style={{
                 width: "100%",
-                padding: "12px",
-                borderRadius: "10px",
+                padding: 12,
+                borderRadius: 10,
                 border: "1px solid #334155",
                 background: "#111827",
-                color: "white",
+                color: "white"
               }}
             />
           </div>
@@ -88,14 +89,14 @@ export default function LoginPage() {
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e)=>setPassword(e.target.value)}
               style={{
                 width: "100%",
-                padding: "12px",
-                borderRadius: "10px",
+                padding: 12,
+                borderRadius: 10,
                 border: "1px solid #334155",
                 background: "#111827",
-                color: "white",
+                color: "white"
               }}
             />
           </div>
@@ -104,13 +105,13 @@ export default function LoginPage() {
             onClick={login}
             disabled={loading}
             style={{
-              padding: "12px",
-              borderRadius: "10px",
+              padding: 12,
+              borderRadius: 10,
               border: "none",
               background: "#2563eb",
               color: "white",
               fontWeight: 600,
-              cursor: "pointer",
+              cursor: "pointer"
             }}
           >
             {loading ? "Logging in..." : "Login"}
@@ -119,13 +120,13 @@ export default function LoginPage() {
         </div>
 
         {message && (
-          <p style={{ marginTop: "16px", color: "#f87171" }}>
+          <p style={{ marginTop: 16, color: "#f87171" }}>
             {message}
           </p>
         )}
 
-        <p style={{ marginTop: "20px", color: "#94a3b8" }}>
-          Don’t have an account?{" "}
+        <p style={{ marginTop: 20, color: "#94a3b8" }}>
+          Don't have an account?{" "}
           <Link href="/register" style={{ color: "white", textDecoration: "underline" }}>
             Register
           </Link>

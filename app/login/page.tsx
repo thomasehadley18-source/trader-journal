@@ -20,7 +20,7 @@ export default function LoginPage() {
     setLoading(true)
     setError("")
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password
     })
@@ -32,10 +32,7 @@ export default function LoginPage() {
       return
     }
 
-    if (data.session) {
-      router.push("/dashboard")
-      router.refresh()
-    }
+    router.push("/dashboard")
 
   }
 
@@ -46,7 +43,7 @@ export default function LoginPage() {
       display:"flex",
       alignItems:"center",
       justifyContent:"center",
-      background:"#020617"
+      background:"#020817"
     }}>
 
       <div style={{
@@ -57,8 +54,7 @@ export default function LoginPage() {
         color:"white"
       }}>
 
-        <h2 style={{marginBottom:10}}>Login</h2>
-        <p style={{marginBottom:20}}>Welcome back.</p>
+        <h2>Login</h2>
 
         <form onSubmit={handleLogin} style={{display:"grid",gap:12}}>
 
@@ -85,7 +81,7 @@ export default function LoginPage() {
         </form>
 
         {error && (
-          <p style={{color:"red",marginTop:10}}>{error}</p>
+          <p style={{color:"red"}}>{error}</p>
         )}
 
       </div>
@@ -93,4 +89,5 @@ export default function LoginPage() {
     </div>
 
   )
+
 }

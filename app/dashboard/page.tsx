@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
+import { useRouter } from "next/navigation"
 import { calculatePerformance } from "@/lib/performance"
 import { calculateDrawdown } from "@/lib/drawdown"
-import { useRouter } from "next/navigation"
 
 export default function DashboardPage() {
 
@@ -21,11 +21,11 @@ export default function DashboardPage() {
 
   useEffect(()=>{
 
-    checkUser()
+    init()
 
   },[])
 
-  async function checkUser(){
+  async function init(){
 
     const { data:{ session } } = await supabase.auth.getSession()
 
@@ -34,16 +34,10 @@ export default function DashboardPage() {
       return
     }
 
-    loadTrades(session.user.id)
-
-  }
-
-  async function loadTrades(userId:string){
-
     const { data } = await supabase
       .from("trades")
       .select("*")
-      .eq("user_id", userId)
+      .eq("user_id", session.user.id)
       .order("trade_date",{ascending:true})
 
     const trades = data || []

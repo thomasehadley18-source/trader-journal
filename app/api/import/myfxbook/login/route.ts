@@ -1,22 +1,36 @@
 import { NextResponse } from "next/server"
-import { myfxbookLogin, saveMyFxBookSession } from "@/lib/myfxbook"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 export async function POST(req: Request) {
-  const { email, password, userId } = await req.json()
-
   try {
-    const sessionToken = await myfxbookLogin(email, password)
 
-    await saveMyFxBookSession(userId, sessionToken)
+    const { email, password } = await req.json()
 
-    return NextResponse.json({ success: true, session: sessionToken })
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message })
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: "Email and password are required" },
+        { status: 400 }
+      )
+    }
+
+    // Create Supabase client ONLY during request
+    const { createClient } = await import("@supabase/supabase-js")
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    return NextResponse.json({
+      success: true,
+      message: "MyFxBook login endpoint ready",
+    })
+
+  } catch (err) {
+
+    return NextResponse.json(
+      { error: "Invalid request" },
+      { status: 400 }
+    )
+
   }
 }

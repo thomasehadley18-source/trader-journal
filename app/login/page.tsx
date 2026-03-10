@@ -19,7 +19,7 @@ export default function LoginPage() {
     setLoading(true)
     setError("")
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password
     })
@@ -31,10 +31,7 @@ export default function LoginPage() {
       return
     }
 
-    if (data.session) {
-      router.push("/dashboard")
-      router.refresh()
-    }
+    router.push("/dashboard")
   }
 
   return (

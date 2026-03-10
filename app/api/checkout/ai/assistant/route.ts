@@ -1,23 +1,42 @@
 import { NextResponse } from "next/server"
-import { openai } from "@/lib/openai"
 
 export async function POST(req: Request) {
-  const { messages } = await req.json()
 
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4.1-mini",
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are a professional trading psychologist and performance coach. Provide actionable, concise, and insightful advice on trading mistakes, mindset, patterns, and performance improvement. Be supportive, direct, and clear.",
+  const apiKey = process.env.OPENAI_API_KEY
+
+  if (!apiKey) {
+    return NextResponse.json({ error: "OpenAI not configured" }, { status: 500 })
+  }
+
+  try {
+
+    const { message } = await req.json()
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
       },
-      ...messages,
-    ],
-    temperature: 0.7,
-  })
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: "You are a professional trading coach." },
+          { role: "user", content: message }
+        ]
+      })
+    })
 
-  return NextResponse.json({
-    reply: completion.choices[0].message.content,
-  })
+    const data = await response.json()
+
+    return NextResponse.json({
+      reply: data.choices?.[0]?.message?.content || "No response"
+    })
+
+  } catch (err: any) {
+
+    return NextResponse.json({ error: err.message }, { status: 500 })
+
+  }
+
 }

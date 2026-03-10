@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -13,20 +13,29 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState("")
 
+  // If already logged in, go to dashboard
+  useEffect(() => {
+    checkSession()
+  }, [])
+
+  async function checkSession() {
+    const { data } = await supabase.auth.getSession()
+
+    if (data.session) {
+      router.push("/dashboard")
+    }
+  }
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
 
     setLoading(true)
     setMessage("")
 
-    console.log("Attempting login...")
-
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
-
-    console.log("LOGIN RESPONSE:", { data, error })
 
     if (error) {
       setMessage(error.message)
@@ -34,15 +43,16 @@ export default function LoginPage() {
       return
     }
 
-    if (!data.session) {
-      setMessage("Login failed. No session returned.")
-      setLoading(false)
-      return
+    // Confirm session exists
+    const { data: sessionData } = await supabase.auth.getSession()
+
+    if (sessionData.session) {
+      router.push("/dashboard")
+    } else {
+      setMessage("Login succeeded but session not detected.")
     }
 
-    console.log("LOGIN SUCCESS")
-
-    router.push("/dashboard")
+    setLoading(false)
   }
 
   return (

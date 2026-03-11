@@ -1,85 +1,45 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
+export default function TradeTable({ trades }: any){
 
-export default function TradeTable({ refresh }: { refresh: boolean }) {
-  const [trades, setTrades] = useState<any[]>([])
+return(
 
-  useEffect(() => {
-    load()
-  }, [refresh])
+<table style={{width:"100%",borderCollapse:"collapse"}}>
 
-  async function load() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+<thead>
 
-    if (!user) return
+<tr style={{color:"#94a3b8",textAlign:"left"}}>
 
-    const { data } = await supabase
-      .from("trades")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("trade_date", { ascending: false })
+<th>Pair</th>
+<th>Side</th>
+<th>Entry</th>
+<th>Exit</th>
+<th>PnL</th>
+<th>Date</th>
 
-    setTrades(data || [])
-  }
+</tr>
 
-  async function remove(id: string) {
-    await supabase.from("trades").delete().eq("id", id)
-    load()
-  }
+</thead>
 
-  return (
-    <div className="card">
-      <h2 style={{ marginBottom: 16 }}>Your Trades</h2>
+<tbody>
 
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Pair</th>
-            <th>Side</th>
-            <th>PnL</th>
-            <th>Strategy</th>
-            <th>Tags</th>
-            <th>Source</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
+{trades.map((t:any)=>(
+<tr key={t.id}>
 
-        <tbody>
-          {trades.map((t) => (
-            <tr key={t.id}>
-              <td>{new Date(t.trade_date).toLocaleDateString()}</td>
-              <td>{t.pair}</td>
-              <td>{t.direction}</td>
-              <td className={Number(t.pnl) >= 0 ? "green" : "red"}>
-                {Number(t.pnl).toFixed(2)}
-              </td>
-              <td>{t.strategy || "—"}</td>
-              <td>
-                {Array.isArray(t.tags) && t.tags.length ? t.tags.join(", ") : "—"}
-              </td>
-              <td>{t.import_source || "manual"}</td>
-              <td>
-                <button className="btn btn-secondary" onClick={() => remove(t.id)}>
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
+<td>{t.symbol}</td>
+<td>{t.side}</td>
+<td>{t.entry}</td>
+<td>{t.exit}</td>
+<td>{t.pnl}</td>
+<td>{new Date(t.trade_date).toLocaleDateString()}</td>
 
-          {trades.length === 0 && (
-            <tr>
-              <td colSpan={8} className="muted">
-                No trades yet.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
-  )
+</tr>
+))}
+
+</tbody>
+
+</table>
+
+)
+
 }

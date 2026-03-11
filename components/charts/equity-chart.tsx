@@ -1,31 +1,53 @@
 "use client"
 
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart"
-import { LineChart, Line, XAxis, YAxis, Tooltip } from "recharts"
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer
+} from "recharts"
 
-export function EquityCurve({ data }: { data: any[] }) {
+export default function EquityChart({ trades }: any) {
+
+  let equity = 0
+
+  const data = trades.map((t:any)=>{
+
+    equity += Number(t.pnl || 0)
+
+    return {
+      date: new Date(t.trade_date).toLocaleDateString(),
+      equity
+    }
+
+  })
+
   return (
-    <ChartContainer
-      config={{
-        equity: {
-          label: "Equity",
-          color: "hsl(var(--primary))",
-        },
-      }}
-      className="h-[300px] w-full"
-    >
+
+    <ResponsiveContainer width="100%" height={300}>
+
       <LineChart data={data}>
+
         <XAxis dataKey="date" hide />
-        <YAxis hide />
-        <Tooltip content={<ChartTooltip />} />
+
+        <YAxis />
+
+        <Tooltip />
+
         <Line
           type="monotone"
           dataKey="equity"
-          stroke="hsl(var(--primary))"
-          strokeWidth={2}
+          stroke="#3b82f6"
+          strokeWidth={3}
           dot={false}
         />
+
       </LineChart>
-    </ChartContainer>
+
+    </ResponsiveContainer>
+
   )
+
 }

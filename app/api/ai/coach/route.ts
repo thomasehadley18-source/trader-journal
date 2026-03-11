@@ -1,32 +1,55 @@
 import OpenAI from "openai"
 
-export async function POST(req:Request){
+export async function POST(req: Request) {
 
-const {question}=await req.json()
+try {
 
-const openai=new OpenAI({
-apiKey:process.env.OPENAI_API_KEY
+const body = await req.json()
+
+const question = body.question || ""
+
+if(!process.env.OPENAI_API_KEY){
+return Response.json({
+answer:"OPENAI_API_KEY is missing from environment variables."
+})
+}
+
+const openai = new OpenAI({
+apiKey: process.env.OPENAI_API_KEY
 })
 
-const completion=await openai.chat.completions.create({
+const completion = await openai.chat.completions.create({
 
-model:"gpt-4o-mini",
+model: "gpt-4o-mini",
 
-messages:[
+messages: [
+
 {
-role:"system",
-content:"You are a professional trading performance coach."
+role: "system",
+content: "You are a professional trading performance coach."
 },
+
 {
-role:"user",
-content:question
+role: "user",
+content: question
 }
+
 ]
 
 })
 
 return Response.json({
-answer:completion.choices[0].message.content
+answer: completion.choices[0].message.content
 })
+
+}catch(error){
+
+console.error(error)
+
+return Response.json({
+answer:"AI request failed. Check server logs."
+})
+
+}
 
 }

@@ -3,94 +3,99 @@
 import { useState } from "react"
 import { supabase } from "@/lib/supabase"
 import InstrumentSelect from "@/components/trades/instrument-select"
+import { detectTradeTags, detectStrategyName } from "@/lib/auto-strategy"
 
-export default function AddTradeForm({onAdded}:any){
+export default function AddTradeForm({ onAdded }: { onAdded?: () => void }) {
+  const [symbol, setSymbol] = useState("")
+  const [side, setSide] = useState("LONG")
+  const [entry, setEntry] = useState("")
+  const [exit, setExit] = useState("")
 
-const [symbol,setSymbol] = useState("")
-const [side,setSide] = useState("buy")
-const [entry,setEntry] = useState("")
-const [exit,setExit] = useState("")
+  async function submit() {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
 
-async function submit(){
+    const entryNum = Number(entry)
+    const exitNum = Number(exit)
 
-const {data:{user}} = await supabase.auth.getUser()
+    const pnl =
+      side === "LONG"
+        ? exitNum - entryNum
+        : entryNum - exitNum
 
-if(!user) return
+    const draftTrade = {
+      symbol,
+      side,
+      entry: entryNum,
+      exit: exitNum,
+      pnl,
+    }
 
-const pnl = Number(exit) - Number(entry)
+    const tags = detectTradeTags(draftTrade)
+    const strategy = detectStrategyName(draftTrade)
 
-await supabase
-.from("trades")
-.insert({
+    await supabase.from("trades").insert({
+      user_id: user.id,
+      symbol,
+      side,
+      entry: entryNum,
+      exit: exitNum,
+      pnl,
+      tags,
+      strategy,
+      trade_date: new Date().toISOString(),
+    })
 
-user_id:user.id,
-symbol,
-side,
-entry:Number(entry),
-exit:Number(exit),
-pnl
+    setSymbol("")
+    setSide("LONG")
+    setEntry("")
+    setExit("")
 
-})
+    if (onAdded) onAdded()
+  }
 
-setSymbol("")
-setEntry("")
-setExit("")
+  return (
+    <div
+      style={{
+        border: "1px solid #1e293b",
+        padding: 20,
+        borderRadius: 10,
+        marginBottom: 24,
+      }}
+    >
+      <h3>Add Trade</h3>
 
-if(onAdded){
-onAdded()
-}
+      <InstrumentSelect value={symbol} onChange={setSymbol} />
 
-}
+      <select
+        value={side}
+        onChange={(e) => setSide(e.target.value)}
+        style={{ marginTop: 10 }}
+      >
+        <option value="LONG">LONG</option>
+        <option value="SHORT">SHORT</option>
+      </select>
 
-return(
+      <input
+        placeholder="Entry"
+        value={entry}
+        onChange={(e) => setEntry(e.target.value)}
+        style={{ marginTop: 10 }}
+      />
 
-<div
-style={{
-border:"1px solid #1e293b",
-padding:20,
-borderRadius:10
-}}
->
+      <input
+        placeholder="Exit"
+        value={exit}
+        onChange={(e) => setExit(e.target.value)}
+        style={{ marginTop: 10 }}
+      />
 
-<h3>Add Trade</h3>
-
-<InstrumentSelect
-value={symbol}
-onChange={setSymbol}
-/>
-
-<select
-value={side}
-onChange={(e)=>setSide(e.target.value)}
-style={{marginTop:10}}
->
-<option value="buy">Buy</option>
-<option value="sell">Sell</option>
-</select>
-
-<input
-placeholder="Entry"
-value={entry}
-onChange={(e)=>setEntry(e.target.value)}
-style={{marginTop:10}}
-/>
-
-<input
-placeholder="Exit"
-value={exit}
-onChange={(e)=>setExit(e.target.value)}
-style={{marginTop:10}}
-/>
-
-<button
-onClick={submit}
-style={{marginTop:10}}
->
-Add Trade
-</button>
-
-</div>
-
-)
-
+      <button
+        onClick={submit}
+        style={{ marginTop: 10 }}
+      >
+        Add Trade
+      </button>
+    </div>
+  )
 }

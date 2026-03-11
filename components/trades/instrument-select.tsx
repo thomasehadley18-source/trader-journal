@@ -21,7 +21,7 @@ export default function InstrumentSelect({
     >
       <option value="">Select Instrument</option>
 
-      {Object.entries(INSTRUMENTS).map(([group, list]) => (
+      {Object.entries(INSTRUMENTS as Record<string, string[]>).map(([group, list]) => (
         <optgroup key={group} label={group}>
           {list.map((pair) => (
             <option key={pair} value={pair}>

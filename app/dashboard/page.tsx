@@ -1,169 +1,144 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect,useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { calculatePerformance } from "@/lib/performance"
-import { calculateDrawdown } from "@/lib/drawdown"
+import { LineChart,Line,XAxis,YAxis,Tooltip,ResponsiveContainer } from "recharts"
 
-export default function DashboardPage() {
-  const [loading, setLoading] = useState(true)
-  const [email, setEmail] = useState("")
-  const [stats, setStats] = useState({
-    totalTrades: 0,
-    winRate: "0.0",
-    expectancy: "0.00",
-    maxDrawdown: "0.00",
-  })
+export default function DashboardPage(){
 
-  useEffect(() => {
-    load()
-  }, [])
+const [stats,setStats]=useState({
+ trades:0,
+ winRate:0,
+ expectancy:0,
+ drawdown:0
+})
 
-  async function load() {
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+const [equity,setEquity]=useState<any[]>([])
+const [email,setEmail]=useState("")
 
-      if (user?.email) {
-        setEmail(user.email)
-      }
+useEffect(()=>{load()},[])
 
-      if (!user) {
-        setLoading(false)
-        return
-      }
+async function load(){
 
-      const { data } = await supabase
-        .from("trades")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("trade_date", { ascending: true })
+const {data:{user}}=await supabase.auth.getUser()
+if(!user)return
+setEmail(user.email||"")
 
-      const trades = data || []
-      const perf = calculatePerformance(trades)
-      const dd = calculateDrawdown(trades)
+const {data}=await supabase
+.from("trades")
+.select("*")
+.eq("user_id",user.id)
+.order("trade_date",{ascending:true})
 
-      setStats({
-        totalTrades: trades.length,
-        winRate: (perf.winRate * 100).toFixed(1),
-        expectancy: perf.expectancy.toFixed(2),
-        maxDrawdown: dd.maxDrawdown.toFixed(2),
-      })
-    } catch {
-    } finally {
-      setLoading(false)
-    }
-  }
+const trades=data||[]
 
-  async function logout() {
-    await supabase.auth.signOut()
-    window.location.replace("/login")
-  }
+let equityCurve=0
+let wins=0
 
-  if (loading) {
-    return (
-      <div style={{ padding: "40px", color: "white" }}>
-        Loading dashboard...
-      </div>
-    )
-  }
+const chart:any[]=[]
 
-  return (
-    <div
-      style={{
-        padding: "40px",
-        color: "white",
-        background: "#020817",
-        minHeight: "100vh",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "24px",
-        }}
-      >
-        <div>
-          <h1 style={{ fontSize: 32, marginBottom: 8 }}>Trader Dashboard</h1>
-          <p style={{ color: "#94a3b8" }}>
-            {email ? `Logged in as ${email}` : "Not logged in"}
-          </p>
-        </div>
+trades.forEach((t:any,i:number)=>{
+ const pnl=Number(t.pnl ?? t.profit ?? 0)
 
-        <button
-          onClick={logout}
-          style={{
-            padding: "10px 14px",
-            borderRadius: "10px",
-            border: "none",
-            background: "#2563eb",
-            color: "white",
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
-        >
-          Logout
-        </button>
-      </div>
+ equityCurve+=pnl
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: "20px",
-        }}
-      >
-        <div
-          style={{
-            background: "#0f172a",
-            border: "1px solid #1e293b",
-            borderRadius: "12px",
-            padding: "20px",
-          }}
-        >
-          <div style={{ color: "#94a3b8" }}>Total Trades</div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{stats.totalTrades}</div>
-        </div>
+ if(pnl>0)wins++
 
-        <div
-          style={{
-            background: "#0f172a",
-            border: "1px solid #1e293b",
-            borderRadius: "12px",
-            padding: "20px",
-          }}
-        >
-          <div style={{ color: "#94a3b8" }}>Win Rate</div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{stats.winRate}%</div>
-        </div>
+ chart.push({
+   trade:i+1,
+   equity:equityCurve
+ })
+})
 
-        <div
-          style={{
-            background: "#0f172a",
-            border: "1px solid #1e293b",
-            borderRadius: "12px",
-            padding: "20px",
-          }}
-        >
-          <div style={{ color: "#94a3b8" }}>Expectancy</div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{stats.expectancy}</div>
-        </div>
+setEquity(chart)
 
-        <div
-          style={{
-            background: "#0f172a",
-            border: "1px solid #1e293b",
-            borderRadius: "12px",
-            padding: "20px",
-          }}
-        >
-          <div style={{ color: "#94a3b8" }}>Max Drawdown</div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{stats.maxDrawdown}</div>
-        </div>
-      </div>
-    </div>
-  )
+setStats({
+ trades:trades.length,
+ winRate:trades.length?((wins/trades.length)*100):0,
+ expectancy:trades.length?(equityCurve/trades.length):0,
+ drawdown:0
+})
+
+}
+
+return(
+
+<div>
+
+<div className="navbar">
+<h1>Trader Journal</h1>
+
+<div className="nav-links">
+<a href="/dashboard">Dashboard</a>
+<a href="/dashboard/trades">Trades</a>
+<a href="/dashboard/analytics">Analytics</a>
+</div>
+
+</div>
+
+<div className="container">
+
+<h1 style={{fontSize:34}}>Trader Dashboard</h1>
+<p style={{opacity:.7}}>Logged in as {email}</p>
+
+<div className="grid-4" style={{marginTop:20}}>
+
+<div className="card">
+<div>Total Trades</div>
+<h2>{stats.trades}</h2>
+</div>
+
+<div className="card">
+<div>Win Rate</div>
+<h2>{stats.winRate.toFixed(1)}%</h2>
+</div>
+
+<div className="card">
+<div>Expectancy</div>
+<h2>{stats.expectancy.toFixed(2)}</h2>
+</div>
+
+<div className="card">
+<div>Max Drawdown</div>
+<h2>{stats.drawdown}</h2>
+</div>
+
+</div>
+
+<div className="card" style={{marginTop:40}}>
+
+<h2>Equity Curve</h2>
+
+<div style={{height:300}}>
+
+<ResponsiveContainer width="100%" height="100%">
+
+<LineChart data={equity}>
+
+<XAxis dataKey="trade" stroke="#94a3b8"/>
+<YAxis stroke="#94a3b8"/>
+
+<Tooltip/>
+
+<Line
+type="monotone"
+dataKey="equity"
+stroke="#3b82f6"
+strokeWidth={3}
+/>
+
+</LineChart>
+
+</ResponsiveContainer>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+)
+
 }

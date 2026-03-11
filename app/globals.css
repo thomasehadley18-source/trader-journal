@@ -1,154 +1,19 @@
-* {
-  box-sizing: border-box;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-html,
 body {
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
-  background: #020817;
-  color: #ffffff;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-a {
-  color: #60a5fa;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-label,
-span,
-div,
-th,
-td {
-  color: #ffffff;
-}
-
-input,
-select,
-textarea {
-  width: 100%;
-  padding: 10px 12px;
-  background: #111827;
-  color: #ffffff;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  outline: none;
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: #94a3b8;
-}
-
-button {
-  padding: 10px 14px;
-  background: #2563eb;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  text-align: left;
-  padding: 10px;
-  border-bottom: 1px solid #1e293b;
-}
-
-.auth-wrapper {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #020817;
-  padding: 24px;
-}
-
-.auth-card {
-  width: 100%;
-  max-width: 420px;
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  border-radius: 16px;
-  padding: 24px;
-  color: #ffffff;
-}
-
-.page-shell {
-  min-height: 100vh;
-  background: #020817;
-  color: #ffffff;
-}
-
-.page-container {
-  padding: 32px;
+  @apply bg-bg text-white;
 }
 
 .card {
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  border-radius: 12px;
-  padding: 20px;
+  @apply bg-card border border-border rounded-xl p-6;
 }
 
-.grid-4 {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+.container {
+  @apply max-w-7xl mx-auto p-8;
 }
 
-.muted {
-  color: #94a3b8;
-}
-
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 32px;
-}
-
-.nav-links {
-  display: flex;
-  gap: 20px;
-}
-
-.form-grid {
-  display: grid;
-  gap: 12px;
-}
-
-.section-title {
-  font-size: 32px;
-  margin: 0 0 10px;
-}
-
-.section-subtitle {
-  margin: 0 0 20px;
-  color: #94a3b8;
+.metric {
+  @apply text-3xl font-bold;
 }

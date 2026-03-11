@@ -1,72 +1,98 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect,useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { calculatePerformance } from "@/lib/performance"
+import {
+LineChart,
+Line,
+XAxis,
+YAxis,
+Tooltip,
+ResponsiveContainer
+} from "recharts"
 
-export default function AnalyticsPage() {
-  const [summary, setSummary] = useState({
-    totalTrades: 0,
-    winRate: "0.0",
-    avgWin: "0.00",
-    avgLoss: "0.00",
-    expectancy: "0.00",
-  })
+export default function AnalyticsPage(){
 
-  useEffect(() => {
-    load()
-  }, [])
+const [equity,setEquity]=useState<any[]>([])
 
-  async function load() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+useEffect(()=>{load()},[])
 
-    if (!user) return
+async function load(){
 
-    const { data } = await supabase
-      .from("trades")
-      .select("*")
-      .eq("user_id", user.id)
+const {data:{user}}=await supabase.auth.getUser()
 
-    const trades = data || []
-    const perf = calculatePerformance(trades)
+if(!user)return
 
-    setSummary({
-      totalTrades: trades.length,
-      winRate: (perf.winRate * 100).toFixed(1),
-      avgWin: perf.avgWin.toFixed(2),
-      avgLoss: perf.avgLoss.toFixed(2),
-      expectancy: perf.expectancy.toFixed(2),
-    })
-  }
+const {data}=await supabase
+.from("trades")
+.select("*")
+.eq("user_id",user.id)
+.order("trade_date",{ascending:true})
 
-  return (
-    <div className="grid-4">
-      <div className="card">
-        <div className="muted">Total Trades</div>
-        <div style={{ fontSize: 24, fontWeight: 700 }}>{summary.totalTrades}</div>
-      </div>
+let equityCurve=0
 
-      <div className="card">
-        <div className="muted">Win Rate</div>
-        <div style={{ fontSize: 24, fontWeight: 700 }}>{summary.winRate}%</div>
-      </div>
+const chart:any[]=[]
 
-      <div className="card">
-        <div className="muted">Average Win</div>
-        <div style={{ fontSize: 24, fontWeight: 700 }}>{summary.avgWin}</div>
-      </div>
+data?.forEach((t:any,i:number)=>{
 
-      <div className="card">
-        <div className="muted">Average Loss</div>
-        <div style={{ fontSize: 24, fontWeight: 700 }}>{summary.avgLoss}</div>
-      </div>
+const pnl=Number(t.pnl ?? t.profit ?? 0)
 
-      <div className="card">
-        <div className="muted">Expectancy</div>
-        <div style={{ fontSize: 24, fontWeight: 700 }}>{summary.expectancy}</div>
-      </div>
-    </div>
-  )
+equityCurve+=pnl
+
+chart.push({
+trade:i+1,
+equity:equityCurve
+})
+
+})
+
+setEquity(chart)
+
+}
+
+return(
+
+<div>
+
+<h1 className="text-3xl mb-6">
+Performance Analytics
+</h1>
+
+<div className="card">
+
+<h2 className="mb-4">
+Equity Curve
+</h2>
+
+<div style={{height:300}}>
+
+<ResponsiveContainer width="100%" height="100%">
+
+<LineChart data={equity}>
+
+<XAxis dataKey="trade"/>
+
+<YAxis/>
+
+<Tooltip/>
+
+<Line
+type="monotone"
+dataKey="equity"
+stroke="#3b82f6"
+strokeWidth={3}
+/>
+
+</LineChart>
+
+</ResponsiveContainer>
+
+</div>
+
+</div>
+
+</div>
+
+)
+
 }

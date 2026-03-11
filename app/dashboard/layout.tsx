@@ -1,3 +1,7 @@
+"use client"
+
+import Link from "next/link"
+
 export default function DashboardLayout({
   children,
 }: {
@@ -5,32 +9,48 @@ export default function DashboardLayout({
 }) {
   return (
 
-<div className="min-h-screen bg-bg text-white">
+    <div style={{ display: "flex", minHeight: "100vh" }}>
 
-<nav className="flex justify-between p-6 border-b border-border">
+      <aside
+        style={{
+          width: "220px",
+          background: "#020817",
+          borderRight: "1px solid #1e293b",
+          padding: "20px",
+          color: "white",
+        }}
+      >
 
-<h1 className="text-xl font-bold">
-Trader Journal
-</h1>
+        <h2 style={{ marginBottom: 20 }}>
+          Trader Journal
+        </h2>
 
-<div className="flex gap-6">
+        <nav style={{ display: "grid", gap: 12 }}>
 
-<a href="/dashboard">Dashboard</a>
-<a href="/dashboard/trades">Trades</a>
-<a href="/dashboard/analytics">Analytics</a>
-<a href="/dashboard/ai">AI Coach</a>
+          <Link href="/dashboard">Dashboard</Link>
 
-</div>
+          <Link href="/dashboard/trades">Trades</Link>
 
-</nav>
+          <Link href="/dashboard/analytics">Analytics</Link>
 
-<div className="container">
+          <Link href="/dashboard/ai-analysis">AI Analysis</Link>
 
-{children}
+          <Link href="/marketplace">Strategy Marketplace</Link>
 
-</div>
+          <Link href="/dashboard/publish-strategy">
+            Publish Strategy
+          </Link>
 
-</div>
+          <Link href="/profile">Trader Profile</Link>
 
+        </nav>
+
+      </aside>
+
+      <main style={{ flex: 1, background: "#020817" }}>
+        {children}
+      </main>
+
+    </div>
   )
 }

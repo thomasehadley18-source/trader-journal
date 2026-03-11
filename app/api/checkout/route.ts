@@ -1,39 +1,30 @@
-import { NextResponse } from "next/server"
 import Stripe from "stripe"
 
-export async function POST(req: Request) {
+const stripe=new Stripe(process.env.STRIPE_SECRET_KEY!)
 
-  const stripeKey = process.env.STRIPE_SECRET_KEY
+export async function POST(){
 
-  if (!stripeKey) {
-    return NextResponse.json({ error: "Stripe not configured" }, { status: 500 })
-  }
+const session=await stripe.checkout.sessions.create({
 
-  const stripe = new Stripe(stripeKey)
+payment_method_types:["card"],
 
-  try {
+mode:"subscription",
 
-    const { priceId } = await req.json()
+line_items:[{
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1
-        }
-      ],
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}`
-    })
+price:process.env.STRIPE_PRICE_ID,
+quantity:1
 
-    return NextResponse.json({ url: session.url })
+}],
 
-  } catch (err: any) {
+success_url:process.env.NEXT_PUBLIC_SITE_URL+"/dashboard",
 
-    return NextResponse.json({ error: err.message }, { status: 500 })
+cancel_url:process.env.NEXT_PUBLIC_SITE_URL+"/pricing"
 
-  }
+})
+
+return Response.json({
+url:session.url
+})
 
 }

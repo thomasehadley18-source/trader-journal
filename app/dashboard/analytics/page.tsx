@@ -2,92 +2,101 @@
 
 import { useEffect,useState } from "react"
 import { supabase } from "@/lib/supabase"
-import {
-LineChart,
-Line,
-XAxis,
-YAxis,
-Tooltip,
-ResponsiveContainer
-} from "recharts"
+import { analyzeSessions } from "@/lib/session-analytics"
+import { analyzePairs } from "@/lib/pair-analytics"
 
 export default function AnalyticsPage(){
 
-const [equity,setEquity]=useState<any[]>([])
+const [sessions,setSessions] = useState<any>({})
+const [pairs,setPairs] = useState<any>({})
 
-useEffect(()=>{load()},[])
+useEffect(()=>{
+load()
+},[])
 
 async function load(){
 
-const {data:{user}}=await supabase.auth.getUser()
+const {data:{user}} = await supabase.auth.getUser()
 
-if(!user)return
+if(!user) return
 
-const {data}=await supabase
+const {data} = await supabase
 .from("trades")
 .select("*")
 .eq("user_id",user.id)
-.order("trade_date",{ascending:true})
 
-let equityCurve=0
+const trades = data || []
 
-const chart:any[]=[]
-
-data?.forEach((t:any,i:number)=>{
-
-const pnl=Number(t.pnl ?? t.profit ?? 0)
-
-equityCurve+=pnl
-
-chart.push({
-trade:i+1,
-equity:equityCurve
-})
-
-})
-
-setEquity(chart)
+setSessions(analyzeSessions(trades))
+setPairs(analyzePairs(trades))
 
 }
 
 return(
 
-<div>
-
-<h1 className="text-3xl mb-6">
-Performance Analytics
-</h1>
+<div style={{display:"flex",flexDirection:"column",gap:30}}>
 
 <div className="card">
 
-<h2 className="mb-4">
-Equity Curve
-</h2>
+<h2>Session Performance</h2>
 
-<div style={{height:300}}>
+<table>
 
-<ResponsiveContainer width="100%" height="100%">
+<thead>
+<tr>
+<th>Session</th>
+<th>Wins</th>
+<th>Losses</th>
+<th>PnL</th>
+</tr>
+</thead>
 
-<LineChart data={equity}>
+<tbody>
 
-<XAxis dataKey="trade"/>
+{Object.entries(sessions).map(([s,v]:any)=>(
+<tr key={s}>
+<td>{s}</td>
+<td>{v.wins}</td>
+<td>{v.losses}</td>
+<td>{v.pnl}</td>
+</tr>
+))}
 
-<YAxis/>
+</tbody>
 
-<Tooltip/>
-
-<Line
-type="monotone"
-dataKey="equity"
-stroke="#3b82f6"
-strokeWidth={3}
-/>
-
-</LineChart>
-
-</ResponsiveContainer>
+</table>
 
 </div>
+
+<div className="card">
+
+<h2>Pair Performance</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Pair</th>
+<th>Wins</th>
+<th>Losses</th>
+<th>PnL</th>
+</tr>
+</thead>
+
+<tbody>
+
+{Object.entries(pairs).map(([p,v]:any)=>(
+<tr key={p}>
+<td>{p}</td>
+<td>{v.wins}</td>
+<td>{v.losses}</td>
+<td>{v.pnl}</td>
+</tr>
+))}
+
+</tbody>
+
+</table>
 
 </div>
 

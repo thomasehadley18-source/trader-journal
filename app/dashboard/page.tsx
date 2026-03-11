@@ -4,11 +4,14 @@ import { useEffect,useState } from "react"
 import { supabase } from "@/lib/supabase"
 import { calculatePerformance } from "@/lib/performance"
 import { calculateDrawdown } from "@/lib/drawdown"
+import { generateInsights } from "@/lib/insight-engine"
 import EquityChart from "@/components/charts/equity-chart"
 
 export default function DashboardPage(){
 
 const [trades,setTrades] = useState<any[]>([])
+const [insights,setInsights] = useState<string[]>([])
+
 const [stats,setStats] = useState({
 totalTrades:0,
 winRate:"0",
@@ -47,6 +50,8 @@ winRate:(perf.winRate*100).toFixed(1),
 expectancy:perf.expectancy.toFixed(2),
 maxDrawdown:dd.maxDrawdown.toFixed(2)
 })
+
+setInsights(generateInsights(trades))
 
 }
 
@@ -88,9 +93,23 @@ return(
 
 <div className="card">
 
-<h2 style={{marginBottom:20}}>Equity Curve</h2>
+<h2>Equity Curve</h2>
 
 <EquityChart trades={trades} />
+
+</div>
+
+<div className="card">
+
+<h2>Trading Insights</h2>
+
+<ul>
+
+{insights.map((i,index)=>(
+<li key={index}>{i}</li>
+))}
+
+</ul>
 
 </div>
 

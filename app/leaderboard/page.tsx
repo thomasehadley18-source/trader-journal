@@ -2,43 +2,66 @@
 
 import { useEffect,useState } from "react"
 import { supabase } from "@/lib/supabase"
-import EquityChart from "@/components/charts/equity-chart"
 
-export default function TraderPage({params}:any){
+export default function Leaderboard(){
 
-const [trades,setTrades] = useState<any[]>([])
+const [rows,setRows] = useState<any[]>([])
 
-useEffect(()=>{
-
-load()
-
-},[])
+useEffect(()=>{load()},[])
 
 async function load(){
 
 const {data} = await supabase
 .from("trades")
-.select("*")
-.eq("user_id",params.id)
-.order("trade_date",{ascending:true})
+.select("user_id,pnl")
 
-setTrades(data || [])
+const map:any={}
+
+data?.forEach(t=>{
+
+if(!map[t.user_id]) map[t.user_id]=0
+
+map[t.user_id]+=Number(t.pnl||0)
+
+})
+
+const sorted = Object.entries(map)
+.map(([u,pnl])=>({u,pnl}))
+.sort((a:any,b:any)=>b.pnl-a.pnl)
+
+setRows(sorted)
 
 }
 
 return(
 
-<div style={{display:"flex",flexDirection:"column",gap:30}}>
-
-<h1>Trader Profile</h1>
-
 <div className="card">
 
-<h2>Equity Curve</h2>
+<h1>Leaderboard</h1>
 
-<EquityChart trades={trades} />
+<table>
 
-</div>
+<thead>
+<tr>
+<th>Rank</th>
+<th>User</th>
+<th>PnL</th>
+</tr>
+</thead>
+
+<tbody>
+
+{rows.map((r,i)=>(
+<tr key={i}>
+<td>{i+1}</td>
+<td>{r.u}</td>
+<td>{r.pnl}</td>
+</tr>
+))}
+
+</tbody>
+
+</table>
 
 </div>
 

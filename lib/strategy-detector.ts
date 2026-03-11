@@ -1,37 +1,26 @@
-export function detectStrategies(trades:any[]) {
+export function detectStrategies(trades:any[]){
 
-const strategies:any = {}
+const map:any={}
 
-trades.forEach((t)=>{
+trades.forEach(t=>{
 
-const pair = t.pair || "unknown"
+const pair=t.pair||"unknown"
 
-if(!strategies[pair]){
+if(!map[pair]){
 
-strategies[pair]={
+map[pair]={
 pair,
 trades:0,
-wins:0,
-losses:0,
 pnl:0
 }
 
 }
 
-strategies[pair].trades++
-
-const pnl = Number(t.pnl || 0)
-
-strategies[pair].pnl += pnl
-
-if(pnl>0){
-strategies[pair].wins++
-}else{
-strategies[pair].losses++
-}
+map[pair].trades++
+map[pair].pnl+=Number(t.pnl||0)
 
 })
 
-return Object.values(strategies)
+return Object.values(map)
 
 }

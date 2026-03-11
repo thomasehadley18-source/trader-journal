@@ -18,19 +18,16 @@ color:"white"
 }}>
 
 <aside style={{
-width:"240px",
+width:"250px",
 padding:"24px",
 borderRight:"1px solid #1e293b"
 }}>
 
-<h2 style={{marginBottom:"24px"}}>
+<h2 style={{marginBottom:"28px"}}>
 Trader Journal
 </h2>
 
-<nav style={{
-display:"grid",
-gap:"14px"
-}}>
+<nav style={{display:"grid",gap:"14px"}}>
 
 <Link href="/dashboard">Dashboard</Link>
 
@@ -42,13 +39,13 @@ gap:"14px"
 
 <Link href="/dashboard/psychology">Psychology</Link>
 
-<Link href="/dashboard/ai">AI Coach</Link>
-
-<Link href="/dashboard/ai-analysis">AI Analysis</Link>
+<Link href="/dashboard/strategy-detection">Strategy Detection</Link>
 
 <Link href="/dashboard/institutional-analytics">Institutional Analytics</Link>
 
-<Link href="/dashboard/strategy-detection">Strategy Detection</Link>
+<Link href="/dashboard/ai">AI Coach</Link>
+
+<Link href="/dashboard/ai-analysis">AI Analysis</Link>
 
 <Link href="/dashboard/leaderboard">Leaderboard</Link>
 

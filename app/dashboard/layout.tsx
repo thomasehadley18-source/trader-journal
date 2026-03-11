@@ -46,6 +46,8 @@ gap:"14px"
 
 <Link href="/dashboard/strategy-detection">Strategy Detection</Link>
 
+<Link href="/dashboard/leaderboard">Leaderboard</Link>
+
 <Link href="/marketplace">Strategy Marketplace</Link>
 
 <Link href="/dashboard/publish-strategy">Publish Strategy</Link>

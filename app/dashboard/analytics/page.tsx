@@ -34,21 +34,23 @@ setPairs(analyzePairs(trades))
 
 return(
 
-<div style={{display:"flex",flexDirection:"column",gap:30}}>
+<div style={{display:"flex",flexDirection:"column",gap:40}}>
 
 <div className="card">
 
-<h2>Session Performance</h2>
+<h2 style={{marginBottom:20}}>Session Performance</h2>
 
 <table>
 
 <thead>
+
 <tr>
 <th>Session</th>
 <th>Wins</th>
 <th>Losses</th>
 <th>PnL</th>
 </tr>
+
 </thead>
 
 <tbody>
@@ -70,17 +72,19 @@ return(
 
 <div className="card">
 
-<h2>Pair Performance</h2>
+<h2 style={{marginBottom:20}}>Pair Performance</h2>
 
 <table>
 
 <thead>
+
 <tr>
 <th>Pair</th>
 <th>Wins</th>
 <th>Losses</th>
 <th>PnL</th>
 </tr>
+
 </thead>
 
 <tbody>

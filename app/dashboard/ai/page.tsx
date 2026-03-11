@@ -1,25 +1,34 @@
 "use client"
 
-import {useState} from "react"
+import { useState } from "react"
+import { supabase } from "@/lib/supabase"
 
-export default function AIPage(){
+export default function AICoach() {
 
-const [prompt,setPrompt]=useState("")
-const [response,setResponse]=useState("")
+const [question,setQuestion]=useState("")
+const [answer,setAnswer]=useState("")
 const [loading,setLoading]=useState(false)
 
-async function ask(){
+async function askAI(){
 
 setLoading(true)
 
-const res=await fetch("/api/ai/assistant",{
+const {data:{user}} = await supabase.auth.getUser()
+
+const res = await fetch("/api/ai/coach",{
 method:"POST",
-body:JSON.stringify({prompt})
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+question,
+userId:user?.id
+})
 })
 
-const data=await res.json()
+const data = await res.json()
 
-setResponse(data.answer)
+setAnswer(data.answer)
 
 setLoading(false)
 
@@ -27,43 +36,73 @@ setLoading(false)
 
 return(
 
-<div>
+<div style={{
+padding:"40px",
+color:"white",
+background:"#020817",
+minHeight:"100vh"
+}}>
 
-<h1 className="text-3xl mb-6">
+<h1 style={{
+fontSize:32,
+marginBottom:30
+}}>
 AI Trading Coach
 </h1>
 
-<div className="card">
+<div style={{
+maxWidth:"700px",
+display:"grid",
+gap:"16px"
+}}>
 
 <textarea
-className="w-full p-3 bg-bg border border-border rounded-lg"
-rows={5}
-value={prompt}
-onChange={e=>setPrompt(e.target.value)}
-placeholder="Analyze my last trades"
+placeholder="Ask anything about your trading..."
+value={question}
+onChange={(e)=>setQuestion(e.target.value)}
+style={{
+padding:"14px",
+borderRadius:"10px",
+border:"1px solid #1e293b",
+background:"#0f172a",
+color:"white",
+minHeight:"120px"
+}}
 />
 
 <button
-onClick={ask}
-className="mt-4 bg-primary px-4 py-2 rounded"
+onClick={askAI}
+style={{
+background:"#2563eb",
+padding:"12px",
+border:"none",
+borderRadius:"10px",
+color:"white",
+fontWeight:600
+}}
 >
-
-{loading?"Analyzing...":"Ask AI"}
-
+{loading ? "Analyzing..." : "Ask AI"}
 </button>
 
 </div>
 
-{response && (
+{answer && (
 
-<div className="card mt-6">
+<div style={{
+marginTop:40,
+maxWidth:"700px",
+background:"#0f172a",
+border:"1px solid #1e293b",
+padding:"24px",
+borderRadius:"12px"
+}}>
 
-<h2 className="mb-2">
-AI Insights
-</h2>
+<h3 style={{marginBottom:10}}>
+AI Response
+</h3>
 
-<p>
-{response}
+<p style={{whiteSpace:"pre-line"}}>
+{answer}
 </p>
 
 </div>

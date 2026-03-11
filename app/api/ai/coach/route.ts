@@ -1,62 +1,48 @@
 import { NextResponse } from "next/server"
-import OpenAI from "openai"
 
-export async function POST(req:Request){
+export async function POST(req: Request) {
 
-try{
+  try {
 
-const body = await req.json()
+    const body = await req.json()
+    const question = (body.question || "").toLowerCase()
 
-const question = body.question || ""
+    let answer = ""
 
-if(!process.env.OPENAI_API_KEY){
+    if(question.includes("drawdown")){
+      answer = "Your drawdown may be caused by risking too much per trade. Professional traders typically risk 0.5–1% per trade."
+    }
 
-return NextResponse.json({
-error:"OPENAI_API_KEY missing"
-})
+    else if(question.includes("win rate")){
+      answer = "Win rate alone does not determine profitability. A strategy with a lower win rate can still be profitable with strong risk-reward."
+    }
 
-}
+    else if(question.includes("revenge")){
+      answer = "Revenge trading usually occurs after losses. Implement a rule to stop trading for 15 minutes after a losing trade."
+    }
 
-const openai = new OpenAI({
-apiKey:process.env.OPENAI_API_KEY
-})
+    else if(question.includes("strategy")){
+      answer = "Your trading may follow a breakout structure. Consider reviewing entry timing and session volatility."
+    }
 
-const completion = await openai.chat.completions.create({
+    else if(question.includes("risk")){
+      answer = "Professional traders control drawdown by risking a small percentage of capital per trade."
+    }
 
-model:"gpt-4o-mini",
+    else{
+      answer = "Focus on consistency, risk control, and reviewing your trades regularly."
+    }
 
-messages:[
+    return NextResponse.json({
+      answer
+    })
 
-{
-role:"system",
-content:"You are a professional trading coach."
-},
+  } catch {
 
-{
-role:"user",
-content:question
-}
+    return NextResponse.json({
+      answer: "AI analysis temporarily unavailable."
+    })
 
-]
-
-})
-
-return NextResponse.json({
-
-answer:completion.choices[0].message.content
-
-})
-
-}catch(err:any){
-
-console.error("AI ERROR:",err)
-
-return NextResponse.json({
-
-error:err.message || "AI server error"
-
-})
-
-}
+  }
 
 }

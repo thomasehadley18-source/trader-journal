@@ -3,26 +3,22 @@ body {
   margin: 0;
   padding: 0;
   background: #020817;
-  color: white;
+  color: #ffffff;
   font-family: system-ui, sans-serif;
 }
 
 * {
   box-sizing: border-box;
+  color: inherit;
 }
 
-a {
-  color: #60a5fa;
-}
-
-input,
 textarea,
-select {
+input {
   background: #0f172a;
   border: 1px solid #1e293b;
-  color: white;
-  padding: 10px;
-  border-radius: 6px;
+  color: #ffffff;
+  padding: 12px;
+  border-radius: 8px;
 }
 
 button {
@@ -34,20 +30,15 @@ button {
   cursor: pointer;
 }
 
+button:hover {
+  background: #1d4ed8;
+}
+
 .card {
   background: #0f172a;
   border: 1px solid #1e293b;
-  border-radius: 12px;
   padding: 20px;
-}
-
-.grid {
-  display: grid;
-  gap: 20px;
-}
-
-.grid-4 {
-  grid-template-columns: repeat(4, 1fr);
+  border-radius: 12px;
 }
 
 .muted {

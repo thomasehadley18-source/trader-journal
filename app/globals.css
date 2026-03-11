@@ -7,46 +7,33 @@ body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 }
 
-/* force readable text everywhere */
-
 * {
   box-sizing: border-box;
-  color: #ffffff;
 }
-
-/* links */
 
 a {
-  color: #60a5fa;
-  text-decoration: none;
+  color: inherit;
 }
 
-/* inputs */
-
-input,
 textarea,
-select {
+input {
   background: #0f172a;
   border: 1px solid #1e293b;
-  color: #ffffff;
+  color: white;
   padding: 12px;
   border-radius: 8px;
-  font-size: 14px;
+  width: 100%;
 }
 
-/* fix placeholder color */
-
-input::placeholder,
-textarea::placeholder {
-  color: #94a3b8;
+textarea::placeholder,
+input::placeholder {
+  color: #64748b;
 }
-
-/* buttons */
 
 button {
   background: #2563eb;
   border: none;
-  color: #ffffff;
+  color: white;
   padding: 12px;
   border-radius: 8px;
   cursor: pointer;
@@ -56,35 +43,18 @@ button:hover {
   background: #1d4ed8;
 }
 
-/* cards */
-
 .card {
   background: #0f172a;
   border: 1px solid #1e293b;
-  padding: 20px;
   border-radius: 12px;
+  padding: 20px;
 }
 
-/* sidebar */
-
-.sidebar {
-  background: #020817;
-  border-right: 1px solid #1e293b;
+.grid {
+  display: grid;
+  gap: 20px;
 }
 
-.sidebar a {
-  display: block;
-  padding: 10px 14px;
-  color: #cbd5f5;
-}
-
-.sidebar a:hover {
-  background: #0f172a;
-  color: white;
-}
-
-/* muted text */
-
-.muted {
-  color: #94a3b8;
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
 }

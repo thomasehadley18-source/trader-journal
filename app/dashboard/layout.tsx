@@ -1,70 +1,117 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 export default function DashboardLayout({
-children,
-}:{
-children:React.ReactNode
-}){
+  children,
+}: {
+  children: React.ReactNode
+}) {
 
-return(
+  const pathname = usePathname()
 
-<div style={{
-display:"flex",
-minHeight:"100vh",
-background:"#020817",
-color:"white"
-}}>
+  const nav = [
+    { name: "Dashboard", href: "/dashboard" },
+    { name: "Trades", href: "/dashboard/trades" },
+    { name: "Analytics", href: "/dashboard/analytics" },
+    { name: "Equity", href: "/dashboard/equity" },
+    { name: "Psychology", href: "/dashboard/psychology" },
+    { name: "AI Coach", href: "/dashboard/ai" },
+    { name: "Leaderboard", href: "/dashboard/leaderboard" },
+    { name: "Strategy Market", href: "/dashboard/strategy-marketplace" },
+  ]
 
-<aside style={{
-width:"250px",
-padding:"24px",
-borderRight:"1px solid #1e293b"
-}}>
+  return (
 
-<h2 style={{marginBottom:"28px"}}>
-Trader Journal
-</h2>
+    <div style={{display:"flex",minHeight:"100vh",background:"#020817"}}>
 
-<nav style={{display:"grid",gap:"14px"}}>
+      {/* Sidebar */}
 
-<Link href="/dashboard">Dashboard</Link>
+      <aside
+        style={{
+          width:240,
+          borderRight:"1px solid #1e293b",
+          padding:20,
+          background:"#020817"
+        }}
+      >
 
-<Link href="/dashboard/trades">Trades</Link>
+        <h2 style={{marginBottom:30,fontSize:20,fontWeight:600}}>
+          Trader Journal
+        </h2>
 
-<Link href="/dashboard/analytics">Analytics</Link>
+        <nav style={{display:"flex",flexDirection:"column",gap:6}}>
 
-<Link href="/dashboard/equity">Equity Curve</Link>
+          {nav.map((item)=>{
 
-<Link href="/dashboard/psychology">Psychology</Link>
+            const active = pathname === item.href
 
-<Link href="/dashboard/strategy-detection">Strategy Detection</Link>
+            return (
 
-<Link href="/dashboard/institutional-analytics">Institutional Analytics</Link>
+              <Link
+                key={item.href}
+                href={item.href}
+                style={{
+                  padding:"10px 14px",
+                  borderRadius:8,
+                  textDecoration:"none",
+                  background: active ? "#0f172a" : "transparent",
+                  color: active ? "white" : "#94a3b8",
+                  fontSize:14
+                }}
+              >
 
-<Link href="/dashboard/ai">AI Coach</Link>
+                {item.name}
 
-<Link href="/dashboard/ai-analysis">AI Analysis</Link>
+              </Link>
 
-<Link href="/dashboard/leaderboard">Leaderboard</Link>
+            )
 
-<Link href="/marketplace">Strategy Marketplace</Link>
+          })}
 
-<Link href="/dashboard/publish-strategy">Publish Strategy</Link>
+        </nav>
 
-<Link href="/profile">Trader Profile</Link>
+      </aside>
 
-</nav>
+      {/* Main */}
 
-</aside>
+      <main style={{flex:1}}>
 
-<main style={{flex:1}}>
-{children}
-</main>
+        {/* Topbar */}
 
-</div>
+        <div
+          style={{
+            height:60,
+            borderBottom:"1px solid #1e293b",
+            display:"flex",
+            alignItems:"center",
+            justifyContent:"space-between",
+            padding:"0 30px",
+            background:"#020817"
+          }}
+        >
 
-)
+          <div style={{fontSize:18,fontWeight:600}}>
+            Trading Dashboard
+          </div>
+
+          <div style={{color:"#94a3b8"}}>
+            Logged In
+          </div>
+
+        </div>
+
+        {/* Page */}
+
+        <div style={{padding:30}}>
+          {children}
+        </div>
+
+      </main>
+
+    </div>
+
+  )
 
 }

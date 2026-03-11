@@ -2,16 +2,18 @@
 
 import { useEffect,useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { analyzeSessions } from "@/lib/session-analytics"
-import { analyzePairs } from "@/lib/pair-analytics"
+
+import EquityChart from "@/components/charts/equity-chart"
+import PnlHistogram from "@/components/charts/pnl-histogram"
 
 export default function AnalyticsPage(){
 
-const [sessions,setSessions] = useState<any>({})
-const [pairs,setPairs] = useState<any>({})
+const [trades,setTrades] = useState<any[]>([])
 
 useEffect(()=>{
+
 load()
+
 },[])
 
 async function load(){
@@ -24,83 +26,29 @@ const {data} = await supabase
 .from("trades")
 .select("*")
 .eq("user_id",user.id)
+.order("trade_date",{ascending:true})
 
-const trades = data || []
-
-setSessions(analyzeSessions(trades))
-setPairs(analyzePairs(trades))
+setTrades(data || [])
 
 }
 
 return(
 
-<div style={{display:"flex",flexDirection:"column",gap:40}}>
+<div style={{display:"flex",flexDirection:"column",gap:30}}>
 
 <div className="card">
 
-<h2 style={{marginBottom:20}}>Session Performance</h2>
+<h2>Equity Curve</h2>
 
-<table>
-
-<thead>
-
-<tr>
-<th>Session</th>
-<th>Wins</th>
-<th>Losses</th>
-<th>PnL</th>
-</tr>
-
-</thead>
-
-<tbody>
-
-{Object.entries(sessions).map(([s,v]:any)=>(
-<tr key={s}>
-<td>{s}</td>
-<td>{v.wins}</td>
-<td>{v.losses}</td>
-<td>{v.pnl}</td>
-</tr>
-))}
-
-</tbody>
-
-</table>
+<EquityChart trades={trades} />
 
 </div>
 
 <div className="card">
 
-<h2 style={{marginBottom:20}}>Pair Performance</h2>
+<h2>PnL Distribution</h2>
 
-<table>
-
-<thead>
-
-<tr>
-<th>Pair</th>
-<th>Wins</th>
-<th>Losses</th>
-<th>PnL</th>
-</tr>
-
-</thead>
-
-<tbody>
-
-{Object.entries(pairs).map(([p,v]:any)=>(
-<tr key={p}>
-<td>{p}</td>
-<td>{v.wins}</td>
-<td>{v.losses}</td>
-<td>{v.pnl}</td>
-</tr>
-))}
-
-</tbody>
-
-</table>
+<PnlHistogram trades={trades} />
 
 </div>
 

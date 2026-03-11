@@ -1,64 +1,42 @@
-import { createClient } from "@supabase/supabase-js"
+"use client"
 
-export default async function Leaderboard(){
+import { useEffect,useState } from "react"
+import { supabase } from "@/lib/supabase"
+import EquityChart from "@/components/charts/equity-chart"
 
-const supabase=createClient(
-process.env.NEXT_PUBLIC_SUPABASE_URL!,
-process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+export default function TraderPage({params}:any){
 
-const {data}=await supabase
+const [trades,setTrades] = useState<any[]>([])
+
+useEffect(()=>{
+
+load()
+
+},[])
+
+async function load(){
+
+const {data} = await supabase
 .from("trades")
-.select("user_id,pnl")
+.select("*")
+.eq("user_id",params.id)
+.order("trade_date",{ascending:true})
 
-const map:any={}
+setTrades(data || [])
 
-data?.forEach((t:any)=>{
-
-const pnl=Number(t.pnl ?? 0)
-
-if(!map[t.user_id])map[t.user_id]=0
-
-map[t.user_id]+=pnl
-
-})
-
-const leaderboard=Object.entries(map)
-.sort((a:any,b:any)=>b[1]-a[1])
+}
 
 return(
 
-<div className="container">
+<div style={{display:"flex",flexDirection:"column",gap:30}}>
 
-<h1 className="text-4xl mb-6">
-Trader Leaderboard
-</h1>
+<h1>Trader Profile</h1>
 
 <div className="card">
 
-<table className="w-full">
+<h2>Equity Curve</h2>
 
-<thead>
-<tr>
-<th>Rank</th>
-<th>User</th>
-<th>PnL</th>
-</tr>
-</thead>
-
-<tbody>
-
-{leaderboard.map((u:any,i:number)=>(
-<tr key={i}>
-<td>{i+1}</td>
-<td>{u[0]}</td>
-<td>{u[1]}</td>
-</tr>
-))}
-
-</tbody>
-
-</table>
+<EquityChart trades={trades} />
 
 </div>
 

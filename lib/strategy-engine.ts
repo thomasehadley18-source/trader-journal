@@ -1,31 +1,30 @@
-export function analyzeStrategies(trades:any[]){
+export function analyzeStrategies(trades:any[]) {
 
-const map:any = {}
+const strategies:any = {}
 
-trades.forEach(t=>{
+trades.forEach(t => {
 
 const tag = t.strategy_tag || "Unknown"
 
-if(!map[tag]){
-
-map[tag] = {
+if(!strategies[tag]) {
+strategies[tag] = {
 wins:0,
 losses:0,
 pnl:0
 }
-
 }
 
-map[tag].pnl += Number(t.pnl || 0)
+const pnl = Number(t.pnl || 0)
 
-if(Number(t.pnl) > 0){
-map[tag].wins++
-}else{
-map[tag].losses++
-}
+strategies[tag].pnl += pnl
+
+if(pnl > 0)
+strategies[tag].wins++
+else
+strategies[tag].losses++
 
 })
 
-return map
+return strategies
 
 }

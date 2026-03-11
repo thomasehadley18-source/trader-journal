@@ -1,28 +1,22 @@
-type TradeLike = {
-  pnl?: number | null
-  profit?: number | null
-}
+export function calculateDrawdown(trades:any[]) {
 
-export function calculateDrawdown(trades: TradeLike[]) {
-  let equity = 0
-  let peak = 0
-  let maxDrawdown = 0
+let equity = 0
+let peak = 0
+let maxDrawdown = 0
 
-  for (const trade of trades) {
-    const value = Number(trade.pnl ?? trade.profit ?? 0)
-    equity += value
+trades.forEach(t => {
 
-    if (equity > peak) {
-      peak = equity
-    }
+equity += Number(t.pnl || 0)
 
-    const drawdown = peak - equity
-    if (drawdown > maxDrawdown) {
-      maxDrawdown = drawdown
-    }
-  }
+if(equity > peak) peak = equity
 
-  return {
-    maxDrawdown,
-  }
+const drawdown = peak - equity
+
+if(drawdown > maxDrawdown)
+maxDrawdown = drawdown
+
+})
+
+return { maxDrawdown }
+
 }

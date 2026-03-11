@@ -1,20 +1,46 @@
 export const forexPairs = [
-"EURUSD","GBPUSD","USDJPY","AUDUSD","USDCAD","USDCHF","NZDUSD",
-"EURGBP","EURJPY","GBPJPY","AUDJPY","EURCAD","EURAUD"
+  "EURUSD","GBPUSD","USDJPY","USDCHF","USDCAD","AUDUSD","NZDUSD",
+  "EURGBP","EURJPY","EURCHF","EURCAD","EURAUD","EURNZD",
+  "GBPJPY","GBPCHF","GBPCAD","GBPAUD","GBPNZD",
+  "AUDJPY","AUDCHF","AUDCAD","AUDNZD",
+  "NZDJPY","NZDCHF","NZDCAD",
+  "CADJPY","CADCHF",
+  "CHFJPY",
+  "EURSEK","EURNOK","EURDKK","USDSEK","USDNOK","USDMXN","USDZAR",
+  "USDTRY","USDHKD","USDSGD","USDPLN","USDHUF","USDCNH",
+  "EURPLN","EURHUF","EURTRY","GBPSEK","GBPNOK","AUDSGD","NZDSGD"
 ]
 
 export const cryptoPairs = [
-"BTCUSD","ETHUSD","SOLUSD","BNBUSD","XRPUSD","ADAUSD"
+  "BTCUSD","ETHUSD","SOLUSD","BNBUSD","XRPUSD","ADAUSD","DOGEUSD",
+  "AVAXUSD","DOTUSD","LINKUSD","LTCUSD","BCHUSD","MATICUSD",
+  "ATOMUSD","NEARUSD","APTUSD","OPUSD","ARBUSD","ETCUSD",
+  "FILUSD","ICPUSD","TRXUSD","XLMUSD","UNIUSD","AAVEUSD",
+  "SUIUSD","PEPEUSD","SHIBUSD","TONUSD","INJUSD","RNDRUSD"
 ]
 
-export const commodities = [
-"XAUUSD","XAGUSD","WTI","BRENT","NATGAS"
+export const commoditiesPairs = [
+  "XAUUSD","XAGUSD","XPTUSD","XPDUSD",
+  "WTI","BRENT","NATGAS","GASOLINE","HEATINGOIL",
+  "COPPER","ALUMINUM","NICKEL","ZINC",
+  "WHEAT","CORN","SOYBEAN","COFFEE","SUGAR","COCOA","COTTON"
 ]
 
-export const futures = [
-"ES","NQ","YM","CL","GC","SI"
+export const futuresPairs = [
+  "ES","MES","NQ","MNQ","YM","MYM","RTY","M2K",
+  "CL","MCL","NG","QG","GC","MGC","SI","SIL",
+  "HG","ZC","ZW","ZS","KE","LE","HE",
+  "6E","6B","6J","6A","6C","6N","DX","VX",
+  "ZN","ZF","ZB","UB"
 ]
 
-export const stocks = [
-"AAPL","MSFT","TSLA","NVDA","AMZN","META","GOOGL"
+export const stocksPairs = [
+  "AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","NFLX","AMD","INTC",
+  "PLTR","COIN","MSTR","SMCI","AVGO","CRM","ORCL","ADBE","QCOM","CSCO",
+  "SHOP","UBER","LYFT","SNOW","ARM","RDDT","MU","IBM","BA","GE",
+  "JPM","BAC","GS","MS","V","MA","PYPL","SQ","AXP","WFC",
+  "XOM","CVX","OXY","SLB","COP",
+  "WMT","COST","TGT","HD","LOW","NKE","SBUX","MCD","DIS",
+  "PFE","JNJ","LLY","MRK","ABBV","UNH","CVS",
+  "SPY","QQQ","IWM","DIA","ARKK","XLF","XLK","XLE","SMH","SOXX"
 ]

@@ -1,95 +1,112 @@
 "use client"
 
-import { useState } from "react"
-
+import { useMemo, useState } from "react"
 import {
-forexPairs,
-cryptoPairs,
-commodities,
-futures,
-stocks
+  forexPairs,
+  cryptoPairs,
+  commoditiesPairs,
+  futuresPairs,
+  stocksPairs,
 } from "@/lib/asset-lists"
 
-export default function TradesPage(){
+export default function TradesPage() {
+  const [assetClass, setAssetClass] = useState("Forex")
+  const [pair, setPair] = useState(forexPairs[0])
 
-const [tab,setTab] = useState("Forex")
+  const options = useMemo(() => {
+    if (assetClass === "Forex") return forexPairs
+    if (assetClass === "Crypto") return cryptoPairs
+    if (assetClass === "Commodities") return commoditiesPairs
+    if (assetClass === "Futures") return futuresPairs
+    return stocksPairs
+  }, [assetClass])
 
-let pairs:any = forexPairs
+  function changeTab(tab: string) {
+    setAssetClass(tab)
 
-if(tab==="Crypto") pairs = cryptoPairs
-if(tab==="Commodities") pairs = commodities
-if(tab==="Futures") pairs = futures
-if(tab==="Stocks") pairs = stocks
+    if (tab === "Forex") setPair(forexPairs[0])
+    if (tab === "Crypto") setPair(cryptoPairs[0])
+    if (tab === "Commodities") setPair(commoditiesPairs[0])
+    if (tab === "Futures") setPair(futuresPairs[0])
+    if (tab === "Stocks") setPair(stocksPairs[0])
+  }
 
-return(
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <h1 style={{ margin: 0, color: "white" }}>Trades</h1>
 
-<div style={{display:"flex",flexDirection:"column",gap:20}}>
+      <div className="card">
+        <h3 style={{ marginTop: 0, marginBottom: 16, color: "white" }}>Asset Class</h3>
 
-<h1>Trades</h1>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          {["Forex", "Crypto", "Commodities", "Futures", "Stocks"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => changeTab(tab)}
+              style={{
+                background: assetClass === tab ? "#2563eb" : "#0f172a",
+                border: "1px solid #1e293b",
+              }}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+      </div>
 
-{/* asset tabs */}
+      <div className="card" style={{ maxWidth: 700 }}>
+        <h3 style={{ marginTop: 0, marginBottom: 16, color: "white" }}>Add Trade</h3>
 
-<div style={{display:"flex",gap:10}}>
+        <div style={{ display: "grid", gap: 14 }}>
+          <div>
+            <label className="muted">Pair / Symbol</label>
+            <select value={pair} onChange={(e) => setPair(e.target.value)}>
+              {options.map((symbol) => (
+                <option key={symbol} value={symbol}>
+                  {symbol}
+                </option>
+              ))}
+            </select>
+          </div>
 
-{["Forex","Crypto","Commodities","Futures","Stocks"].map(t=>(
-<button
-key={t}
-onClick={()=>setTab(t)}
-style={{
-background:tab===t?"#2563eb":"#0f172a"
-}}
->
-{t}
-</button>
-))}
+          <div>
+            <label className="muted">Side</label>
+            <select defaultValue="Buy">
+              <option value="Buy">Buy</option>
+              <option value="Sell">Sell</option>
+            </select>
+          </div>
 
-</div>
+          <div>
+            <label className="muted">Entry</label>
+            <input type="number" placeholder="Enter entry price" />
+          </div>
 
-{/* pair dropdown */}
+          <div>
+            <label className="muted">Exit</label>
+            <input type="number" placeholder="Enter exit price" />
+          </div>
 
-<div className="card">
+          <div>
+            <label className="muted">Lot Size / Quantity</label>
+            <input type="number" placeholder="1.00" />
+          </div>
 
-<label className="muted">
-Select Pair
-</label>
+          <div>
+            <label className="muted">Notes</label>
+            <textarea rows={4} placeholder="Trade notes..." />
+          </div>
 
-<select>
+          <button>Add Trade</button>
+        </div>
+      </div>
 
-{pairs.map((p:string)=>(
-<option key={p}>{p}</option>
-))}
-
-</select>
-
-</div>
-
-{/* trade form */}
-
-<div className="card">
-
-<h3>Add Trade</h3>
-
-<div style={{display:"grid",gap:10}}>
-
-<input placeholder="Entry price"/>
-
-<input placeholder="Exit price"/>
-
-<input placeholder="Lot size"/>
-
-<select>
-<option>Buy</option>
-<option>Sell</option>
-</select>
-
-<button>Add Trade</button>
-
-</div>
-
-</div>
-
-</div>
-
-)
-
+      <div className="card">
+        <h3 style={{ marginTop: 0, color: "white" }}>Selected Instrument</h3>
+        <p style={{ marginBottom: 0 }}>
+          {assetClass} — <strong>{pair}</strong>
+        </p>
+      </div>
+    </div>
+  )
 }

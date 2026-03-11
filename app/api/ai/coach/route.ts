@@ -1,56 +1,60 @@
 import { NextResponse } from "next/server"
 import OpenAI from "openai"
 
-export async function POST(req: Request) {
+export async function POST(req:Request){
 
-try {
+try{
 
 const body = await req.json()
 
-const question = body.question
+const question = body.question || ""
 
-if (!question) {
-return NextResponse.json({ error: "No question provided" })
-}
+if(!process.env.OPENAI_API_KEY){
 
-if (!process.env.OPENAI_API_KEY) {
 return NextResponse.json({
-error: "OPENAI_API_KEY missing"
+error:"OPENAI_API_KEY missing"
 })
+
 }
 
 const openai = new OpenAI({
-apiKey: process.env.OPENAI_API_KEY
+apiKey:process.env.OPENAI_API_KEY
 })
 
 const completion = await openai.chat.completions.create({
 
-model: "gpt-4o-mini",
+model:"gpt-4o-mini",
 
-messages: [
+messages:[
+
 {
-role: "system",
-content:
-"You are an expert trading coach helping traders improve their discipline and strategy."
+role:"system",
+content:"You are a professional trading coach."
 },
+
 {
-role: "user",
-content: question
+role:"user",
+content:question
 }
+
 ]
 
 })
 
 return NextResponse.json({
-answer: completion.choices[0].message.content
+
+answer:completion.choices[0].message.content
+
 })
 
-} catch (err: any) {
+}catch(err:any){
 
-console.error("OPENAI ERROR:", err)
+console.error("AI ERROR:",err)
 
 return NextResponse.json({
-error: err.message || "unknown error"
+
+error:err.message || "AI server error"
+
 })
 
 }

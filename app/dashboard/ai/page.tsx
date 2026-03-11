@@ -1,34 +1,43 @@
 "use client"
 
 import { useState } from "react"
-import { supabase } from "@/lib/supabase"
 
-export default function AICoach() {
+export default function AIPage(){
 
-const [question,setQuestion]=useState("")
-const [answer,setAnswer]=useState("")
-const [loading,setLoading]=useState(false)
+const [question,setQuestion] = useState("")
+const [answer,setAnswer] = useState("")
+const [loading,setLoading] = useState(false)
 
 async function askAI(){
 
 setLoading(true)
+setAnswer("")
 
-const {data:{user}} = await supabase.auth.getUser()
+try{
 
 const res = await fetch("/api/ai/coach",{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
 },
-body:JSON.stringify({
-question,
-userId:user?.id
-})
+body:JSON.stringify({question})
 })
 
 const data = await res.json()
 
+if(data.answer){
 setAnswer(data.answer)
+}else if(data.error){
+setAnswer("ERROR: " + data.error)
+}else{
+setAnswer("AI returned no response.")
+}
+
+}catch(err){
+
+setAnswer("Failed to reach AI server.")
+
+}
 
 setLoading(false)
 
@@ -36,74 +45,51 @@ setLoading(false)
 
 return(
 
-<div style={{
-padding:"40px",
-color:"white",
-background:"#020817",
-minHeight:"100vh"
-}}>
+<div style={{padding:40,color:"white"}}>
 
-<h1 style={{
-fontSize:32,
-marginBottom:30
-}}>
+<h1 style={{fontSize:30,marginBottom:20}}>
 AI Trading Coach
 </h1>
 
-<div style={{
-maxWidth:"700px",
-display:"grid",
-gap:"16px"
-}}>
-
 <textarea
-placeholder="Ask anything about your trading..."
 value={question}
 onChange={(e)=>setQuestion(e.target.value)}
+placeholder="Ask something about your trading..."
 style={{
-padding:"14px",
-borderRadius:"10px",
-border:"1px solid #1e293b",
+width:"100%",
+height:120,
+padding:12,
 background:"#0f172a",
-color:"white",
-minHeight:"120px"
+border:"1px solid #1e293b",
+borderRadius:8,
+marginBottom:15
 }}
 />
 
 <button
 onClick={askAI}
 style={{
-background:"#2563eb",
-padding:"12px",
-border:"none",
-borderRadius:"10px",
-color:"white",
-fontWeight:600
+width:"100%",
+padding:14,
+background:"#3b82f6",
+borderRadius:8
 }}
 >
 {loading ? "Analyzing..." : "Ask AI"}
 </button>
 
-</div>
-
 {answer && (
 
 <div style={{
-marginTop:40,
-maxWidth:"700px",
+marginTop:20,
 background:"#0f172a",
-border:"1px solid #1e293b",
-padding:"24px",
-borderRadius:"12px"
+padding:20,
+borderRadius:10
 }}>
 
-<h3 style={{marginBottom:10}}>
-AI Response
-</h3>
+<h3 style={{marginBottom:10}}>AI Response</h3>
 
-<p style={{whiteSpace:"pre-line"}}>
-{answer}
-</p>
+<p>{answer}</p>
 
 </div>
 

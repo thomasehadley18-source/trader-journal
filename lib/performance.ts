@@ -1,21 +1,18 @@
-export function calculatePerformance(trades: any[]) {
-  const wins = trades.filter((t) => Number(t.pnl) > 0)
-  const losses = trades.filter((t) => Number(t.pnl) < 0)
+type TradeLike = {
+  pnl?: number | null
+  profit?: number | null
+}
 
-  const winRate = trades.length ? wins.length / trades.length : 0
+export function calculatePerformance(trades: TradeLike[]) {
+  const values = trades.map((t) => Number(t.pnl ?? t.profit ?? 0))
 
-  const avgWin =
-    wins.reduce((sum, t) => sum + Number(t.pnl), 0) / (wins.length || 1)
-
-  const avgLoss =
-    losses.reduce((sum, t) => sum + Number(t.pnl), 0) / (losses.length || 1)
-
-  const expectancy = winRate * avgWin + (1 - winRate) * avgLoss
+  const totalTrades = values.length
+  const winningTrades = values.filter((v) => v > 0).length
+  const totalProfit = values.reduce((sum, v) => sum + v, 0)
 
   return {
-    winRate,
-    avgWin,
-    avgLoss,
-    expectancy,
+    totalTrades,
+    winRate: totalTrades ? winningTrades / totalTrades : 0,
+    expectancy: totalTrades ? totalProfit / totalTrades : 0,
   }
 }

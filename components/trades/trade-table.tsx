@@ -1,10 +1,16 @@
 "use client"
 
-export default function TradeTable({ trades }:any){
+import ScreenshotUpload from "./screenshot-upload"
+
+export default function TradesTable({ trades }:any){
 
 return(
 
-<table style={{width:"100%"}}>
+<div className="card">
+
+<h2 style={{marginBottom:20}}>Trade History</h2>
+
+<table>
 
 <thead>
 
@@ -14,7 +20,7 @@ return(
 <th>Entry</th>
 <th>Exit</th>
 <th>PnL</th>
-<th>Date</th>
+<th>Screenshot</th>
 </tr>
 
 </thead>
@@ -22,19 +28,28 @@ return(
 <tbody>
 
 {trades.map((t:any)=>(
+
 <tr key={t.id}>
+
 <td>{t.symbol}</td>
 <td>{t.side}</td>
 <td>{t.entry}</td>
 <td>{t.exit}</td>
 <td>{t.pnl}</td>
-<td>{new Date(t.trade_date).toLocaleDateString()}</td>
+
+<td>
+<ScreenshotUpload tradeId={t.id} />
+</td>
+
 </tr>
+
 ))}
 
 </tbody>
 
 </table>
+
+</div>
 
 )
 

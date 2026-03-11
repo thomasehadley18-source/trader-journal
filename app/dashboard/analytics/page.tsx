@@ -3,12 +3,19 @@
 import { useEffect,useState } from "react"
 import { supabase } from "@/lib/supabase"
 
+import { analyzeSessions } from "@/lib/session-analytics"
+import { analyzePairs } from "@/lib/pair-analytics"
+
 import EquityChart from "@/components/charts/equity-chart"
-import PnlHistogram from "@/components/charts/pnl-histogram"
+import SessionHeatmap from "@/components/charts/session-heatmap"
+import PairPerformance from "@/components/charts/pair-performance"
+import MonthlyPerformance from "@/components/charts/monthly-performance"
 
 export default function AnalyticsPage(){
 
 const [trades,setTrades] = useState<any[]>([])
+const [sessions,setSessions] = useState<any>({})
+const [pairs,setPairs] = useState<any>({})
 
 useEffect(()=>{
 
@@ -28,13 +35,18 @@ const {data} = await supabase
 .eq("user_id",user.id)
 .order("trade_date",{ascending:true})
 
-setTrades(data || [])
+const trades = data || []
+
+setTrades(trades)
+
+setSessions(analyzeSessions(trades))
+setPairs(analyzePairs(trades))
 
 }
 
 return(
 
-<div style={{display:"flex",flexDirection:"column",gap:30}}>
+<div style={{display:"flex",flexDirection:"column",gap:40}}>
 
 <div className="card">
 
@@ -46,9 +58,25 @@ return(
 
 <div className="card">
 
-<h2>PnL Distribution</h2>
+<h2>Session Heatmap</h2>
 
-<PnlHistogram trades={trades} />
+<SessionHeatmap sessions={sessions} />
+
+</div>
+
+<div className="card">
+
+<h2>Pair Performance</h2>
+
+<PairPerformance pairs={pairs} />
+
+</div>
+
+<div className="card">
+
+<h2>Monthly Performance</h2>
+
+<MonthlyPerformance trades={trades} />
 
 </div>
 

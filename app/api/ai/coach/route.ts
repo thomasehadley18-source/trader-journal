@@ -1,4 +1,5 @@
-import OpenAI from "openai"
+import { NextResponse } from "next/server"
+import { openai } from "@/lib/openai"
 
 export async function POST(req: Request) {
 
@@ -8,42 +9,42 @@ const body = await req.json()
 
 const question = body.question || ""
 
-if (!process.env.OPENAI_API_KEY) {
-return Response.json({
-answer: "OpenAI API key missing."
+if (!question) {
+return NextResponse.json({
+answer: "Ask a trading question."
 })
 }
-
-const openai = new OpenAI({
-apiKey: process.env.OPENAI_API_KEY
-})
 
 const completion = await openai.chat.completions.create({
 
 model: "gpt-4o-mini",
 
 messages: [
+
 {
 role: "system",
-content: "You are an expert trading coach helping traders improve discipline, risk management and strategy."
+content:
+"You are a professional trading coach helping traders improve discipline, risk management, and strategy."
 },
+
 {
 role: "user",
 content: question
 }
+
 ]
 
 })
 
-return Response.json({
+return NextResponse.json({
 answer: completion.choices[0].message.content
 })
 
-} catch (err) {
+} catch (error) {
 
-console.error(err)
+console.error("AI ERROR:", error)
 
-return Response.json({
+return NextResponse.json({
 answer: "AI request failed."
 })
 

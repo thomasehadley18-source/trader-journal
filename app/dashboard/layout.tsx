@@ -40,6 +40,8 @@ gap:"14px"
 
 <Link href="/dashboard/equity">Equity Curve</Link>
 
+<Link href="/dashboard/psychology">Psychology</Link>
+
 <Link href="/dashboard/ai">AI Coach</Link>
 
 <Link href="/dashboard/ai-analysis">AI Analysis</Link>

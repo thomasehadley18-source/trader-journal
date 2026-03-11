@@ -4,57 +4,86 @@ import { useState } from "react"
 
 export default function TradeReplay({ trades }: any) {
 
-  const [index,setIndex] = useState(0)
+const [index,setIndex] = useState(0)
 
-  if(!trades || trades.length===0)
-    return <div>No trades</div>
+if(!trades || trades.length === 0){
 
-  const trade = trades[index]
+return(
 
-  return (
+<div className="card">
+No trades to replay
+</div>
 
-    <div className="border rounded p-4 space-y-3">
+)
 
-      <h3 className="font-medium">
-        Trade Replay
-      </h3>
+}
 
-      <div>
-        Pair: {trade.pair}
-      </div>
+const trade = trades[index]
 
-      <div>
-        Entry: {trade.entry}
-      </div>
+function next(){
 
-      <div>
-        Exit: {trade.exit}
-      </div>
+if(index < trades.length - 1){
+setIndex(index + 1)
+}
 
-      <div>
-        PnL: {trade.pnl}
-      </div>
+}
 
-      <div className="flex gap-2">
+function prev(){
 
-        <button
-          className="border px-3 py-1 rounded"
-          disabled={index===0}
-          onClick={()=>setIndex(index-1)}
-        >
-          Prev
-        </button>
+if(index > 0){
+setIndex(index - 1)
+}
 
-        <button
-          className="border px-3 py-1 rounded"
-          disabled={index===trades.length-1}
-          onClick={()=>setIndex(index+1)}
-        >
-          Next
-        </button>
+}
 
-      </div>
+return(
 
-    </div>
-  )
+<div className="card">
+
+<h2 style={{marginBottom:20}}>Trade Replay</h2>
+
+<div style={{display:"grid",gap:10}}>
+
+<div>
+<strong>Pair:</strong> {trade.symbol}
+</div>
+
+<div>
+<strong>Side:</strong> {trade.side}
+</div>
+
+<div>
+<strong>Entry:</strong> {trade.entry}
+</div>
+
+<div>
+<strong>Exit:</strong> {trade.exit}
+</div>
+
+<div>
+<strong>PnL:</strong> {trade.pnl}
+</div>
+
+<div>
+<strong>Date:</strong> {new Date(trade.trade_date).toLocaleString()}
+</div>
+
+</div>
+
+<div style={{display:"flex",gap:10,marginTop:20}}>
+
+<button onClick={prev}>
+Previous
+</button>
+
+<button onClick={next}>
+Next
+</button>
+
+</div>
+
+</div>
+
+)
+
 }

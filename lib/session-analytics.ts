@@ -1,29 +1,43 @@
-export function analyzeSessions(trades:any[]) {
+export function generateSessionStats(trades:any[]) {
 
 const sessions:any = {
 Asia:{wins:0,losses:0,pnl:0},
 London:{wins:0,losses:0,pnl:0},
-NewYork:{wins:0,losses:0,pnl:0}
+"New York":{wins:0,losses:0,pnl:0}
 }
 
-trades.forEach(t=>{
+trades.forEach(t => {
 
-const hour = new Date(t.trade_date).getUTCHours()
+const s = t.session || "Asia"
 
-let session="NewYork"
+if(t.pnl > 0){
+sessions[s].wins++
+}else{
+sessions[s].losses++
+}
 
-if(hour>=0 && hour<7) session="Asia"
-else if(hour>=7 && hour<13) session="London"
-
-const pnl = Number(t.pnl||0)
-
-sessions[session].pnl += pnl
-
-if(pnl>0) sessions[session].wins++
-else sessions[session].losses++
+sessions[s].pnl += Number(t.pnl)
 
 })
 
-return sessions
+return Object.keys(sessions).map(session => {
+
+const s = sessions[session]
+
+const total = s.wins + s.losses
+
+const winRate = total
+? ((s.wins / total) * 100).toFixed(1)
+: 0
+
+return {
+session,
+wins:s.wins,
+losses:s.losses,
+winRate,
+pnl:s.pnl
+}
+
+})
 
 }

@@ -1,36 +1,47 @@
-export function analyzeStrategies(trades:any[]) {
+export function generateStrategyStats(trades:any[]) {
 
 const strategies:any = {}
 
-trades.forEach(t=>{
+trades.forEach(t => {
 
-const strat = t.strategy || "Uncategorized"
+const strategy = t.strategy || "Manual"
 
-if(!strategies[strat]){
-
-strategies[strat] = {
+if(!strategies[strategy]){
+strategies[strategy] = {
 wins:0,
 losses:0,
-pnl:0,
-trades:0
+pnl:0
+}
 }
 
-}
-
-strategies[strat].trades++
-
-const pnl = Number(t.pnl || 0)
-
-strategies[strat].pnl += pnl
-
-if(pnl > 0){
-strategies[strat].wins++
+if(t.pnl > 0){
+strategies[strategy].wins++
 }else{
-strategies[strat].losses++
+strategies[strategy].losses++
 }
+
+strategies[strategy].pnl += Number(t.pnl)
 
 })
 
-return strategies
+return Object.keys(strategies).map(strategy => {
+
+const s = strategies[strategy]
+
+const total = s.wins + s.losses
+
+const winRate = total
+? ((s.wins / total) * 100).toFixed(1)
+: 0
+
+return {
+strategy,
+wins:s.wins,
+losses:s.losses,
+winRate,
+pnl:s.pnl
+}
+
+})
 
 }

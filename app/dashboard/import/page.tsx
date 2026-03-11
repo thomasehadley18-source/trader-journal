@@ -1,55 +1,51 @@
 "use client"
 
-import {useState} from "react"
+import { useState } from "react"
+import { supabase } from "@/lib/supabase"
+import { parseBrokerCSV } from "@/lib/broker-import"
 
 export default function ImportPage(){
 
-const [file,setFile]=useState<File|null>(null)
-const [message,setMessage]=useState("")
+const [file,setFile] = useState<File|null>(null)
 
 async function upload(){
 
-if(!file)return
+if(!file) return
 
-const form=new FormData()
-form.append("file",file)
+const text = await file.text()
 
-const res=await fetch("/api/import/mt4",{
-method:"POST",
-body:form
-})
+const trades = parseBrokerCSV(text)
 
-const data=await res.json()
+const {data:{user}} = await supabase.auth.getUser()
 
-setMessage(data.message)
+await supabase
+.from("trades")
+.insert(
+trades.map(t=>({
+...t,
+user_id:user?.id
+}))
+)
+
+alert("Trades imported")
 
 }
 
 return(
 
-<div>
+<div style={{padding:40}}>
 
-<h1 className="text-3xl mb-6">
-Import Trades
-</h1>
-
-<div className="card">
+<h1>Import Trades</h1>
 
 <input
 type="file"
-onChange={e=>setFile(e.target.files?.[0]||null)}
+accept=".csv"
+onChange={(e)=>setFile(e.target.files?.[0] || null)}
 />
 
-<button
-className="mt-4 bg-primary px-4 py-2 rounded"
-onClick={upload}
->
-Import MT4 / MT5 CSV
+<button onClick={upload}>
+Import CSV
 </button>
-
-<p className="mt-4">{message}</p>
-
-</div>
 
 </div>
 

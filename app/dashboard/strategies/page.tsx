@@ -1,59 +1,97 @@
 "use client"
 
-import {useState} from "react"
-import {supabase} from "@/lib/supabase"
+import { useEffect,useState } from "react"
+import { supabase } from "@/lib/supabase"
 
-export default function Strategies(){
+export default function StrategiesPage(){
 
-const [title,setTitle]=useState("")
-const [desc,setDesc]=useState("")
+const [strategies,setStrategies] = useState<any[]>([])
 
-async function publish(){
+const [form,setForm] = useState({
+name:"",
+description:"",
+rules:""
+})
 
-const {data:{user}}=await supabase.auth.getUser()
+useEffect(()=>{
+load()
+},[])
 
-await supabase.from("strategies").insert({
+async function load(){
+
+const {data} = await supabase
+.from("strategies")
+.select("*")
+.order("created_at",{ascending:false})
+
+setStrategies(data || [])
+
+}
+
+async function create(){
+
+const {data:{user}} = await supabase.auth.getUser()
+
+await supabase
+.from("strategies")
+.insert({
 
 user_id:user?.id,
-title,
-description:desc
+
+name:form.name,
+
+description:form.description,
+
+rules:form.rules
 
 })
 
-alert("Strategy published")
+load()
 
 }
 
 return(
 
-<div>
+<div style={{padding:40,maxWidth:800}}>
 
-<h1 className="text-3xl mb-6">
-Publish Strategy
-</h1>
+<h1>Strategy Library</h1>
 
-<div className="card">
+<h2>Create Strategy</h2>
 
 <input
 placeholder="Strategy Name"
-value={title}
-onChange={e=>setTitle(e.target.value)}
+onChange={(e)=>setForm({...form,name:e.target.value})}
 />
 
 <textarea
-placeholder="Strategy description"
-value={desc}
-onChange={e=>setDesc(e.target.value)}
+placeholder="Description"
+onChange={(e)=>setForm({...form,description:e.target.value})}
 />
 
-<button
-className="mt-4 bg-primary px-4 py-2 rounded"
-onClick={publish}
->
-Publish Strategy
+<textarea
+placeholder="Rules"
+onChange={(e)=>setForm({...form,rules:e.target.value})}
+/>
+
+<button onClick={create}>
+Create Strategy
 </button>
 
+<h2 style={{marginTop:40}}>Community Strategies</h2>
+
+{strategies.map((s:any)=>(
+
+<div key={s.id} className="card">
+
+<h3>{s.name}</h3>
+
+<p>{s.description}</p>
+
+<pre>{s.rules}</pre>
+
 </div>
+
+))}
 
 </div>
 

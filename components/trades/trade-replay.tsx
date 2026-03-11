@@ -1,86 +1,33 @@
 "use client"
 
-import { useState } from "react"
+import TradeChart from "@/components/charts/trade-chart"
 
-export default function TradeReplay({ trades }: any) {
+export default function TradeReplay({trade}:any){
 
-const [index,setIndex] = useState(0)
-
-if(!trades || trades.length === 0){
+if(!trade) return null
 
 return(
 
-<div className="card">
-No trades to replay
-</div>
+<div
+style={{
+border:"1px solid #1e293b",
+borderRadius:10,
+padding:20,
+marginTop:20
+}}
+>
 
-)
+<h3>Trade Replay</h3>
 
-}
+<p>Pair: {trade.symbol}</p>
 
-const trade = trades[index]
+<p>Entry: {trade.entry}</p>
 
-function next(){
+<p>Exit: {trade.exit}</p>
 
-if(index < trades.length - 1){
-setIndex(index + 1)
-}
+<p>PnL: {trade.pnl}</p>
 
-}
-
-function prev(){
-
-if(index > 0){
-setIndex(index - 1)
-}
-
-}
-
-return(
-
-<div className="card">
-
-<h2 style={{marginBottom:20}}>Trade Replay</h2>
-
-<div style={{display:"grid",gap:10}}>
-
-<div>
-<strong>Pair:</strong> {trade.symbol}
-</div>
-
-<div>
-<strong>Side:</strong> {trade.side}
-</div>
-
-<div>
-<strong>Entry:</strong> {trade.entry}
-</div>
-
-<div>
-<strong>Exit:</strong> {trade.exit}
-</div>
-
-<div>
-<strong>PnL:</strong> {trade.pnl}
-</div>
-
-<div>
-<strong>Date:</strong> {new Date(trade.trade_date).toLocaleString()}
-</div>
-
-</div>
-
-<div style={{display:"flex",gap:10,marginTop:20}}>
-
-<button onClick={prev}>
-Previous
-</button>
-
-<button onClick={next}>
-Next
-</button>
-
-</div>
+<TradeChart trade={trade}/>
 
 </div>
 

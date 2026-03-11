@@ -9,44 +9,42 @@ Tooltip,
 ResponsiveContainer
 } from "recharts"
 
-export default function EquityChart({ trades }:any){
-
-let equity = 0
-
-const data = trades.map((t:any)=>{
-
-equity += Number(t.pnl || 0)
-
-return {
-date:new Date(t.trade_date).toLocaleDateString(),
-equity
-}
-
-})
+export default function EquityChart({data}:any){
 
 return(
 
-<ResponsiveContainer width="100%" height={300}>
+<div
+style={{
+width:"100%",
+height:400,
+background:"#020817",
+padding:20,
+borderRadius:10
+}}
+>
+
+<ResponsiveContainer width="100%" height="100%">
 
 <LineChart data={data}>
 
-<XAxis dataKey="date" hide />
+<XAxis dataKey="trade"/>
 
-<YAxis />
+<YAxis/>
 
-<Tooltip />
+<Tooltip/>
 
 <Line
 type="monotone"
 dataKey="equity"
-stroke="#3b82f6"
-strokeWidth={3}
-dot={false}
+stroke="#22c55e"
+strokeWidth={2}
 />
 
 </LineChart>
 
 </ResponsiveContainer>
+
+</div>
 
 )
 

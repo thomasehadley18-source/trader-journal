@@ -1,144 +1,146 @@
 "use client"
 
-import { useEffect,useState } from "react"
+import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { LineChart,Line,XAxis,YAxis,Tooltip,ResponsiveContainer } from "recharts"
+import { calculatePerformance } from "@/lib/performance"
+import { calculateDrawdown } from "@/lib/drawdown"
 
-export default function DashboardPage(){
+export default function DashboardPage() {
 
-const [stats,setStats]=useState({
- trades:0,
- winRate:0,
- expectancy:0,
- drawdown:0
-})
+  const [stats,setStats] = useState({
+    totalTrades:0,
+    winRate:"0",
+    expectancy:"0",
+    maxDrawdown:"0"
+  })
 
-const [equity,setEquity]=useState<any[]>([])
-const [email,setEmail]=useState("")
+  const [loading,setLoading] = useState(true)
 
-useEffect(()=>{load()},[])
+  useEffect(()=>{
+    load()
+  },[])
 
-async function load(){
+  async function load(){
 
-const {data:{user}}=await supabase.auth.getUser()
-if(!user)return
-setEmail(user.email||"")
+    const {
+      data:{user}
+    } = await supabase.auth.getUser()
 
-const {data}=await supabase
-.from("trades")
-.select("*")
-.eq("user_id",user.id)
-.order("trade_date",{ascending:true})
+    if(!user){
+      setLoading(false)
+      return
+    }
 
-const trades=data||[]
+    const {data} = await supabase
+      .from("trades")
+      .select("*")
+      .eq("user_id",user.id)
+      .order("trade_date",{ascending:true})
 
-let equityCurve=0
-let wins=0
+    const trades = data || []
 
-const chart:any[]=[]
+    const perf = calculatePerformance(trades)
+    const dd = calculateDrawdown(trades)
 
-trades.forEach((t:any,i:number)=>{
- const pnl=Number(t.pnl ?? t.profit ?? 0)
+    setStats({
+      totalTrades:trades.length,
+      winRate:(perf.winRate * 100).toFixed(1),
+      expectancy:perf.expectancy.toFixed(2),
+      maxDrawdown:dd.maxDrawdown.toFixed(2)
+    })
 
- equityCurve+=pnl
+    setLoading(false)
 
- if(pnl>0)wins++
+  }
 
- chart.push({
-   trade:i+1,
-   equity:equityCurve
- })
-})
+  if(loading){
+    return <div>Loading dashboard...</div>
+  }
 
-setEquity(chart)
+  return (
 
-setStats({
- trades:trades.length,
- winRate:trades.length?((wins/trades.length)*100):0,
- expectancy:trades.length?(equityCurve/trades.length):0,
- drawdown:0
-})
+    <div style={{display:"flex",flexDirection:"column",gap:30}}>
 
-}
+      {/* Stats Row */}
 
-return(
+      <div
+        style={{
+          display:"grid",
+          gridTemplateColumns:"repeat(4,1fr)",
+          gap:20
+        }}
+      >
 
-<div>
+        <div className="card">
+          <div style={{color:"#94a3b8"}}>Total Trades</div>
+          <div style={{fontSize:30,fontWeight:700}}>
+            {stats.totalTrades}
+          </div>
+        </div>
 
-<div className="navbar">
-<h1>Trader Journal</h1>
+        <div className="card">
+          <div style={{color:"#94a3b8"}}>Win Rate</div>
+          <div style={{fontSize:30,fontWeight:700}}>
+            {stats.winRate}%
+          </div>
+        </div>
 
-<div className="nav-links">
-<a href="/dashboard">Dashboard</a>
-<a href="/dashboard/trades">Trades</a>
-<a href="/dashboard/analytics">Analytics</a>
-</div>
+        <div className="card">
+          <div style={{color:"#94a3b8"}}>Expectancy</div>
+          <div style={{fontSize:30,fontWeight:700}}>
+            {stats.expectancy}
+          </div>
+        </div>
 
-</div>
+        <div className="card">
+          <div style={{color:"#94a3b8"}}>Max Drawdown</div>
+          <div style={{fontSize:30,fontWeight:700}}>
+            {stats.maxDrawdown}
+          </div>
+        </div>
 
-<div className="container">
+      </div>
 
-<h1 style={{fontSize:34}}>Trader Dashboard</h1>
-<p style={{opacity:.7}}>Logged in as {email}</p>
+      {/* Equity Chart Placeholder */}
 
-<div className="grid-4" style={{marginTop:20}}>
+      <div className="card">
 
-<div className="card">
-<div>Total Trades</div>
-<h2>{stats.trades}</h2>
-</div>
+        <h2 style={{marginBottom:20}}>Equity Curve</h2>
 
-<div className="card">
-<div>Win Rate</div>
-<h2>{stats.winRate.toFixed(1)}%</h2>
-</div>
+        <div
+          style={{
+            height:250,
+            display:"flex",
+            alignItems:"center",
+            justifyContent:"center",
+            color:"#94a3b8"
+          }}
+        >
+          Equity chart will render here
+        </div>
 
-<div className="card">
-<div>Expectancy</div>
-<h2>{stats.expectancy.toFixed(2)}</h2>
-</div>
+      </div>
 
-<div className="card">
-<div>Max Drawdown</div>
-<h2>{stats.drawdown}</h2>
-</div>
+      {/* Insights */}
 
-</div>
+      <div className="card">
 
-<div className="card" style={{marginTop:40}}>
+        <h2 style={{marginBottom:15}}>Trading Insights</h2>
 
-<h2>Equity Curve</h2>
+        <ul style={{color:"#94a3b8",lineHeight:1.8}}>
 
-<div style={{height:300}}>
+          <li>Your win rate is {stats.winRate}%</li>
 
-<ResponsiveContainer width="100%" height="100%">
+          <li>Maximum drawdown recorded: {stats.maxDrawdown}</li>
 
-<LineChart data={equity}>
+          <li>Expectancy per trade: {stats.expectancy}</li>
 
-<XAxis dataKey="trade" stroke="#94a3b8"/>
-<YAxis stroke="#94a3b8"/>
+        </ul>
 
-<Tooltip/>
+      </div>
 
-<Line
-type="monotone"
-dataKey="equity"
-stroke="#3b82f6"
-strokeWidth={3}
-/>
+    </div>
 
-</LineChart>
-
-</ResponsiveContainer>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-)
+  )
 
 }

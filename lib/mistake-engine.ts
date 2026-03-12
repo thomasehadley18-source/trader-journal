@@ -1,39 +1,47 @@
 export function detectMistakes(trades:any[]){
 
-let revenge=0
-let badRR=0
+const mistakes:string[]=[]
 
-for(let i=1;i<trades.length;i++){
+if(trades.length===0) return mistakes
 
-const prev=trades[i-1]
-const curr=trades[i]
+let lossesInRow=0
+let highRiskTrades=0
 
-const prevLoss=prev.pnl<0
+trades.forEach((t,i)=>{
 
-const diff=
-Math.abs(
-new Date(curr.trade_date).getTime()-
-new Date(prev.trade_date).getTime()
-)
+const pnl=Number(t.pnl||0)
+const risk=Number(t.risk||0)
 
-if(prevLoss && diff<600000){
-revenge++
+if(pnl<0) lossesInRow++
+else lossesInRow=0
+
+if(lossesInRow>=3){
+mistakes.push("Possible revenge trading detected (3+ losses in a row)")
 }
 
-const rr=
-Math.abs(curr.entry-curr.exit)
+if(risk>2){
+highRiskTrades++
+}
 
-if(rr<0.0005){
-badRR++
+if(i>0){
+
+const prev=new Date(trades[i-1].trade_date).getTime()
+const curr=new Date(t.trade_date).getTime()
+
+const diff=(curr-prev)/60000
+
+if(diff<2){
+mistakes.push("Overtrading detected (multiple trades within 2 minutes)")
 }
 
 }
 
-return{
+})
 
-revenge,
-badRR
-
+if(highRiskTrades>=3){
+mistakes.push("High risk usage detected (risk above 2R multiple times)")
 }
+
+return [...new Set(mistakes)]
 
 }

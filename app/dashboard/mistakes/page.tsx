@@ -4,9 +4,9 @@ import {useEffect,useState} from "react"
 import {supabase} from "@/lib/supabase"
 import {detectMistakes} from "@/lib/mistake-engine"
 
-export default function MistakePage(){
+export default function MistakesPage(){
 
-const [data,setData]=useState<any>(null)
+const [mistakes,setMistakes]=useState<string[]>([])
 
 useEffect(()=>{
 load()
@@ -16,28 +16,35 @@ async function load(){
 
 const {data:{user}}=await supabase.auth.getUser()
 
-if(!user)return
-
 const {data}=await supabase
 .from("trades")
 .select("*")
-.eq("user_id",user.id)
+.eq("user_id",user?.id)
+.order("trade_date",{ascending:true})
 
-setData(detectMistakes(data||[]))
+const m=detectMistakes(data||[])
+
+setMistakes(m)
 
 }
 
-if(!data)return <div>Loading...</div>
-
 return(
 
-<div style={{padding:40}}>
+<div>
 
 <h1>Trading Mistakes</h1>
 
-<p>Revenge Trades: {data.revenge}</p>
+{mistakes.length===0 && (
+<p>No major issues detected.</p>
+)}
 
-<p>Bad Risk Reward: {data.badRR}</p>
+<ul>
+
+{mistakes.map((m,i)=>(
+<li key={i}>{m}</li>
+))}
+
+</ul>
 
 </div>
 

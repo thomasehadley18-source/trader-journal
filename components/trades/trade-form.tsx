@@ -1,164 +1,53 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { supabase } from "@/lib/supabase"
-import InstrumentSelect from "@/components/trades/instrument-select"
+import { useState } from "react"
+import { INSTRUMENTS } from "@/lib/instruments"
 
-export default function TradeForm({
-  onAdded,
-}: {
-  onAdded?: () => void
-}) {
-  const [symbol, setSymbol] = useState("")
-  const [side, setSide] = useState("LONG")
-  const [entry, setEntry] = useState("")
-  const [exit, setExit] = useState("")
-  const [strategy, setStrategy] = useState("")
-  const [notes, setNotes] = useState("")
-  const [file, setFile] = useState<File | null>(null)
-  const [saving, setSaving] = useState(false)
+export default function InstrumentSelect({
+value,
+onChange
+}:{value:string,onChange:(v:string)=>void}){
 
-  const preview = useMemo(() => {
-    if (!file) return ""
-    return URL.createObjectURL(file)
-  }, [file])
+const [category,setCategory]=useState("Forex")
 
-  async function submit() {
-    setSaving(true)
+const list = INSTRUMENTS[category as keyof typeof INSTRUMENTS]
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      setSaving(false)
-      return
-    }
+return(
 
-    const entryNum = Number(entry)
-    const exitNum = Number(exit)
+<div>
 
-    const pnl =
-      side === "LONG"
-        ? exitNum - entryNum
-        : entryNum - exitNum
+<select
+value={category}
+onChange={e=>setCategory(e.target.value)}
+>
 
-    const { data: inserted, error } = await supabase
-      .from("trades")
-      .insert({
-        user_id: user.id,
-        symbol,
-        side,
-        entry: entryNum,
-        exit: exitNum,
-        pnl,
-        strategy: strategy || null,
-        notes: notes || null,
-        trade_date: new Date().toISOString(),
-      })
-      .select()
-      .single()
+{Object.keys(INSTRUMENTS).map(c=>(
+<option key={c}>{c}</option>
+))}
 
-    if (!error && inserted && file) {
-      const path = `${inserted.id}/${Date.now()}-${file.name}`
+</select>
 
-      const upload = await supabase.storage
-        .from("trade-screenshots")
-        .upload(path, file)
+<select
+value={value}
+onChange={e=>onChange(e.target.value)}
+>
 
-      if (!upload.error) {
-        const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/trade-screenshots/${path}`
+<option value="">Select Pair</option>
 
-        await supabase
-          .from("trades")
-          .update({ screenshot_url: url })
-          .eq("id", inserted.id)
-      }
-    }
+{list.map(p=>(
+<option key={p}>{p}</option>
+))}
 
-    setSymbol("")
-    setSide("LONG")
-    setEntry("")
-    setExit("")
-    setStrategy("")
-    setNotes("")
-    setFile(null)
-    setSaving(false)
+</select>
 
-    if (onAdded) onAdded()
-  }
+<input
+placeholder="or type pair"
+value={value}
+onChange={e=>onChange(e.target.value.toUpperCase())}
+/>
 
-  return (
-    <div className="card" style={{ marginBottom: 24 }}>
-      <h2 style={{ marginTop: 0 }}>Add Trade</h2>
+</div>
 
-      <div className="grid-2">
-        <div>
-          <label className="muted">Instrument</label>
-          <InstrumentSelect value={symbol} onChange={setSymbol} />
-        </div>
+)
 
-        <div>
-          <label className="muted">Side</label>
-          <select value={side} onChange={(e) => setSide(e.target.value)}>
-            <option value="LONG">LONG</option>
-            <option value="SHORT">SHORT</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="muted">Entry</label>
-          <input
-            value={entry}
-            onChange={(e) => setEntry(e.target.value)}
-            placeholder="Entry"
-          />
-        </div>
-
-        <div>
-          <label className="muted">Exit</label>
-          <input
-            value={exit}
-            onChange={(e) => setExit(e.target.value)}
-            placeholder="Exit"
-          />
-        </div>
-
-        <div>
-          <label className="muted">Strategy</label>
-          <input
-            value={strategy}
-            onChange={(e) => setStrategy(e.target.value)}
-            placeholder="Breakout / Reversal / etc."
-          />
-        </div>
-
-        <div>
-          <label className="muted">Upload Chart</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-          />
-        </div>
-      </div>
-
-      <div style={{ marginTop: 16 }}>
-        <label className="muted">Notes</label>
-        <textarea
-          rows={4}
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Trade notes"
-        />
-      </div>
-
-      {preview && (
-        <div style={{ marginTop: 16 }}>
-          <img src={preview} alt="Preview" className="image-preview" />
-        </div>
-      )}
-
-      <button onClick={submit} style={{ marginTop: 16 }}>
-        {saving ? "Saving..." : "Save Trade"}
-      </button>
-    </div>
-  )
 }

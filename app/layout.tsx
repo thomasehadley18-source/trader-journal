@@ -1,38 +1,28 @@
-"use client"
+import "./globals.css"
 
-import Link from "next/link"
-import Sidebar from "@/components/dashboard/sidebar"
+export const metadata = {
+  title: "Trader Journal",
+  description: "Professional trading journal platform"
+}
 
-const mobileLinks = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/dashboard/trades", label: "Trades" },
-  { href: "/dashboard/analytics", label: "Analytics" },
-  { href: "/dashboard/equity", label: "Equity" },
-  { href: "/dashboard/risk", label: "Risk" },
-  { href: "/dashboard/prop-firms", label: "Prop Firms" },
-  { href: "/marketplace", label: "Strategy Market" },
-]
-
-export default function DashboardLayout({
-  children,
+export default function RootLayout({
+  children
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <div className="page-wrap">
-      <Sidebar />
 
-      <main className="main-shell">
-        <div className="mobile-nav">
-          {mobileLinks.map((link) => (
-            <Link key={link.href} href={link.href}>
-              {link.label}
-            </Link>
-          ))}
-        </div>
+return (
 
-        {children}
-      </main>
-    </div>
-  )
+<html lang="en">
+
+<body className="bg-slate-950 text-slate-200">
+
+{children}
+
+</body>
+
+</html>
+
+)
+
 }

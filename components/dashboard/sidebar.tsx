@@ -21,6 +21,8 @@ const links=[
 {href:"/dashboard/strategy-builder",label:"Strategy Builder"},
 {href:"/strategy-marketplace",label:"Strategy Market"},
 
+{href:"/copy-trading",label:"Copy Trading"},
+
 {href:"/leaderboard",label:"Leaderboard"},
 {href:"/feed",label:"Trader Feed"},
 {href:"/profile",label:"Profile"}

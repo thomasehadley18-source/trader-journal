@@ -1,63 +1,34 @@
-export function generateEquityCurve(trades: any[]) {
+export function generateEquityCurve(trades:any[]){
 
-let equity = 0
+let balance=0
+let peak=0
+let maxDrawdown=0
 
-const curve: any[] = []
+const curve = trades.map(t=>{
 
-trades.forEach((t, i) => {
+balance += Number(t.pnl || 0)
 
-const pnl = Number(t.pnl || 0)
-
-equity += pnl
-
-curve.push({
-trade: i + 1,
-equity
-})
-
-})
-
-return curve
-
+if(balance > peak){
+peak = balance
 }
 
-export function calculateMaxDrawdown(trades: any[]) {
+const drawdown = peak - balance
 
-let peak = 0
-let equity = 0
-let maxDD = 0
-
-trades.forEach(t => {
-
-equity += Number(t.pnl || 0)
-
-if (equity > peak) {
-peak = equity
+if(drawdown > maxDrawdown){
+maxDrawdown = drawdown
 }
 
-const dd = peak - equity
-
-if (dd > maxDD) {
-maxDD = dd
+return{
+date:t.trade_date,
+balance,
+drawdown
 }
 
 })
 
-return maxDD
-
-}
-
-export function calculateWinLoss(trades: any[]) {
-
-const wins = trades.filter(t => Number(t.pnl) > 0).length
-const losses = trades.filter(t => Number(t.pnl) <= 0).length
-
-const winRate = wins / (trades.length || 1)
-
-return {
-wins,
-losses,
-winRate
+return{
+curve,
+maxDrawdown
 }
 
 }

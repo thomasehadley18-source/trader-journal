@@ -1,12 +1,13 @@
 "use client"
 
-import { useEffect,useState } from "react"
-import { supabase } from "@/lib/supabase"
-import EquityChart from "@/components/charts/equity-chart"
+import {useEffect,useState} from "react"
+import {supabase} from "@/lib/supabase"
+import {generateEquityCurve} from "@/lib/equity-engine"
 
-export default function EquityPage(){
+export default function Equity(){
 
-const [data,setData] = useState<any[]>([])
+const [curve,setCurve]=useState<any[]>([])
+const [drawdown,setDrawdown]=useState(0)
 
 useEffect(()=>{
 load()
@@ -14,40 +15,60 @@ load()
 
 async function load(){
 
-const {data:{user}} = await supabase.auth.getUser()
+const {data:{user}}=await supabase.auth.getUser()
 
-if(!user) return
-
-const {data} = await supabase
+const {data}=await supabase
 .from("trades")
 .select("*")
-.eq("user_id",user.id)
-.order("trade_date",{ascending:true})
+.eq("user_id",user?.id)
+.order("trade_date")
 
-let equity = 0
+const result=generateEquityCurve(data||[])
 
-const chart = (data || []).map((t,i)=>{
-
-equity += Number(t.pnl || 0)
-
-return{
-trade:i+1,
-equity
-}
-
-})
-
-setData(chart)
+setCurve(result.curve)
+setDrawdown(result.maxDrawdown)
 
 }
 
 return(
 
-<div style={{padding:40}}>
+<div>
 
 <h1>Equity Curve</h1>
 
-<EquityChart data={data}/>
+<div className="card">
+
+<h3>Max Drawdown</h3>
+
+<p>{drawdown.toFixed(2)}</p>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Date</th>
+<th>Balance</th>
+<th>Drawdown</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{curve.map(c=>(
+<tr key={c.date}>
+<td>{c.date}</td>
+<td>{c.balance.toFixed(2)}</td>
+<td>{c.drawdown.toFixed(2)}</td>
+</tr>
+))}
+
+</tbody>
+
+</table>
 
 </div>
 

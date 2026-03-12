@@ -1,41 +1,57 @@
 "use client"
 
-import {useState} from "react"
-import {supabase} from "@/lib/supabase"
-import {parseMT4,parseMT5,parseNinja} from "@/lib/trade-import-parser"
+import { useState } from "react"
 
-export default function ImportTrades(){
+export default function ImportPage(){
 
-const [platform,setPlatform]=useState("MT4")
-const [file,setFile]=useState<File|null>(null)
+const [loading,setLoading]=useState(false)
 const [message,setMessage]=useState("")
 
-async function importTrades(){
+async function importMT4(){
 
-if(!file)return
+setLoading(true)
 
-const {data:{user}}=await supabase.auth.getUser()
+const res=await fetch("/api/import/mt4",{
+method:"POST"
+})
 
-if(!user)return
+const data=await res.json()
 
-const text=await file.text()
+setMessage(data.message || "MT4 Import Complete")
 
-let trades:any[]=[]
+setLoading(false)
 
-if(platform==="MT4") trades=parseMT4(text)
-if(platform==="MT5") trades=parseMT5(text)
-if(platform==="NinjaTrader") trades=parseNinja(text)
+}
 
-await supabase.from("trades").insert(
+async function importMT5(){
 
-trades.map(t=>({
-...t,
-user_id:user.id
-}))
+setLoading(true)
 
-)
+const res=await fetch("/api/import/mt5",{
+method:"POST"
+})
 
-setMessage(`Imported ${trades.length} trades`)
+const data=await res.json()
+
+setMessage(data.message || "MT5 Import Complete")
+
+setLoading(false)
+
+}
+
+async function connectMyFxBook(){
+
+setLoading(true)
+
+const res=await fetch("/api/import/myfxbook-connect",{
+method:"POST"
+})
+
+const data=await res.json()
+
+setMessage(data.message || "MyFxBook Connected")
+
+setLoading(false)
 
 }
 
@@ -43,36 +59,55 @@ return(
 
 <div>
 
-<h1>Import Trades</h1>
+<h1>Broker Import</h1>
+
+<div className="grid-3">
 
 <div className="card">
 
-<label>Platform</label>
+<h3>MT4 Import</h3>
 
-<select
-value={platform}
-onChange={e=>setPlatform(e.target.value)}
->
+<p>Import trades from MetaTrader 4</p>
 
-<option>MT4</option>
-<option>MT5</option>
-<option>NinjaTrader</option>
-
-</select>
-
-<input
-type="file"
-accept=".csv"
-onChange={e=>setFile(e.target.files?.[0]||null)}
-/>
-
-<button onClick={importTrades}>
-Import Trades
+<button onClick={importMT4} disabled={loading}>
+Import MT4
 </button>
 
-{message && <p>{message}</p>}
+</div>
+
+<div className="card">
+
+<h3>MT5 Import</h3>
+
+<p>Import trades from MetaTrader 5</p>
+
+<button onClick={importMT5} disabled={loading}>
+Import MT5
+</button>
 
 </div>
+
+<div className="card">
+
+<h3>MyFxBook</h3>
+
+<p>Connect MyFxBook account</p>
+
+<button onClick={connectMyFxBook} disabled={loading}>
+Connect MyFxBook
+</button>
+
+</div>
+
+</div>
+
+{message && (
+
+<div className="card" style={{marginTop:20}}>
+{message}
+</div>
+
+)}
 
 </div>
 

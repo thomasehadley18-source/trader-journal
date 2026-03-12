@@ -6,7 +6,7 @@ import {buildCalendar} from "@/lib/calendar-engine"
 
 export default function CalendarPage(){
 
-const [days,setDays]=useState<any>({})
+const [days,setDays]=useState<any[]>([])
 
 useEffect(()=>{
 load()
@@ -16,28 +16,58 @@ async function load(){
 
 const {data:{user}}=await supabase.auth.getUser()
 
-if(!user)return
-
 const {data}=await supabase
 .from("trades")
 .select("*")
-.eq("user_id",user.id)
+.eq("user_id",user?.id)
 
-setDays(buildCalendar(data||[]))
+const calendar=buildCalendar(data||[])
+
+setDays(calendar)
 
 }
 
 return(
 
-<div style={{padding:40}}>
+<div>
 
-<h1>Trade Calendar</h1>
+<h1>Trading Calendar</h1>
 
-{Object.entries(days).map(([d,p]:any)=>(
-<div key={d}>
-{d} : {p}
+<div className="grid-4">
+
+{days.map(day=>{
+
+const color=
+day.pnl>0
+? "#064e3b"
+: day.pnl<0
+? "#7f1d1d"
+: "#1e293b"
+
+return(
+
+<div
+key={day.date}
+style={{
+background:color,
+padding:20,
+borderRadius:10
+}}
+>
+
+<div>{day.date}</div>
+
+<div>Trades: {day.trades}</div>
+
+<div>PnL: {day.pnl.toFixed(2)}</div>
+
 </div>
-))}
+
+)
+
+})}
+
+</div>
 
 </div>
 

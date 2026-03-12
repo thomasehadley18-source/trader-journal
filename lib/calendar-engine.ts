@@ -1,19 +1,28 @@
 export function buildCalendar(trades:any[]){
 
-const days:any={}
+const map:Record<string,{pnl:number,trades:number}>={}
 
 trades.forEach(t=>{
 
-const date=new Date(t.trade_date).toISOString().split("T")[0]
+const day=new Date(t.trade_date)
+.toISOString()
+.split("T")[0]
 
-if(!days[date]){
-days[date]=0
+if(!map[day]){
+map[day]={pnl:0,trades:0}
 }
 
-days[date]+=Number(t.pnl||0)
+map[day].pnl+=Number(t.pnl||0)
+map[day].trades++
 
 })
 
-return days
+return Object.entries(map).map(([date,data])=>({
+
+date,
+pnl:data.pnl,
+trades:data.trades
+
+}))
 
 }

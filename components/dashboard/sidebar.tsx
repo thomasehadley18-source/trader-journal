@@ -10,6 +10,7 @@ const links=[
 {href:"/dashboard/analytics",label:"Analytics"},
 {href:"/dashboard/trade-replay",label:"Trade Replay"},
 {href:"/dashboard/ai-mistakes",label:"AI Mistakes"},
+{href:"/dashboard/prop-firms",label:"Prop Firm Analytics"},
 {href:"/dashboard/equity",label:"Equity Curve"},
 {href:"/dashboard/risk",label:"Risk Analytics"},
 

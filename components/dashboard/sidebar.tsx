@@ -4,19 +4,23 @@ import Link from "next/link"
 
 const links=[
 
-["Dashboard","/dashboard"],
-["Trades","/dashboard/trades"],
-["Calendar","/dashboard/calendar"],
-["Session Analytics","/dashboard/session"],
-["Risk Dashboard","/dashboard/risk"],
-["Trade Streaks","/dashboard/streaks"],
-["Mistake Detection","/dashboard/mistakes"],
-["AI Strategy","/dashboard/ai-strategy"],
-["AI Trade Score","/dashboard/trade-score"],
-["AI Advisor","/dashboard/ai-advisor"],
-["Trade Replay","/dashboard/replay"],
-["Screenshots","/dashboard/screenshots"],
-["Chart Overlay","/dashboard/overlay"]
+{href:"/dashboard",label:"Dashboard"},
+{href:"/dashboard/trades",label:"Trades"},
+{href:"/dashboard/import",label:"Import Trades"},
+{href:"/dashboard/analytics",label:"Analytics"},
+{href:"/dashboard/equity",label:"Equity Curve"},
+{href:"/dashboard/risk",label:"Risk Analytics"},
+
+{href:"/dashboard/ai",label:"AI Coach"},
+{href:"/dashboard/trade-review",label:"AI Trade Review"},
+{href:"/dashboard/strategy-intelligence",label:"Strategy Intelligence"},
+
+{href:"/dashboard/strategy-builder",label:"Strategy Builder"},
+{href:"/strategy-marketplace",label:"Strategy Market"},
+
+{href:"/leaderboard",label:"Leaderboard"},
+{href:"/feed",label:"Trader Feed"},
+{href:"/profile",label:"Profile"}
 
 ]
 
@@ -24,33 +28,19 @@ export default function Sidebar(){
 
 return(
 
-<div style={{
+<aside className="sidebar">
 
-width:230,
-height:"100vh",
-background:"#020817",
-borderRight:"1px solid #1e293b",
-padding:20,
-display:"flex",
-flexDirection:"column",
-gap:12,
-position:"fixed",
-left:0,
-top:0
+<div className="sidebar-title">
+Trader Journal
+</div>
 
-}}>
-
-<h2 style={{marginBottom:20}}>Trader Journal</h2>
-
-{links.map(([name,url])=>(
-
-<Link key={url} href={url}>
-{name}
+{links.map(link=>(
+<Link key={link.href} href={link.href} className="sidebar-link">
+{link.label}
 </Link>
-
 ))}
 
-</div>
+</aside>
 
 )
 

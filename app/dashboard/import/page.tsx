@@ -1,91 +1,81 @@
 "use client"
 
-import { useState } from "react"
-import { supabase } from "@/lib/supabase"
+import {useState} from "react"
+import {supabase} from "@/lib/supabase"
+import {parseMT4,parseMT5,parseNinja} from "@/lib/trade-import-parser"
 
-function parseGenericCsv(text: string) {
-  const rows = text.split("\n").map((r) => r.trim()).filter(Boolean)
-  if (rows.length <= 1) return []
+export default function ImportTrades(){
 
-  return rows.slice(1).map((row) => {
-    const cols = row.split(",")
+const [platform,setPlatform]=useState("MT4")
+const [file,setFile]=useState<File|null>(null)
+const [message,setMessage]=useState("")
 
-    return {
-      symbol: cols[0] || "",
-      side: cols[1] || "LONG",
-      entry: Number(cols[2] || 0),
-      exit: Number(cols[3] || 0),
-      pnl: Number(cols[4] || 0),
-      trade_date: cols[5] || new Date().toISOString(),
-    }
-  })
+async function importTrades(){
+
+if(!file)return
+
+const {data:{user}}=await supabase.auth.getUser()
+
+if(!user)return
+
+const text=await file.text()
+
+let trades:any[]=[]
+
+if(platform==="MT4") trades=parseMT4(text)
+if(platform==="MT5") trades=parseMT5(text)
+if(platform==="NinjaTrader") trades=parseNinja(text)
+
+await supabase.from("trades").insert(
+
+trades.map(t=>({
+...t,
+user_id:user.id
+}))
+
+)
+
+setMessage(`Imported ${trades.length} trades`)
+
 }
 
-export default function ImportPage() {
-  const [file, setFile] = useState<File | null>(null)
-  const [message, setMessage] = useState("")
+return(
 
-  async function uploadCsv() {
-    if (!file) return
+<div>
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+<h1>Import Trades</h1>
 
-    const text = await file.text()
-    const trades = parseGenericCsv(text)
+<div className="card">
 
-    if (trades.length === 0) {
-      setMessage("No trades found in CSV.")
-      return
-    }
+<label>Platform</label>
 
-    await supabase.from("trades").insert(
-      trades.map((trade) => ({
-        ...trade,
-        user_id: user.id,
-      }))
-    )
+<select
+value={platform}
+onChange={e=>setPlatform(e.target.value)}
+>
 
-    setMessage(`Imported ${trades.length} trades.`)
-    setFile(null)
-  }
+<option>MT4</option>
+<option>MT5</option>
+<option>NinjaTrader</option>
 
-  return (
-    <div>
-      <h1>Import Trades</h1>
+</select>
 
-      <div className="grid-2">
-        <div className="card">
-          <h3 style={{ marginTop: 0 }}>CSV Upload</h3>
-          <div className="muted" style={{ marginBottom: 12 }}>
-            Import MT4 / MT5 / NinjaTrader / Tradovate exports
-          </div>
+<input
+type="file"
+accept=".csv"
+onChange={e=>setFile(e.target.files?.[0]||null)}
+/>
 
-          <input
-            type="file"
-            accept=".csv"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-          />
+<button onClick={importTrades}>
+Import Trades
+</button>
 
-          <button onClick={uploadCsv} style={{ marginTop: 12 }}>
-            Import CSV
-          </button>
+{message && <p>{message}</p>}
 
-          {message && <div style={{ marginTop: 12 }}>{message}</div>}
-        </div>
+</div>
 
-        <div className="card">
-          <h3 style={{ marginTop: 0 }}>Broker Connect</h3>
-          <div className="muted">MT4</div>
-          <div className="muted">MT5</div>
-          <div className="muted">NinjaTrader</div>
-          <div className="muted">Tradovate</div>
-          <div className="muted">Interactive Brokers</div>
-          <div style={{ marginTop: 12 }}>
-            Foundation page ready for direct broker integrations.
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+</div>
+
+)
+
 }

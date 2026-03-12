@@ -1,71 +1,83 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { INSTRUMENTS } from "@/lib/instruments"
-
-const CATEGORIES = Object.keys(INSTRUMENTS)
 
 export default function InstrumentSelect({
   value,
-  onChange,
-}: {
-  value: string
-  onChange: (value: string) => void
-}) {
-  const [category, setCategory] = useState<string>("Forex")
+  onChange
+}:{
+  value:string
+  onChange:(v:string)=>void
+}){
 
-  const list = useMemo(() => {
-    return INSTRUMENTS[category as keyof typeof INSTRUMENTS] || []
-  }, [category])
+  const [category,setCategory] = useState("Forex")
 
-  const allSymbols = useMemo(() => {
-    return Object.values(INSTRUMENTS).flat()
-  }, [])
+  const pairs = INSTRUMENTS[category as keyof typeof INSTRUMENTS]
 
-  return (
-    <div style={{ display: "grid", gap: 10 }}>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        {CATEGORIES.map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => setCategory(item)}
-            style={{
-              background: category === item ? "#2563eb" : "#0f172a",
-              border: "1px solid #1e293b",
-            }}
-          >
-            {item}
-          </button>
-        ))}
-      </div>
+  return(
+
+    <div style={{display:"grid",gap:8}}>
+
+      <label>Market</label>
 
       <select
-        value={list.includes(value) ? value : ""}
-        onChange={(e) => onChange(e.target.value)}
+        value={category}
+        onChange={(e)=>setCategory(e.target.value)}
+        style={{
+          padding:10,
+          background:"#0f172a",
+          color:"white",
+          border:"1px solid #334155",
+          borderRadius:8
+        }}
       >
-        <option value="">Select {category}</option>
-        {list.map((symbol) => (
-          <option key={symbol} value={symbol}>
-            {symbol}
-          </option>
+
+        {Object.keys(INSTRUMENTS).map(cat=>(
+          <option key={cat}>{cat}</option>
         ))}
+
       </select>
 
-      <div>
-        <label className="muted">Or type any symbol</label>
-        <input
-          list="all-symbols"
-          value={value}
-          onChange={(e) => onChange(e.target.value.toUpperCase())}
-          placeholder="Type custom pair / symbol"
-        />
-        <datalist id="all-symbols">
-          {allSymbols.map((symbol) => (
-            <option key={symbol} value={symbol} />
-          ))}
-        </datalist>
-      </div>
+      <label>Pair</label>
+
+      <select
+        value={value}
+        onChange={(e)=>onChange(e.target.value)}
+        style={{
+          padding:10,
+          background:"#0f172a",
+          color:"white",
+          border:"1px solid #334155",
+          borderRadius:8
+        }}
+      >
+
+        <option value="">Select Pair</option>
+
+        {pairs.map(pair=>(
+          <option key={pair}>{pair}</option>
+        ))}
+
+      </select>
+
+      <label>Or type pair manually</label>
+
+      <input
+        value={value}
+        onChange={(e)=>onChange(e.target.value)}
+        placeholder="Example: EURUSD"
+        style={{
+          padding:10,
+          background:"#020617",
+          border:"1px solid #334155",
+          borderRadius:8,
+          color:"white"
+        }}
+      />
+
     </div>
+
   )
+
 }

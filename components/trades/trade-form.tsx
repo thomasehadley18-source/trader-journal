@@ -1,71 +1,89 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { INSTRUMENTS } from "@/lib/instruments"
+import { useState } from "react"
+import { supabase } from "@/lib/supabase"
+import InstrumentSelect from "./instrument-select"
 
-const CATEGORIES = Object.keys(INSTRUMENTS)
+export default function TradeForm(){
 
-export default function InstrumentSelect({
-  value,
-  onChange,
-}: {
-  value: string
-  onChange: (value: string) => void
-}) {
-  const [category, setCategory] = useState<string>("Forex")
+const [pair,setPair] = useState("")
+const [pnl,setPnl] = useState("")
+const [date,setDate] = useState("")
+const [image,setImage] = useState<File | null>(null)
 
-  const list = useMemo(() => {
-    return INSTRUMENTS[category as keyof typeof INSTRUMENTS] || []
-  }, [category])
+async function submit(){
 
-  const allSymbols = useMemo(() => {
-    return Object.values(INSTRUMENTS).flat()
-  }, [])
+const { data:{user} } = await supabase.auth.getUser()
+if(!user) return
 
-  return (
-    <div style={{ display: "grid", gap: 10 }}>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        {CATEGORIES.map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => setCategory(item)}
-            style={{
-              background: category === item ? "#2563eb" : "#0f172a",
-              border: "1px solid #1e293b",
-            }}
-          >
-            {item}
-          </button>
-        ))}
-      </div>
+let screenshot=null
 
-      <select
-        value={list.includes(value) ? value : ""}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        <option value="">Select {category}</option>
-        {list.map((symbol) => (
-          <option key={symbol} value={symbol}>
-            {symbol}
-          </option>
-        ))}
-      </select>
+if(image){
 
-      <div>
-        <label className="muted">Or type any symbol</label>
-        <input
-          list="all-symbols"
-          value={value}
-          onChange={(e) => onChange(e.target.value.toUpperCase())}
-          placeholder="Type custom pair / symbol"
-        />
-        <datalist id="all-symbols">
-          {allSymbols.map((symbol) => (
-            <option key={symbol} value={symbol} />
-          ))}
-        </datalist>
-      </div>
-    </div>
-  )
+const path=`${user.id}/${Date.now()}-${image.name}`
+
+const {data,error} = await supabase
+.storage
+.from("trade-screenshots")
+.upload(path,image)
+
+if(!error){
+screenshot=data.path
+}
+
+}
+
+await supabase
+.from("trades")
+.insert({
+user_id:user.id,
+pair,
+pnl:Number(pnl),
+trade_date:date,
+screenshot
+})
+
+alert("Trade added")
+
+}
+
+return(
+
+<div className="card">
+
+<h2>Add Trade</h2>
+
+<InstrumentSelect
+value={pair}
+onChange={setPair}
+/>
+
+<input
+type="date"
+value={date}
+onChange={(e)=>setDate(e.target.value)}
+/>
+
+<input
+type="number"
+placeholder="PnL"
+value={pnl}
+onChange={(e)=>setPnl(e.target.value)}
+/>
+
+<label>Screenshot</label>
+
+<input
+type="file"
+onChange={(e)=>setImage(e.target.files?.[0] || null)}
+/>
+
+<button onClick={submit}>
+Add Trade
+</button>
+
+</div>
+
+)
+
 }

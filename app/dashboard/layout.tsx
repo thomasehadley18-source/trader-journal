@@ -2,25 +2,35 @@
 
 import Sidebar from "@/components/dashboard/sidebar"
 
-export default function DashboardLayout({
-children,
+export default function Layout({
+children
 }:{children:React.ReactNode}){
 
 return(
 
 <div style={{
+
 display:"flex",
-background:"#020817",
-minHeight:"100vh",
-color:"#e2e8f0"
+minHeight:"100vh"
+
+}}>
+
+<div style={{
+
+width:230,
+flexShrink:0
+
 }}>
 
 <Sidebar/>
 
+</div>
+
 <div style={{
-marginLeft:230,
-padding:40,
-width:"100%"
+
+flex:1,
+padding:20
+
 }}>
 
 {children}

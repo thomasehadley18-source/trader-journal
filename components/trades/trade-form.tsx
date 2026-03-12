@@ -1,168 +1,123 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { supabase } from "@/lib/supabase"
-import InstrumentSelect from "@/components/trades/instrument-select"
+import InstrumentSelect from "./instrument-select"
 
-export default function TradeForm({
-  onAdded,
-}: {
-  onAdded?: () => void
-}) {
-  const [symbol, setSymbol] = useState("")
-  const [side, setSide] = useState("LONG")
-  const [entry, setEntry] = useState("")
-  const [exit, setExit] = useState("")
-  const [strategy, setStrategy] = useState("")
-  const [notes, setNotes] = useState("")
-  const [file, setFile] = useState<File | null>(null)
-  const [saving, setSaving] = useState(false)
+export default function TradeForm({ onAdded }: { onAdded?: () => void }) {
 
-  const previewUrl = useMemo(() => {
-    if (!file) return ""
-    return URL.createObjectURL(file)
-  }, [file])
+const [symbol,setSymbol]=useState("")
+const [side,setSide]=useState("LONG")
+const [entry,setEntry]=useState("")
+const [exit,setExit]=useState("")
+const [strategy,setStrategy]=useState("")
+const [notes,setNotes]=useState("")
+const [image,setImage]=useState<File|null>(null)
+const [saving,setSaving]=useState(false)
 
-  async function submit() {
-    setSaving(true)
+async function submit(){
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      setSaving(false)
-      return
-    }
+setSaving(true)
 
-    const entryNum = Number(entry)
-    const exitNum = Number(exit)
+const {data:{user}}=await supabase.auth.getUser()
 
-    const pnl =
-      side === "LONG"
-        ? exitNum - entryNum
-        : entryNum - exitNum
+if(!user){
+setSaving(false)
+return
+}
 
-    const tradeDate = new Date().toISOString()
+const entryNum=Number(entry)
+const exitNum=Number(exit)
 
-    const { data: inserted, error } = await supabase
-      .from("trades")
-      .insert({
-        user_id: user.id,
-        symbol,
-        side,
-        entry: entryNum,
-        exit: exitNum,
-        pnl,
-        strategy: strategy || null,
-        notes: notes || null,
-        trade_date: tradeDate,
-      })
-      .select()
-      .single()
+const pnl = side==="LONG"
+? exitNum-entryNum
+: entryNum-exitNum
 
-    if (!error && inserted && file) {
-      const filePath = `${inserted.id}/${Date.now()}-${file.name}`
+const {data:trade}=await supabase
+.from("trades")
+.insert({
+user_id:user.id,
+symbol,
+side,
+entry:entryNum,
+exit:exitNum,
+pnl,
+strategy,
+notes
+})
+.select()
+.single()
 
-      const upload = await supabase.storage
-        .from("trade-screenshots")
-        .upload(filePath, file)
+if(trade && image){
 
-      if (!upload.error) {
-        const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/trade-screenshots/${filePath}`
+const path=`${trade.id}/${image.name}`
 
-        await supabase
-          .from("trades")
-          .update({
-            screenshot_url: publicUrl,
-          })
-          .eq("id", inserted.id)
-      }
-    }
+await supabase
+.storage
+.from("trade-screenshots")
+.upload(path,image)
 
-    setSymbol("")
-    setSide("LONG")
-    setEntry("")
-    setExit("")
-    setStrategy("")
-    setNotes("")
-    setFile(null)
-    setSaving(false)
+const url=`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/trade-screenshots/${path}`
 
-    if (onAdded) onAdded()
-  }
+await supabase
+.from("trades")
+.update({ screenshot_url:url })
+.eq("id",trade.id)
 
-  return (
-    <div className="card" style={{ marginBottom: 24 }}>
-      <h2 style={{ marginTop: 0 }}>Add Trade</h2>
+}
 
-      <div className="grid-2">
-        <div>
-          <label className="muted">Instrument</label>
-          <InstrumentSelect value={symbol} onChange={setSymbol} />
-        </div>
+setSymbol("")
+setEntry("")
+setExit("")
+setStrategy("")
+setNotes("")
+setImage(null)
+setSaving(false)
 
-        <div>
-          <label className="muted">Side</label>
-          <select value={side} onChange={(e) => setSide(e.target.value)}>
-            <option value="LONG">LONG</option>
-            <option value="SHORT">SHORT</option>
-          </select>
-        </div>
+if(onAdded)onAdded()
 
-        <div>
-          <label className="muted">Entry</label>
-          <input
-            value={entry}
-            onChange={(e) => setEntry(e.target.value)}
-            placeholder="Entry price"
-          />
-        </div>
+}
 
-        <div>
-          <label className="muted">Exit</label>
-          <input
-            value={exit}
-            onChange={(e) => setExit(e.target.value)}
-            placeholder="Exit price"
-          />
-        </div>
+return(
 
-        <div>
-          <label className="muted">Strategy</label>
-          <input
-            value={strategy}
-            onChange={(e) => setStrategy(e.target.value)}
-            placeholder="Breakout / Reversal / etc."
-          />
-        </div>
+<div className="card">
 
-        <div>
-          <label className="muted">Screenshot</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-          />
-        </div>
-      </div>
+<h2>Add Trade</h2>
 
-      <div style={{ marginTop: 16 }}>
-        <label className="muted">Notes</label>
-        <textarea
-          rows={4}
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Why you took the trade, mistakes, lessons..."
-        />
-      </div>
+<label>Instrument</label>
+<InstrumentSelect value={symbol} onChange={setSymbol}/>
 
-      {previewUrl && (
-        <div style={{ marginTop: 16 }}>
-          <img src={previewUrl} alt="Trade preview" className="image-preview" />
-        </div>
-      )}
+<label>Side</label>
+<select value={side} onChange={e=>setSide(e.target.value)}>
+<option>LONG</option>
+<option>SHORT</option>
+</select>
 
-      <button onClick={submit} style={{ marginTop: 16 }}>
-        {saving ? "Saving..." : "Save Trade"}
-      </button>
-    </div>
-  )
+<label>Entry</label>
+<input value={entry} onChange={e=>setEntry(e.target.value)} />
+
+<label>Exit</label>
+<input value={exit} onChange={e=>setExit(e.target.value)} />
+
+<label>Strategy</label>
+<input value={strategy} onChange={e=>setStrategy(e.target.value)} />
+
+<label>Notes</label>
+<textarea value={notes} onChange={e=>setNotes(e.target.value)} />
+
+<label>Upload Screenshot</label>
+<input
+type="file"
+accept="image/*"
+onChange={e=>setImage(e.target.files?.[0]||null)}
+/>
+
+<button onClick={submit}>
+{saving?"Saving...":"Save Trade"}
+</button>
+
+</div>
+
+)
+
 }

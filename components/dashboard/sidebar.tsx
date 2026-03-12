@@ -11,12 +11,12 @@ const links=[
 {href:"/dashboard/trade-replay",label:"Trade Replay"},
 {href:"/dashboard/ai-mistakes",label:"AI Mistakes"},
 {href:"/dashboard/prop-firms",label:"Prop Firm Analytics"},
+{href:"/dashboard/strategy-intelligence",label:"Strategy Intelligence"},
 {href:"/dashboard/equity",label:"Equity Curve"},
 {href:"/dashboard/risk",label:"Risk Analytics"},
 
 {href:"/dashboard/ai",label:"AI Coach"},
 {href:"/dashboard/trade-review",label:"AI Trade Review"},
-{href:"/dashboard/strategy-intelligence",label:"Strategy Intelligence"},
 
 {href:"/dashboard/strategy-builder",label:"Strategy Builder"},
 {href:"/strategy-marketplace",label:"Strategy Market"},

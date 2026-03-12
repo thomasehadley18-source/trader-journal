@@ -1,61 +1,69 @@
 "use client"
 
-import {useState} from "react"
-import {supabase} from "@/lib/supabase"
+import { useState } from "react"
+import { supabase } from "@/lib/supabase"
 
-export default function StrategyBuilder(){
+export default function StrategyBuilderPage() {
+  const [name, setName] = useState("")
+  const [description, setDescription] = useState("")
+  const [rules, setRules] = useState("")
+  const [price, setPrice] = useState("0")
+  const [saving, setSaving] = useState(false)
 
-const[name,setName]=useState("")
-const[desc,setDesc]=useState("")
-const[price,setPrice]=useState("")
+  async function createStrategy() {
+    setSaving(true)
 
-async function create(){
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      setSaving(false)
+      return
+    }
 
-const {data:{user}}=await supabase.auth.getUser()
+    await supabase.from("strategies").insert({
+      user_id: user.id,
+      name,
+      description,
+      rules,
+      price: Number(price || 0),
+      created_at: new Date().toISOString(),
+    })
 
-await supabase
-.from("strategies")
-.insert({
+    setName("")
+    setDescription("")
+    setRules("")
+    setPrice("0")
+    setSaving(false)
+  }
 
-user_id:user?.id,
-name,
-description:desc,
-price
+  return (
+    <div>
+      <h1>Strategy Builder</h1>
 
-})
+      <div className="card" style={{ maxWidth: 800 }}>
+        <label className="muted">Strategy Name</label>
+        <input value={name} onChange={(e) => setName(e.target.value)} />
 
-}
+        <label className="muted">Description</label>
+        <textarea
+          rows={4}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
 
-return(
+        <label className="muted">Rules</label>
+        <textarea
+          rows={6}
+          value={rules}
+          onChange={(e) => setRules(e.target.value)}
+        />
 
-<div style={{padding:40}}>
+        <label className="muted">Price</label>
+        <input value={price} onChange={(e) => setPrice(e.target.value)} />
 
-<h1>Create Strategy</h1>
-
-<input
-placeholder="Strategy Name"
-value={name}
-onChange={e=>setName(e.target.value)}
-/>
-
-<textarea
-placeholder="Description"
-value={desc}
-onChange={e=>setDesc(e.target.value)}
-/>
-
-<input
-placeholder="Price"
-value={price}
-onChange={e=>setPrice(e.target.value)}
-/>
-
-<button onClick={create}>
-Create
-</button>
-
-</div>
-
-)
-
+        <button onClick={createStrategy} style={{ marginTop: 12 }}>
+          {saving ? "Saving..." : "Create Strategy"}
+        </button>
+      </div>
+    </div>
+  )
 }

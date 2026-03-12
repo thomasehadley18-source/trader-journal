@@ -1,49 +1,45 @@
-export function generateDayHeatmap(trades:any[]){
+export function generateDayHeatmap(trades:any[]) {
 
-const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+const map:Record<string,number> = {}
 
-const map:any={}
+trades.forEach(t => {
 
-days.forEach(d=>map[d]=0)
+const date = new Date(t.trade_date)
+const day = date.toLocaleDateString("en-US",{weekday:"short"})
 
-trades.forEach(t=>{
+if(!map[day]) map[day] = 0
 
-const day=days[new Date(t.trade_date).getDay()]
-
-map[day]+=Number(t.pnl||0)
+map[day] += Number(t.pnl || 0)
 
 })
 
-return days.map(d=>({
-day:d,
-pnl:map[d]
+return Object.entries(map).map(([day,pnl]) => ({
+day,
+pnl
 }))
 
 }
 
 
 
-export function generateHourHeatmap(trades:any[]){
+export function generateHourHeatmap(trades:any[]) {
 
-const map:any={}
+const map:Record<number,number> = {}
 
-for(let i=0;i<24;i++){
-map[i]=0
-}
+trades.forEach(t => {
 
-trades.forEach(t=>{
+const date = new Date(t.trade_date)
+const hour = date.getHours()
 
-const hour=new Date(t.trade_date).getHours()
+if(!map[hour]) map[hour] = 0
 
-map[hour]+=Number(t.pnl||0)
+map[hour] += Number(t.pnl || 0)
 
 })
 
-return Object.keys(map).map(h=>({
-
-hour:Number(h),
-pnl:map[h]
-
+return Object.entries(map).map(([hour,pnl]) => ({
+hour:Number(hour),
+pnl
 }))
 
 }

@@ -2,63 +2,39 @@
 
 import {useEffect,useState} from "react"
 import {supabase} from "@/lib/supabase"
-import PnLDistribution from "@/components/charts/pnl-distribution"
-import SessionChart from "@/components/charts/session-chart"
+import EquityChart from "@/components/charts/equity-chart"
+import {
+calculateEquity,
+pairPerformance,
+sessionPerformance
+} from "@/lib/analytics-engine"
 
 export default function Analytics(){
 
-const [pnl,setPnl]=useState<any[]>([])
+const [equity,setEquity]=useState<any[]>([])
+const [pairs,setPairs]=useState<any[]>([])
 const [sessions,setSessions]=useState<any[]>([])
 
-useEffect(()=>{load()},[])
+useEffect(()=>{
+load()
+},[])
 
 async function load(){
 
 const {data:{user}}=await supabase.auth.getUser()
-
 if(!user)return
 
 const {data}=await supabase
 .from("trades")
 .select("*")
 .eq("user_id",user.id)
+.order("trade_date",{ascending:true})
 
 const trades=data||[]
 
-let wins=0
-let losses=0
-
-let asia=0
-let london=0
-let ny=0
-
-trades.forEach(t=>{
-
-if(t.pnl>0)wins++
-else losses++
-
-const hour=new Date(t.trade_date).getUTCHours()
-
-if(hour<7)asia+=t.pnl
-else if(hour<14)london+=t.pnl
-else ny+=t.pnl
-
-})
-
-setPnl([
-
-{name:"Wins",value:wins},
-{name:"Losses",value:losses}
-
-])
-
-setSessions([
-
-{name:"Asia",value:asia},
-{name:"London",value:london},
-{name:"New York",value:ny}
-
-])
+setEquity(calculateEquity(trades))
+setPairs(pairPerformance(trades))
+setSessions(sessionPerformance(trades))
 
 }
 
@@ -66,17 +42,40 @@ return(
 
 <div>
 
-<h1>Analytics</h1>
+<h1>Trading Analytics</h1>
 
-<h2>PnL Distribution</h2>
+<div className="card">
+<h2>Equity Curve</h2>
+<EquityChart data={equity}/>
+</div>
 
-<PnLDistribution data={pnl}/>
+<div className="grid-2" style={{marginTop:20}}>
 
-<h2 style={{marginTop:40}}>
-Session Performance
-</h2>
+<div className="card">
 
-<SessionChart data={sessions}/>
+<h3>Pair Performance</h3>
+
+{pairs.map((p:any)=>(
+<div key={p.symbol}>
+{p.symbol} — {p.pnl}
+</div>
+))}
+
+</div>
+
+<div className="card">
+
+<h3>Session Performance</h3>
+
+{sessions.map((s:any)=>(
+<div key={s.name}>
+{s.name} — {s.pnl}
+</div>
+))}
+
+</div>
+
+</div>
 
 </div>
 

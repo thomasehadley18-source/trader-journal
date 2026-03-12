@@ -1,29 +1,28 @@
 "use client"
 
-import { useEffect,useState } from "react"
-import { supabase } from "@/lib/supabase"
-import { buildStrategies } from "@/lib/strategy-builder"
+import {useState} from "react"
+import {supabase} from "@/lib/supabase"
 
 export default function StrategyBuilder(){
 
-const [strategies,setStrategies] = useState<any[]>([])
+const[name,setName]=useState("")
+const[desc,setDesc]=useState("")
+const[price,setPrice]=useState("")
 
-useEffect(()=>{
-load()
-},[])
+async function create(){
 
-async function load(){
+const {data:{user}}=await supabase.auth.getUser()
 
-const {data:{user}} = await supabase.auth.getUser()
+await supabase
+.from("strategies")
+.insert({
 
-if(!user) return
+user_id:user?.id,
+name,
+description:desc,
+price
 
-const {data} = await supabase
-.from("trades")
-.select("*")
-.eq("user_id",user.id)
-
-setStrategies(buildStrategies(data || []))
+})
 
 }
 
@@ -31,19 +30,29 @@ return(
 
 <div style={{padding:40}}>
 
-<h1>AI Strategy Builder</h1>
+<h1>Create Strategy</h1>
 
-{strategies.map((s:any)=>(
-<div key={s.name}>
+<input
+placeholder="Strategy Name"
+value={name}
+onChange={e=>setName(e.target.value)}
+/>
 
-<p>{s.name}</p>
+<textarea
+placeholder="Description"
+value={desc}
+onChange={e=>setDesc(e.target.value)}
+/>
 
-<p>Wins: {s.wins}</p>
+<input
+placeholder="Price"
+value={price}
+onChange={e=>setPrice(e.target.value)}
+/>
 
-<p>Losses: {s.losses}</p>
-
-</div>
-))}
+<button onClick={create}>
+Create
+</button>
 
 </div>
 

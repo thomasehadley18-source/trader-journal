@@ -1,163 +1,168 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { supabase } from "@/lib/supabase"
+import InstrumentSelect from "@/components/trades/instrument-select"
 
-export default function TradeForm({ onSaved }: { onSaved: () => void }) {
-  const [form, setForm] = useState({
-    pair: "",
-    direction: "Buy",
-    entry: "",
-    exit: "",
-    lot_size: "",
-    pnl: "",
-    strategy: "",
-    tags: "",
-    notes: "",
-  })
+export default function TradeForm({
+  onAdded,
+}: {
+  onAdded?: () => void
+}) {
+  const [symbol, setSymbol] = useState("")
+  const [side, setSide] = useState("LONG")
+  const [entry, setEntry] = useState("")
+  const [exit, setExit] = useState("")
+  const [strategy, setStrategy] = useState("")
+  const [notes, setNotes] = useState("")
+  const [file, setFile] = useState<File | null>(null)
+  const [saving, setSaving] = useState(false)
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault()
+  const previewUrl = useMemo(() => {
+    if (!file) return ""
+    return URL.createObjectURL(file)
+  }, [file])
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+  async function submit() {
+    setSaving(true)
 
-    if (!user) return
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      setSaving(false)
+      return
+    }
 
-    await supabase.from("trades").insert({
-      user_id: user.id,
-      trade_date: new Date().toISOString(),
-      pair: form.pair,
-      direction: form.direction,
-      entry: Number(form.entry),
-      exit: Number(form.exit),
-      lot_size: Number(form.lot_size),
-      pnl: Number(form.pnl),
-      strategy: form.strategy,
-      tags: form.tags
-        ? form.tags.split(",").map((t) => t.trim())
-        : [],
-      notes: form.notes,
-      import_source: "manual",
-      sessions_active: [],
-    })
+    const entryNum = Number(entry)
+    const exitNum = Number(exit)
 
-    setForm({
-      pair: "",
-      direction: "Buy",
-      entry: "",
-      exit: "",
-      lot_size: "",
-      pnl: "",
-      strategy: "",
-      tags: "",
-      notes: "",
-    })
+    const pnl =
+      side === "LONG"
+        ? exitNum - entryNum
+        : entryNum - exitNum
 
-    onSaved()
+    const tradeDate = new Date().toISOString()
+
+    const { data: inserted, error } = await supabase
+      .from("trades")
+      .insert({
+        user_id: user.id,
+        symbol,
+        side,
+        entry: entryNum,
+        exit: exitNum,
+        pnl,
+        strategy: strategy || null,
+        notes: notes || null,
+        trade_date: tradeDate,
+      })
+      .select()
+      .single()
+
+    if (!error && inserted && file) {
+      const filePath = `${inserted.id}/${Date.now()}-${file.name}`
+
+      const upload = await supabase.storage
+        .from("trade-screenshots")
+        .upload(filePath, file)
+
+      if (!upload.error) {
+        const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/trade-screenshots/${filePath}`
+
+        await supabase
+          .from("trades")
+          .update({
+            screenshot_url: publicUrl,
+          })
+          .eq("id", inserted.id)
+      }
+    }
+
+    setSymbol("")
+    setSide("LONG")
+    setEntry("")
+    setExit("")
+    setStrategy("")
+    setNotes("")
+    setFile(null)
+    setSaving(false)
+
+    if (onAdded) onAdded()
   }
 
   return (
-    <form className="card" onSubmit={submit}>
-      <h2 style={{ marginBottom: 16 }}>Add Trade</h2>
+    <div className="card" style={{ marginBottom: 24 }}>
+      <h2 style={{ marginTop: 0 }}>Add Trade</h2>
 
       <div className="grid-2">
         <div>
-          <label className="label">Pair</label>
-          <input
-            className="input"
-            value={form.pair}
-            onChange={(e) => setForm({ ...form, pair: e.target.value })}
-          />
+          <label className="muted">Instrument</label>
+          <InstrumentSelect value={symbol} onChange={setSymbol} />
         </div>
 
         <div>
-          <label className="label">Direction</label>
-          <select
-            className="input"
-            value={form.direction}
-            onChange={(e) => setForm({ ...form, direction: e.target.value })}
-          >
-            <option>Buy</option>
-            <option>Sell</option>
+          <label className="muted">Side</label>
+          <select value={side} onChange={(e) => setSide(e.target.value)}>
+            <option value="LONG">LONG</option>
+            <option value="SHORT">SHORT</option>
           </select>
         </div>
 
         <div>
-          <label className="label">Entry</label>
+          <label className="muted">Entry</label>
           <input
-            className="input"
-            type="number"
-            value={form.entry}
-            onChange={(e) => setForm({ ...form, entry: e.target.value })}
+            value={entry}
+            onChange={(e) => setEntry(e.target.value)}
+            placeholder="Entry price"
           />
         </div>
 
         <div>
-          <label className="label">Exit</label>
+          <label className="muted">Exit</label>
           <input
-            className="input"
-            type="number"
-            value={form.exit}
-            onChange={(e) => setForm({ ...form, exit: e.target.value })}
+            value={exit}
+            onChange={(e) => setExit(e.target.value)}
+            placeholder="Exit price"
           />
         </div>
 
         <div>
-          <label className="label">Lot Size</label>
+          <label className="muted">Strategy</label>
           <input
-            className="input"
-            type="number"
-            value={form.lot_size}
-            onChange={(e) => setForm({ ...form, lot_size: e.target.value })}
+            value={strategy}
+            onChange={(e) => setStrategy(e.target.value)}
+            placeholder="Breakout / Reversal / etc."
           />
         </div>
 
         <div>
-          <label className="label">PnL</label>
+          <label className="muted">Screenshot</label>
           <input
-            className="input"
-            type="number"
-            value={form.pnl}
-            onChange={(e) => setForm({ ...form, pnl: e.target.value })}
-          />
-        </div>
-
-        <div>
-          <label className="label">Strategy</label>
-          <input
-            className="input"
-            value={form.strategy}
-            onChange={(e) => setForm({ ...form, strategy: e.target.value })}
-          />
-        </div>
-
-        <div>
-          <label className="label">Tags</label>
-          <input
-            className="input"
-            value={form.tags}
-            onChange={(e) => setForm({ ...form, tags: e.target.value })}
+            type="file"
+            accept="image/*"
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
           />
         </div>
       </div>
 
       <div style={{ marginTop: 16 }}>
-        <label className="label">Notes</label>
+        <label className="muted">Notes</label>
         <textarea
-          className="input"
           rows={4}
-          value={form.notes}
-          onChange={(e) => setForm({ ...form, notes: e.target.value })}
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Why you took the trade, mistakes, lessons..."
         />
       </div>
 
-      <div style={{ marginTop: 16 }}>
-        <button className="btn" type="submit">
-          Save Trade
-        </button>
-      </div>
-    </form>
+      {previewUrl && (
+        <div style={{ marginTop: 16 }}>
+          <img src={previewUrl} alt="Trade preview" className="image-preview" />
+        </div>
+      )}
+
+      <button onClick={submit} style={{ marginTop: 16 }}>
+        {saving ? "Saving..." : "Save Trade"}
+      </button>
+    </div>
   )
 }

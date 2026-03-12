@@ -2,9 +2,9 @@
 
 import {useEffect,useState} from "react"
 import {supabase} from "@/lib/supabase"
-import {riskDashboard} from "@/lib/risk-dashboard"
+import {calculateStreaks} from "@/lib/streak-engine"
 
-export default function RiskPage(){
+export default function StreakPage(){
 
 const [data,setData]=useState<any>(null)
 
@@ -23,7 +23,7 @@ const {data}=await supabase
 .select("*")
 .eq("user_id",user.id)
 
-setData(riskDashboard(data||[]))
+setData(calculateStreaks(data||[]))
 
 }
 
@@ -33,11 +33,11 @@ return(
 
 <div style={{padding:40}}>
 
-<h1>Risk Dashboard</h1>
+<h1>Trade Streaks</h1>
 
-<p>Average Risk: {data.avgRisk}</p>
+<p>Max Win Streak: {data.maxWin}</p>
 
-<p>Max Loss: {data.maxLoss}</p>
+<p>Max Loss Streak: {data.maxLoss}</p>
 
 </div>
 

@@ -1,26 +1,20 @@
-export function parseBrokerCSV(csv:string){
+export function parseMT(csv:string){
 
-const rows = csv.split("\n")
+const rows=csv.split("\n")
 
-const trades:any[] = []
+return rows.slice(1).map(r=>{
 
-rows.slice(1).forEach(r=>{
+const cols=r.split(",")
 
-const cols = r.split(",")
-
-trades.push({
+return{
 
 symbol:cols[0],
-side:cols[1],
-entry:Number(cols[2]),
-exit:Number(cols[3]),
-pnl:Number(cols[4]),
-trade_date:cols[5]
+entry:Number(cols[1]),
+exit:Number(cols[2]),
+pnl:Number(cols[3])
+
+}
 
 })
-
-})
-
-return trades
 
 }

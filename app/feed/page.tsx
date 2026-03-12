@@ -1,25 +1,23 @@
 "use client"
 
-import { useEffect,useState } from "react"
-import { supabase } from "@/lib/supabase"
+import {useEffect,useState} from "react"
+import {supabase} from "@/lib/supabase"
 
-export default function FeedPage(){
+export default function Feed(){
 
-const [trades,setTrades] = useState<any[]>([])
+const [trades,setTrades]=useState<any[]>([])
 
-useEffect(()=>{
-load()
-},[])
+useEffect(()=>{load()},[])
 
 async function load(){
 
-const {data} = await supabase
+const {data}=await supabase
 .from("trades")
 .select("*")
-.order("created_at",{ascending:false})
-.limit(20)
+.order("trade_date",{ascending:false})
+.limit(30)
 
-setTrades(data || [])
+setTrades(data||[])
 
 }
 
@@ -31,25 +29,10 @@ return(
 
 {trades.map(t=>(
 
-<div
-key={t.id}
-style={{
-border:"1px solid #1e293b",
-padding:20,
-marginBottom:20,
-borderRadius:10
-}}
->
+<div key={t.id} style={{marginBottom:20}}>
 
 <p>{t.symbol}</p>
-
-<p>{t.side}</p>
-
-<p style={{color:t.pnl>0?"#22c55e":"#ef4444"}}>
-
-PnL: {t.pnl}
-
-</p>
+<p>PNL: {t.pnl}</p>
 
 </div>
 

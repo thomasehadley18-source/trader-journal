@@ -1,74 +1,41 @@
-export function detectTradingMistakes(trades:any[]) {
+export function detectTradingMistakes(trades:any[]){
 
-let earlyClose = 0
-let heldTooLong = 0
-let overTrading = false
+let revengeTrades = 0
+let overTrading = 0
+let badRR = 0
 
-const sessionStats:any = {}
-const pairStats:any = {}
+for(let i=1;i<trades.length;i++){
 
-trades.forEach((trade,index)=>{
+const prev = trades[i-1]
+const curr = trades[i]
 
-const pnl = Number(trade.pnl)
+const prevLoss = prev.pnl < 0
+const quickTrade =
+Math.abs(
+new Date(curr.trade_date).getTime() -
+new Date(prev.trade_date).getTime()
+) < 600000
 
-const move = Math.abs(trade.exit - trade.entry)
-
-if(pnl < 0 && move < 0.002){
-earlyClose++
+if(prevLoss && quickTrade){
+revengeTrades++
 }
 
-if(pnl < 0 && move > 0.02){
-heldTooLong++
+if(curr.pnl < 0 && Math.abs(curr.entry-curr.exit) < 0.001){
+badRR++
 }
 
-const session = trade.session || "Unknown"
-
-if(!sessionStats[session]){
-sessionStats[session] = 0
 }
 
-sessionStats[session] += pnl
-
-const pair = trade.symbol
-
-if(!pairStats[pair]){
-pairStats[pair] = 0
+if(trades.length > 10){
+overTrading = trades.length - 10
 }
 
-pairStats[pair] += pnl
+return{
 
-})
-
-if(trades.length > 20){
-overTrading = true
-}
-
-let worstSession = "-"
-let worstSessionPnL = Infinity
-
-Object.keys(sessionStats).forEach(s=>{
-if(sessionStats[s] < worstSessionPnL){
-worstSessionPnL = sessionStats[s]
-worstSession = s
-}
-})
-
-let worstPair = "-"
-let worstPairPnL = Infinity
-
-Object.keys(pairStats).forEach(p=>{
-if(pairStats[p] < worstPairPnL){
-worstPairPnL = pairStats[p]
-worstPair = p
-}
-})
-
-return {
-earlyClose,
-heldTooLong,
+revengeTrades,
 overTrading,
-worstSession,
-worstPair
+badRR
+
 }
 
 }

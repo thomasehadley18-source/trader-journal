@@ -1,11 +1,29 @@
-export function detectSession(date:string) {
+export function analyzeSessions(trades:any[]){
 
-const hour = new Date(date).getUTCHours()
+const stats={
+Asia:0,
+London:0,
+NewYork:0
+}
 
-if(hour >= 0 && hour < 7) return "Asia"
-if(hour >= 7 && hour < 13) return "London"
-if(hour >= 13 && hour < 20) return "New York"
+trades.forEach(t=>{
 
-return "Late"
+const hour=new Date(t.trade_date).getUTCHours()
+
+let session="Asia"
+
+if(hour>=7 && hour<14){
+session="London"
+}
+
+if(hour>=14){
+session="NewYork"
+}
+
+stats[session]+=Number(t.pnl||0)
+
+})
+
+return stats
 
 }

@@ -1,81 +1,67 @@
 "use client"
 
-import { useEffect,useState } from "react"
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
 
-export default function Marketplace(){
+export default function MarketplacePage() {
+  const [strategies, setStrategies] = useState<any[]>([])
 
-const [strategies,setStrategies]=useState<any[]>([])
+  useEffect(() => {
+    load()
+  }, [])
 
-useEffect(()=>{
+  async function load() {
+    const { data } = await supabase
+      .from("strategies")
+      .select("*")
+      .order("created_at", { ascending: false })
 
-load()
+    setStrategies(data || [])
+  }
 
-},[])
+  return (
+    <div>
+      <h1>Strategy Market</h1>
 
-async function load(){
+      {strategies.length === 0 ? (
+        <div className="empty-state">
+          No strategies listed yet.
+          <div style={{ marginTop: 12 }}>
+            Go to <b>Strategy Builder</b> and create one.
+          </div>
+        </div>
+      ) : (
+        <div className="grid-3">
+          {strategies.map((strategy) => (
+            <div key={strategy.id} className="card">
+              <h3 style={{ marginTop: 0 }}>{strategy.name}</h3>
 
-const res = await fetch("/api/marketplace/list")
+              <div className="muted" style={{ marginBottom: 12 }}>
+                ${strategy.price || 0}
+              </div>
 
-const data = await res.json()
+              <p>{strategy.description || "No description."}</p>
 
-setStrategies(data)
-
-}
-
-return(
-
-<div style={{padding:"40px"}}>
-
-<h1 style={{fontSize:32,marginBottom:30}}>
-Strategy Marketplace
-</h1>
-
-<div style={{
-display:"grid",
-gridTemplateColumns:"repeat(3,1fr)",
-gap:"20px"
-}}>
-
-{strategies.map((s)=>(
-
-<div key={s.id} style={{
-background:"#0f172a",
-border:"1px solid #1e293b",
-borderRadius:"12px",
-padding:"20px"
-}}>
-
-<h2 style={{fontSize:20,marginBottom:10}}>
-{s.title}
-</h2>
-
-<p style={{color:"#94a3b8"}}>
-{s.description}
-</p>
-
-<p style={{marginTop:10,fontWeight:700}}>
-${s.price}
-</p>
-
-<button style={{
-marginTop:15,
-background:"#2563eb",
-padding:"10px 16px",
-borderRadius:"8px",
-border:"none",
-color:"white"
-}}>
-Buy Strategy
-</button>
-
-</div>
-
-))}
-
-</div>
-
-</div>
-
-)
-
+              {strategy.rules && (
+                <div style={{ marginTop: 12 }}>
+                  <div className="muted">Rules</div>
+                  <pre
+                    style={{
+                      whiteSpace: "pre-wrap",
+                      background: "#020817",
+                      padding: 12,
+                      borderRadius: 10,
+                      border: "1px solid #1e293b",
+                    }}
+                  >
+                    {strategy.rules}
+                  </pre>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }

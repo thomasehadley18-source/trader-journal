@@ -2,11 +2,11 @@
 
 import {useEffect,useState} from "react"
 import {supabase} from "@/lib/supabase"
-import {riskDashboard} from "@/lib/risk-dashboard"
+import {analyzeSessions} from "@/lib/session-engine"
 
-export default function RiskPage(){
+export default function SessionPage(){
 
-const [data,setData]=useState<any>(null)
+const [stats,setStats]=useState<any>(null)
 
 useEffect(()=>{
 load()
@@ -23,21 +23,21 @@ const {data}=await supabase
 .select("*")
 .eq("user_id",user.id)
 
-setData(riskDashboard(data||[]))
+setStats(analyzeSessions(data||[]))
 
 }
 
-if(!data)return <div>Loading...</div>
+if(!stats)return <div>Loading...</div>
 
 return(
 
 <div style={{padding:40}}>
 
-<h1>Risk Dashboard</h1>
+<h1>Session Analytics</h1>
 
-<p>Average Risk: {data.avgRisk}</p>
-
-<p>Max Loss: {data.maxLoss}</p>
+<p>Asia: {stats.Asia}</p>
+<p>London: {stats.London}</p>
+<p>New York: {stats.NewYork}</p>
 
 </div>
 

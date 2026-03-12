@@ -6,28 +6,23 @@ Line,
 XAxis,
 YAxis,
 Tooltip,
+CartesianGrid,
 ResponsiveContainer
 } from "recharts"
 
-export default function EquityChart({data}:any){
+export default function EquityChart({data}:{data:any[]}){
 
 return(
 
-<div
-style={{
-width:"100%",
-height:400,
-background:"#020817",
-padding:20,
-borderRadius:10
-}}
->
+<div style={{width:"100%",height:300}}>
 
-<ResponsiveContainer width="100%" height="100%">
+<ResponsiveContainer>
 
 <LineChart data={data}>
 
-<XAxis dataKey="trade"/>
+<CartesianGrid stroke="#1e293b"/>
+
+<XAxis dataKey="date"/>
 
 <YAxis/>
 
@@ -35,9 +30,9 @@ borderRadius:10
 
 <Line
 type="monotone"
-dataKey="equity"
-stroke="#22c55e"
-strokeWidth={2}
+dataKey="balance"
+stroke="#3b82f6"
+strokeWidth={3}
 />
 
 </LineChart>

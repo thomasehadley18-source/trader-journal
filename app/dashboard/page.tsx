@@ -1,79 +1,107 @@
 "use client"
 
-import { useEffect,useState } from "react"
-import { supabase } from "@/lib/supabase"
-import StatCard from "@/components/dashboard/stat-card"
+import {useEffect,useState} from "react"
+import {supabase} from "@/lib/supabase"
+import EquityChart from "@/components/charts/equity-chart"
 
-export default function DashboardPage(){
+export default function Dashboard(){
 
-const [stats,setStats] = useState<any>(null)
+const [stats,setStats]=useState<any>({
+balance:0,
+winrate:0,
+trades:0,
+profit:0
+})
 
-useEffect(()=>{
-load()
-},[])
+const [chart,setChart]=useState<any[]>([])
+
+useEffect(()=>{load()},[])
 
 async function load(){
 
-const {data:{user}} = await supabase.auth.getUser()
+const {data:{user}}=await supabase.auth.getUser()
 
-if(!user) return
+if(!user)return
 
-const {data} = await supabase
+const {data}=await supabase
 .from("trades")
 .select("*")
 .eq("user_id",user.id)
+.order("trade_date",{ascending:true})
 
-const trades = data || []
+const trades=data||[]
 
-const wins = trades.filter((t:any)=>t.pnl>0).length
-const losses = trades.filter((t:any)=>t.pnl<=0).length
+let wins=0
+let profit=0
+let balance=0
 
-const winRate = wins/(trades.length||1)
+const equity:any=[]
 
-const pnl = trades.reduce((a:any,b:any)=>a+Number(b.pnl||0),0)
+trades.forEach(t=>{
 
-setStats({
-trades:trades.length,
-winRate,
-pnl
+if(t.pnl>0)wins++
+
+profit+=Number(t.pnl)
+
+balance+=Number(t.pnl)
+
+equity.push({
+
+date:new Date(t.trade_date).toLocaleDateString(),
+balance
+
 })
 
-}
+})
 
-if(!stats){
-return <div style={{padding:40}}>Loading...</div>
+setStats({
+
+balance,
+profit,
+trades:trades.length,
+winrate:((wins/(trades.length||1))*100).toFixed(1)
+
+})
+
+setChart(equity)
+
 }
 
 return(
 
-<div style={{padding:40}}>
+<div>
 
-<h1 style={{marginBottom:30}}>
-Trading Dashboard
-</h1>
+<h1>Trading Dashboard</h1>
 
-<div
-style={{
-display:"flex",
-gap:20,
-flexWrap:"wrap"
-}}
->
+<div className="grid grid-4">
 
-<StatCard
-title="Total Trades"
-value={stats.trades}
-/>
+<div className="card">
+<div className="muted">Account Balance</div>
+<div className="stat">${stats.balance}</div>
+</div>
 
-<StatCard
-title="Win Rate"
-value={(stats.winRate*100).toFixed(2)+"%"}
-/>
+<div className="card">
+<div className="muted">Total Profit</div>
+<div className="stat">${stats.profit}</div>
+</div>
 
-<StatCard
-title="Total PnL"
-value={stats.pnl.toFixed(2)}
-/>
+<div className="card">
+<div className="muted">Total Trades</div>
+<div className="stat">{stats.trades}</div>
+</div>
+
+<div className="card">
+<div className="muted">Win Rate</div>
+<div className="stat">{stats.winrate}%</div>
+</div>
+
+</div>
+
+<div style={{marginTop:40}}>
+
+<h2>Equity Curve</h2>
+
+<EquityChart data={chart}/>
 
 </div>
 

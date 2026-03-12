@@ -2,10 +2,11 @@
 
 import {useEffect,useState} from "react"
 import {supabase} from "@/lib/supabase"
+import {aiAdvisor} from "@/lib/ai-advisor"
 
-export default function Profile(){
+export default function Advisor(){
 
-const [profile,setProfile]=useState<any>(null)
+const [advice,setAdvice]=useState("")
 
 useEffect(()=>{load()},[])
 
@@ -16,24 +17,21 @@ const {data:{user}}=await supabase.auth.getUser()
 if(!user)return
 
 const {data}=await supabase
-.from("trader_profiles")
+.from("trades")
 .select("*")
 .eq("user_id",user.id)
-.single()
 
-setProfile(data)
+setAdvice(aiAdvisor(data||[]))
 
 }
 
-if(!profile)return<div>Loading...</div>
-
 return(
 
-<div style={{padding:40}}>
+<div>
 
-<h1>{profile.username}</h1>
+<h1>AI Trading Advisor</h1>
 
-<p>{profile.bio}</p>
+<p>{advice}</p>
 
 </div>
 

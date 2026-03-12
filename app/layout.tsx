@@ -1,22 +1,38 @@
-import "./globals.css"
+"use client"
 
-export default function RootLayout({
+import Link from "next/link"
+import Sidebar from "@/components/dashboard/sidebar"
+
+const mobileLinks = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/dashboard/trades", label: "Trades" },
+  { href: "/dashboard/analytics", label: "Analytics" },
+  { href: "/dashboard/equity", label: "Equity" },
+  { href: "/dashboard/risk", label: "Risk" },
+  { href: "/dashboard/prop-firms", label: "Prop Firms" },
+  { href: "/marketplace", label: "Strategy Market" },
+]
+
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body
-        style={{
-          margin: 0,
-          background: "#020817",
-          color: "white",
-          fontFamily: "system-ui",
-        }}
-      >
+    <div className="page-wrap">
+      <Sidebar />
+
+      <main className="main-shell">
+        <div className="mobile-nav">
+          {mobileLinks.map((link) => (
+            <Link key={link.href} href={link.href}>
+              {link.label}
+            </Link>
+          ))}
+        </div>
+
         {children}
-      </body>
-    </html>
+      </main>
+    </div>
   )
 }

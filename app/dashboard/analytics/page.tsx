@@ -1,123 +1,82 @@
 "use client"
 
-import { useEffect,useState } from "react"
-import { supabase } from "@/lib/supabase"
-import { calculateAdvancedAnalytics } from "@/lib/advanced-analytics"
-import { calculateInstitutionalMetrics } from "@/lib/institutional-metrics"
+import {useEffect,useState} from "react"
+import {supabase} from "@/lib/supabase"
+import PnLDistribution from "@/components/charts/pnl-distribution"
+import SessionChart from "@/components/charts/session-chart"
 
-export default function AnalyticsPage(){
+export default function Analytics(){
 
-const [stats,setStats] = useState<any>(null)
-const [inst,setInst] = useState<any>(null)
+const [pnl,setPnl]=useState<any[]>([])
+const [sessions,setSessions]=useState<any[]>([])
 
-useEffect(()=>{
-load()
-},[])
+useEffect(()=>{load()},[])
 
 async function load(){
 
-const {data:{user}} = await supabase.auth.getUser()
+const {data:{user}}=await supabase.auth.getUser()
 
-if(!user) return
+if(!user)return
 
-const {data} = await supabase
+const {data}=await supabase
 .from("trades")
 .select("*")
 .eq("user_id",user.id)
 
-const trades = data || []
+const trades=data||[]
 
-setStats(calculateAdvancedAnalytics(trades))
-setInst(calculateInstitutionalMetrics(trades))
+let wins=0
+let losses=0
 
-}
+let asia=0
+let london=0
+let ny=0
 
-if(!stats || !inst){
-return <div style={{padding:40}}>Loading...</div>
+trades.forEach(t=>{
+
+if(t.pnl>0)wins++
+else losses++
+
+const hour=new Date(t.trade_date).getUTCHours()
+
+if(hour<7)asia+=t.pnl
+else if(hour<14)london+=t.pnl
+else ny+=t.pnl
+
+})
+
+setPnl([
+
+{name:"Wins",value:wins},
+{name:"Losses",value:losses}
+
+])
+
+setSessions([
+
+{name:"Asia",value:asia},
+{name:"London",value:london},
+{name:"New York",value:ny}
+
+])
+
 }
 
 return(
 
-<div style={{padding:40}}>
+<div>
 
-<h1>Advanced Trading Analytics</h1>
+<h1>Analytics</h1>
 
-<h2 style={{marginTop:30}}>Performance Overview</h2>
+<h2>PnL Distribution</h2>
 
-<p>Total Wins: {stats.wins}</p>
-<p>Total Losses: {stats.losses}</p>
-<p>Win Rate: {(stats.winRate*100).toFixed(2)}%</p>
-<p>Profit Factor: {stats.profitFactor.toFixed(2)}</p>
+<PnLDistribution data={pnl}/>
 
-<h2 style={{marginTop:40}}>Institutional Metrics</h2>
+<h2 style={{marginTop:40}}>
+Session Performance
+</h2>
 
-<p>Expectancy: {inst.expectancy.toFixed(2)}</p>
-<p>Average R Multiple: {inst.avgR.toFixed(2)}</p>
-<p>Max Drawdown: {inst.maxDrawdown.toFixed(2)}</p>
-<p>Sharpe Ratio: {inst.sharpe.toFixed(2)}</p>
-<p>Risk of Ruin: {(inst.riskOfRuin*100).toFixed(4)}%</p>
-
-<h2 style={{marginTop:40}}>Session Performance</h2>
-
-<table>
-
-<thead>
-<tr>
-<th>Session</th>
-<th>Wins</th>
-<th>Losses</th>
-</tr>
-</thead>
-
-<tbody>
-
-<tr>
-<td>Asia</td>
-<td>{stats.sessionStats.Asia.wins}</td>
-<td>{stats.sessionStats.Asia.losses}</td>
-</tr>
-
-<tr>
-<td>London</td>
-<td>{stats.sessionStats.London.wins}</td>
-<td>{stats.sessionStats.London.losses}</td>
-</tr>
-
-<tr>
-<td>New York</td>
-<td>{stats.sessionStats.NewYork.wins}</td>
-<td>{stats.sessionStats.NewYork.losses}</td>
-</tr>
-
-</tbody>
-
-</table>
-
-<h2 style={{marginTop:40}}>Pair Performance</h2>
-
-<table>
-
-<thead>
-<tr>
-<th>Pair</th>
-<th>Wins</th>
-<th>Losses</th>
-</tr>
-</thead>
-
-<tbody>
-
-{Object.entries(stats.pairStats).map(([pair,data]:any)=>(
-<tr key={pair}>
-<td>{pair}</td>
-<td>{data.wins}</td>
-<td>{data.losses}</td>
-</tr>
-))}
-
-</tbody>
-
-</table>
+<SessionChart data={sessions}/>
 
 </div>
 

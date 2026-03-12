@@ -2,9 +2,9 @@
 
 import {useEffect,useState} from "react"
 import {supabase} from "@/lib/supabase"
-import {riskDashboard} from "@/lib/risk-dashboard"
+import {detectMistakes} from "@/lib/mistake-engine"
 
-export default function RiskPage(){
+export default function MistakePage(){
 
 const [data,setData]=useState<any>(null)
 
@@ -23,7 +23,7 @@ const {data}=await supabase
 .select("*")
 .eq("user_id",user.id)
 
-setData(riskDashboard(data||[]))
+setData(detectMistakes(data||[]))
 
 }
 
@@ -33,11 +33,11 @@ return(
 
 <div style={{padding:40}}>
 
-<h1>Risk Dashboard</h1>
+<h1>Trading Mistakes</h1>
 
-<p>Average Risk: {data.avgRisk}</p>
+<p>Revenge Trades: {data.revenge}</p>
 
-<p>Max Loss: {data.maxLoss}</p>
+<p>Bad Risk Reward: {data.badRR}</p>
 
 </div>
 

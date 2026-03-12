@@ -2,11 +2,11 @@
 
 import {useEffect,useState} from "react"
 import {supabase} from "@/lib/supabase"
-import {riskDashboard} from "@/lib/risk-dashboard"
+import {buildCalendar} from "@/lib/calendar-engine"
 
-export default function RiskPage(){
+export default function CalendarPage(){
 
-const [data,setData]=useState<any>(null)
+const [days,setDays]=useState<any>({})
 
 useEffect(()=>{
 load()
@@ -23,21 +23,21 @@ const {data}=await supabase
 .select("*")
 .eq("user_id",user.id)
 
-setData(riskDashboard(data||[]))
+setDays(buildCalendar(data||[]))
 
 }
-
-if(!data)return <div>Loading...</div>
 
 return(
 
 <div style={{padding:40}}>
 
-<h1>Risk Dashboard</h1>
+<h1>Trade Calendar</h1>
 
-<p>Average Risk: {data.avgRisk}</p>
-
-<p>Max Loss: {data.maxLoss}</p>
+{Object.entries(days).map(([d,p]:any)=>(
+<div key={d}>
+{d} : {p}
+</div>
+))}
 
 </div>
 

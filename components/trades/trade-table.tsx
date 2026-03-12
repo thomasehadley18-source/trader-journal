@@ -1,97 +1,71 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
+import {useEffect,useState} from "react"
+import {supabase} from "@/lib/supabase"
+import AITradeFeedback from "./ai-trade-feedback"
 
-export default function TradeTable({ refresh }: { refresh: number }) {
-  const [trades, setTrades] = useState<any[]>([])
-  const [selectedTag, setSelectedTag] = useState("")
-  const [filtered, setFiltered] = useState<any[]>([])
+export default function TradeTable({refresh}:{refresh:number}){
 
-  useEffect(() => {
-    load()
-  }, [refresh])
+const [trades,setTrades]=useState<any[]>([])
 
-  useEffect(() => {
-    if (!selectedTag) {
-      setFiltered(trades)
-      return
-    }
+useEffect(()=>{
+load()
+},[refresh])
 
-    setFiltered(
-      trades.filter((t) => Array.isArray(t.tags) && t.tags.includes(selectedTag))
-    )
-  }, [selectedTag, trades])
+async function load(){
 
-  async function load() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+const {data:{user}}=await supabase.auth.getUser()
 
-    const { data } = await supabase
-      .from("trades")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("trade_date", { ascending: false })
+if(!user)return
 
-    const rows = data || []
-    setTrades(rows)
-    setFiltered(rows)
-  }
+const {data}=await supabase
+.from("trades")
+.select("*")
+.eq("user_id",user.id)
+.order("trade_date",{ascending:false})
 
-  const allTags = Array.from(
-    new Set(
-      trades.flatMap((t) => (Array.isArray(t.tags) ? t.tags : []))
-    )
-  )
+setTrades(data||[])
 
-  return (
-    <div className="card">
-      <h2>Trade History</h2>
+}
 
-      <div style={{ marginBottom: 16 }}>
-        <label className="muted">Filter by Tag</label>
-        <select
-          value={selectedTag}
-          onChange={(e) => setSelectedTag(e.target.value)}
-        >
-          <option value="">All Trades</option>
-          {allTags.map((tag) => (
-            <option key={tag} value={tag}>
-              {tag}
-            </option>
-          ))}
-        </select>
-      </div>
+return(
 
-      <table>
-        <thead>
-          <tr>
-            <th>Pair</th>
-            <th>Side</th>
-            <th>Entry</th>
-            <th>Exit</th>
-            <th>PnL</th>
-            <th>Strategy</th>
-            <th>Tags</th>
-          </tr>
-        </thead>
+<div>
 
-        <tbody>
-          {filtered.map((t) => (
-            <tr key={t.id}>
-              <td>{t.symbol}</td>
-              <td>{t.side}</td>
-              <td>{t.entry}</td>
-              <td>{t.exit}</td>
-              <td style={{ color: t.pnl > 0 ? "#22c55e" : "#ef4444" }}>
-                {t.pnl}
-              </td>
-              <td>{t.strategy || "-"}</td>
-              <td>{Array.isArray(t.tags) ? t.tags.join(", ") : "-"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
+{trades.map(t=>(
+
+<div
+key={t.id}
+className="card"
+style={{marginBottom:20}}
+>
+
+<div>
+
+<b>{t.symbol}</b>
+
+</div>
+
+<div>
+Entry: {t.entry}
+</div>
+
+<div>
+Exit: {t.exit}
+</div>
+
+<div>
+PNL: {t.pnl}
+</div>
+
+<AITradeFeedback trade={t}/>
+
+</div>
+
+))}
+
+</div>
+
+)
+
 }

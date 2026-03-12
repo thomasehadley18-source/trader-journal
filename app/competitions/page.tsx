@@ -3,7 +3,7 @@
 import {useEffect,useState} from "react"
 import {supabase} from "@/lib/supabase"
 
-export default function Leaderboard(){
+export default function Competitions(){
 
 const [rows,setRows]=useState<any[]>([])
 
@@ -12,8 +12,8 @@ useEffect(()=>{load()},[])
 async function load(){
 
 const {data}=await supabase
-.from("trades")
-.select("user_id,pnl")
+.from("competitions")
+.select("*")
 
 setRows(data||[])
 
@@ -23,12 +23,16 @@ return(
 
 <div style={{padding:40}}>
 
-<h1>Leaderboard</h1>
+<h1>Trading Competitions</h1>
 
-{rows.map((r,i)=>(
+{rows.map(c=>(
 
-<div key={i}>
-Trader {r.user_id} : {r.pnl}
+<div key={c.id}>
+
+<h3>{c.name}</h3>
+
+<p>{c.start_date} - {c.end_date}</p>
+
 </div>
 
 ))}

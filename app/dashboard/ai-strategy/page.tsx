@@ -2,15 +2,13 @@
 
 import {useEffect,useState} from "react"
 import {supabase} from "@/lib/supabase"
-import {riskDashboard} from "@/lib/risk-dashboard"
+import {detectBestStrategy} from "@/lib/ai-strategy"
 
-export default function RiskPage(){
+export default function AIStrategy(){
 
 const [data,setData]=useState<any>(null)
 
-useEffect(()=>{
-load()
-},[])
+useEffect(()=>{load()},[])
 
 async function load(){
 
@@ -23,21 +21,20 @@ const {data}=await supabase
 .select("*")
 .eq("user_id",user.id)
 
-setData(riskDashboard(data||[]))
+setData(detectBestStrategy(data||[]))
 
 }
 
-if(!data)return <div>Loading...</div>
+if(!data)return<div>Loading...</div>
 
 return(
 
-<div style={{padding:40}}>
+<div>
 
-<h1>Risk Dashboard</h1>
+<h1>AI Strategy Detection</h1>
 
-<p>Average Risk: {data.avgRisk}</p>
-
-<p>Max Loss: {data.maxLoss}</p>
+<p>Best Strategy: {data[0]}</p>
+<p>Total Profit: {data[1]}</p>
 
 </div>
 

@@ -1,13 +1,13 @@
 "use client"
 
-import {useEffect,useState} from "react"
-import {supabase} from "@/lib/supabase"
-import {buildHeatmap} from "@/lib/heatmap-engine"
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
+import { generateDayHeatmap, generateHourHeatmap } from "@/lib/heatmap-engine"
 
-export default function StrategyHeatmap(){
+export default function StrategyHeatmap() {
 
-const [days,setDays]=useState<any[]>([])
-const [hours,setHours]=useState<any[]>([])
+const [days,setDays] = useState<any[]>([])
+const [hours,setHours] = useState<any[]>([])
 
 useEffect(()=>{
 load()
@@ -15,17 +15,19 @@ load()
 
 async function load(){
 
-const {data:{user}}=await supabase.auth.getUser()
+const {data:{user}} = await supabase.auth.getUser()
 
-const {data}=await supabase
+if(!user) return
+
+const {data} = await supabase
 .from("trades")
 .select("*")
-.eq("user_id",user?.id)
+.eq("user_id",user.id)
 
-const heatmap=buildHeatmap(data||[])
+const trades = data || []
 
-setDays(heatmap.days)
-setHours(heatmap.hours)
+setDays(generateDayHeatmap(trades))
+setHours(generateHourHeatmap(trades))
 
 }
 
@@ -41,7 +43,7 @@ return(
 
 {days.map(d=>{
 
-const color=d.pnl>0 ? "#065f46" : "#7f1d1d"
+const color = d.pnl > 0 ? "#065f46" : "#7f1d1d"
 
 return(
 
@@ -55,7 +57,7 @@ borderRadius:10
 >
 
 <div>{d.day}</div>
-<div>{d.pnl.toFixed(2)}</div>
+<div>{Number(d.pnl).toFixed(2)}</div>
 
 </div>
 
@@ -71,7 +73,7 @@ borderRadius:10
 
 {hours.map(h=>{
 
-const color=h.pnl>0 ? "#065f46" : "#7f1d1d"
+const color = h.pnl > 0 ? "#065f46" : "#7f1d1d"
 
 return(
 
@@ -85,7 +87,7 @@ borderRadius:10
 >
 
 <div>{h.hour}:00</div>
-<div>{h.pnl.toFixed(2)}</div>
+<div>{Number(h.pnl).toFixed(2)}</div>
 
 </div>
 

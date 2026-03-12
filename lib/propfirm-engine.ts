@@ -1,37 +1,40 @@
-export function calculatePropFirmStats(trades:any[],startingBalance:number){
+export function analyzePropFirm(trades:any[]){
 
-let balance=startingBalance
-let peak=startingBalance
-
-let dailyLoss=0
-let maxDrawdown=0
-
-const dailyMap:any={}
+const dailyMap:Record<string,number> = {}
 
 trades.forEach(t=>{
 
-balance+=Number(t.pnl||0)
+const day = new Date(t.trade_date).toISOString().split("T")[0]
 
-if(balance>peak) peak=balance
+if(!dailyMap[day]){
+dailyMap[day] = 0
+}
 
-const dd=peak-balance
-if(dd>maxDrawdown) maxDrawdown=dd
-
-const date=new Date(t.trade_date).toLocaleDateString()
-
-if(!dailyMap[date]) dailyMap[date]=0
-dailyMap[date]+=Number(t.pnl||0)
+dailyMap[day] += Number(t.pnl || 0)
 
 })
 
-const worstDay = Math.min(...Object.values(dailyMap))
+const dailyValues = Object.values(dailyMap) as number[]
+
+const worstDay = dailyValues.length
+? Math.min(...dailyValues)
+: 0
+
+const bestDay = dailyValues.length
+? Math.max(...dailyValues)
+: 0
+
+const totalProfit = trades.reduce(
+(a,t)=>a + Number(t.pnl || 0),
+0
+)
 
 return{
 
-balance,
-maxDrawdown,
+bestDay,
 worstDay,
-profit:balance-startingBalance
+totalProfit,
+days:dailyValues.length
 
 }
 

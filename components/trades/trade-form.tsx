@@ -4,7 +4,11 @@ import { useState } from "react"
 import { supabase } from "@/lib/supabase"
 import InstrumentSelect from "./instrument-select"
 
-export default function TradeForm(){
+export default function TradeForm({
+  onAdded
+}:{ 
+  onAdded?: () => void
+}){
 
 const [pair,setPair] = useState("")
 const [pnl,setPnl] = useState("")
@@ -16,7 +20,7 @@ async function submit(){
 const { data:{user} } = await supabase.auth.getUser()
 if(!user) return
 
-let screenshot=null
+let screenshot:string | null = null
 
 if(image){
 
@@ -43,7 +47,14 @@ trade_date:date,
 screenshot
 })
 
-alert("Trade added")
+setPair("")
+setPnl("")
+setDate("")
+setImage(null)
+
+if(onAdded){
+onAdded()
+}
 
 }
 

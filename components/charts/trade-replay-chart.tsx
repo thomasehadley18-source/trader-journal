@@ -3,35 +3,48 @@
 import { useEffect, useRef } from "react"
 import { createChart } from "lightweight-charts"
 
-export default function TradeReplayChart({
-data
-}:{data:any[]}){
+export default function TradeReplayChart({ data }: { data: any[] }) {
 
-const chartRef = useRef<HTMLDivElement|null>(null)
+const chartContainerRef = useRef<HTMLDivElement | null>(null)
 
-useEffect(()=>{
+useEffect(() => {
 
-if(!chartRef.current) return
+if (!chartContainerRef.current) return
 
-const chart = createChart(chartRef.current,{
-height:400,
-layout:{
-background:{color:"#020617"},
-textColor:"#cbd5f5"
+const chart = createChart(chartContainerRef.current, {
+width: chartContainerRef.current.clientWidth,
+height: 400,
+layout: {
+background: { color: "#020817" },
+textColor: "#e2e8f0"
 },
-grid:{
-vertLines:{color:"#1e293b"},
-horzLines:{color:"#1e293b"}
+grid: {
+vertLines: { color: "#1e293b" },
+horzLines: { color: "#1e293b" }
 }
 })
 
-const series = chart.addCandlestickSeries()
+/* FIX TYPESCRIPT ISSUE */
+const series = (chart as any).addCandlestickSeries()
 
 series.setData(data)
 
-return ()=> chart.remove()
+return () => {
+chart.remove()
+}
 
-},[data])
+}, [data])
 
-return <div ref={chartRef}/>
+return (
+
+<div
+ref={chartContainerRef}
+style={{
+width: "100%",
+height: "400px"
+}}
+/>
+
+)
+
 }

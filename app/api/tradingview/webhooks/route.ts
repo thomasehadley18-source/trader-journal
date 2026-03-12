@@ -1,36 +1,36 @@
-import { createClient } from "@supabase/supabase-js"
+import { supabase } from "@/lib/supabase"
 
-export async function POST(req: Request) {
+export async function POST(req:Request){
 
-  const payload = await req.json()
+const body = await req.json()
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
+const {
+pair,
+pnl,
+trade_date
+} = body
 
-  const {
-    userId,
-    symbol,
-    direction,
-    entry,
-    exit,
-    pnl
-  } = payload
+const { data:{ user } } = await supabase.auth.getUser()
 
-  await supabase.from("trades").insert({
-    user_id: userId,
-    symbol,
-    direction,
-    entry,
-    exit,
-    pnl,
-    import_source: "tradingview",
-    trade_date: new Date().toISOString()
-  })
+if(!user){
 
-  return Response.json({
-    success: true
-  })
+return Response.json({
+error:"User not authenticated"
+},{status:401})
+
+}
+
+await supabase
+.from("trades")
+.insert({
+user_id:user.id,
+pair,
+pnl:Number(pnl),
+trade_date
+})
+
+return Response.json({
+success:true
+})
 
 }

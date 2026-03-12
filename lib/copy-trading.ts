@@ -1,25 +1,21 @@
-export async function copyTrade(strategy_id:string,trade:any,supabase:any){
+export function rankTraders(traders:any[]){
 
-const {data:subs}=await supabase
-.from("strategy_subscriptions")
-.select("*")
-.eq("strategy_id",strategy_id)
+return traders
+.map(t=>{
 
-for(const s of subs||[]){
+const winrate = t.wins/(t.trades || 1)
 
-await supabase
-.from("trades")
-.insert({
+const score =
+(t.pnl * 0.5) +
+(winrate * 100 * 0.3) -
+(t.drawdown * 0.2)
 
-user_id:s.subscriber_id,
-symbol:trade.symbol,
-entry:trade.entry,
-exit:trade.exit,
-pnl:trade.pnl,
-trade_date:trade.trade_date
+return {
+...t,
+score
+}
 
 })
-
-}
+.sort((a,b)=>b.score-a.score)
 
 }

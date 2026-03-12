@@ -1,71 +1,90 @@
 "use client"
 
-import {useEffect,useState} from "react"
-import {supabase} from "@/lib/supabase"
-import AITradeFeedback from "./ai-trade-feedback"
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
+import AITradeFeedback from "@/components/trades/ai-trade-feedback"
 
-export default function TradeTable({refresh}:{refresh:number}){
+export default function TradeTable({ refresh }: { refresh: number }) {
+  const [trades, setTrades] = useState<any[]>([])
 
-const [trades,setTrades]=useState<any[]>([])
+  useEffect(() => {
+    load()
+  }, [refresh])
 
-useEffect(()=>{
-load()
-},[refresh])
+  async function load() {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
 
-async function load(){
+    const { data } = await supabase
+      .from("trades")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("trade_date", { ascending: false })
 
-const {data:{user}}=await supabase.auth.getUser()
+    setTrades(data || [])
+  }
 
-if(!user)return
+  return (
+    <div style={{ display: "grid", gap: 16 }}>
+      {trades.map((trade) => (
+        <div key={trade.id} className="card">
+          <div className="grid-2">
+            <div>
+              <div className="muted">Instrument</div>
+              <div>{trade.symbol}</div>
+            </div>
 
-const {data}=await supabase
-.from("trades")
-.select("*")
-.eq("user_id",user.id)
-.order("trade_date",{ascending:false})
+            <div>
+              <div className="muted">Side</div>
+              <div>{trade.side}</div>
+            </div>
 
-setTrades(data||[])
+            <div>
+              <div className="muted">Entry</div>
+              <div>{trade.entry}</div>
+            </div>
 
-}
+            <div>
+              <div className="muted">Exit</div>
+              <div>{trade.exit}</div>
+            </div>
 
-return(
+            <div>
+              <div className="muted">PnL</div>
+              <div style={{ color: trade.pnl > 0 ? "#22c55e" : "#ef4444" }}>
+                {trade.pnl}
+              </div>
+            </div>
 
-<div>
+            <div>
+              <div className="muted">Strategy</div>
+              <div>{trade.strategy || "-"}</div>
+            </div>
+          </div>
 
-{trades.map(t=>(
+          {trade.notes && (
+            <div style={{ marginTop: 14 }}>
+              <div className="muted">Notes</div>
+              <div>{trade.notes}</div>
+            </div>
+          )}
 
-<div
-key={t.id}
-className="card"
-style={{marginBottom:20}}
->
+          {trade.screenshot_url && (
+            <div style={{ marginTop: 16 }}>
+              <div className="muted" style={{ marginBottom: 8 }}>Screenshot</div>
+              <img
+                src={trade.screenshot_url}
+                alt="Trade screenshot"
+                className="image-preview"
+              />
+            </div>
+          )}
 
-<div>
-
-<b>{t.symbol}</b>
-
-</div>
-
-<div>
-Entry: {t.entry}
-</div>
-
-<div>
-Exit: {t.exit}
-</div>
-
-<div>
-PNL: {t.pnl}
-</div>
-
-<AITradeFeedback trade={t}/>
-
-</div>
-
-))}
-
-</div>
-
-)
-
+          <div style={{ marginTop: 16 }}>
+            <AITradeFeedback trade={trade} />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 }

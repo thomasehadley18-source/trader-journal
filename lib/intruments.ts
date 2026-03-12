@@ -1,69 +1,52 @@
-export const INSTRUMENTS = {
+export const INSTRUMENTS: Record<string, string[]> = {
+  Forex: [
+    "EURUSD","GBPUSD","USDJPY","USDCHF","USDCAD","AUDUSD","NZDUSD",
+    "EURGBP","EURJPY","EURCHF","EURCAD","EURAUD","EURNZD",
+    "GBPJPY","GBPCHF","GBPCAD","GBPAUD","GBPNZD",
+    "AUDJPY","AUDCHF","AUDCAD","AUDNZD",
+    "NZDJPY","NZDCHF","NZDCAD",
+    "CADJPY","CADCHF","CHFJPY",
+    "EURSEK","EURNOK","EURDKK","USDSEK","USDNOK","USDMXN","USDZAR",
+    "USDTRY","USDHKD","USDSGD","USDPLN","USDHUF","USDCNH",
+    "EURPLN","EURHUF","EURTRY","GBPSEK","GBPNOK","AUDSGD","NZDSGD"
+  ],
 
-FOREX: [
+  Crypto: [
+    "BTCUSD","ETHUSD","SOLUSD","BNBUSD","XRPUSD","ADAUSD","DOGEUSD",
+    "AVAXUSD","DOTUSD","LINKUSD","LTCUSD","BCHUSD","MATICUSD",
+    "ATOMUSD","NEARUSD","APTUSD","OPUSD","ARBUSD","ETCUSD",
+    "FILUSD","ICPUSD","TRXUSD","XLMUSD","UNIUSD","AAVEUSD",
+    "SUIUSD","PEPEUSD","SHIBUSD","TONUSD","INJUSD","RNDRUSD"
+  ],
 
-"EURUSD",
-"GBPUSD",
-"USDJPY",
-"AUDUSD",
-"USDCAD",
-"USDCHF",
-"NZDUSD",
+  Indices: [
+    "NAS100","SPX500","US30","DAX40","FTSE100","CAC40","NIKKEI225",
+    "HK50","AUS200","STOXX50","JP225","GER40","UK100","US500","US100"
+  ],
 
-"EURGBP",
-"EURJPY",
-"EURCHF",
-"EURCAD",
-"EURAUD",
+  Commodities: [
+    "XAUUSD","XAGUSD","XPTUSD","XPDUSD",
+    "WTI","BRENT","NATGAS","GASOLINE","HEATINGOIL",
+    "COPPER","ALUMINUM","NICKEL","ZINC",
+    "WHEAT","CORN","SOYBEAN","COFFEE","SUGAR","COCOA","COTTON"
+  ],
 
-"GBPJPY",
-"GBPCAD",
-"GBPAUD",
-"GBPCHF",
+  Futures: [
+    "ES","MES","NQ","MNQ","YM","MYM","RTY","M2K",
+    "CL","MCL","NG","QG","GC","MGC","SI","SIL",
+    "HG","ZC","ZW","ZS","KE","LE","HE",
+    "6E","6B","6J","6A","6C","6N","DX","VX",
+    "ZN","ZF","ZB","UB"
+  ],
 
-"AUDJPY",
-"AUDCAD",
-"AUDCHF",
-
-"CADJPY",
-"CHFJPY"
-
-],
-
-CRYPTO: [
-
-"BTCUSD",
-"ETHUSD",
-"BNBUSD",
-"SOLUSD",
-"XRPUSD",
-"ADAUSD",
-"DOGEUSD"
-
-],
-
-STOCKS: [
-
-"AAPL",
-"TSLA",
-"NVDA",
-"AMZN",
-"MSFT",
-"META",
-"GOOGL"
-
-],
-
-FUTURES: [
-
-"ES",
-"NQ",
-"YM",
-"RTY",
-"CL",
-"GC",
-"SI"
-
-]
-
+  Stocks: [
+    "AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","NFLX","AMD","INTC",
+    "PLTR","COIN","MSTR","SMCI","AVGO","CRM","ORCL","ADBE","QCOM","CSCO",
+    "SHOP","UBER","LYFT","SNOW","ARM","RDDT","MU","IBM","BA","GE",
+    "JPM","BAC","GS","MS","V","MA","PYPL","SQ","AXP","WFC",
+    "XOM","CVX","OXY","SLB","COP",
+    "WMT","COST","TGT","HD","LOW","NKE","SBUX","MCD","DIS",
+    "PFE","JNJ","LLY","MRK","ABBV","UNH","CVS",
+    "SPY","QQQ","IWM","DIA","ARKK","XLF","XLK","XLE","SMH","SOXX"
+  ]
 }

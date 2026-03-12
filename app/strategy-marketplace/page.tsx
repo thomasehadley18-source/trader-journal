@@ -1,54 +1,58 @@
 "use client"
 
-import { useEffect,useState } from "react"
+import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 
-export default function StrategyMarketplace(){
+export default function StrategyMarketplacePage() {
+  const [strategies, setStrategies] = useState<any[]>([])
 
-const [strategies,setStrategies] = useState<any[]>([])
+  useEffect(() => {
+    load()
+  }, [])
 
-useEffect(()=>{
+  async function load() {
+    const { data } = await supabase
+      .from("strategies")
+      .select("*")
+      .order("created_at", { ascending: false })
 
-load()
+    setStrategies(data || [])
+  }
 
-},[])
+  return (
+    <div style={{ padding: 40 }}>
+      <h1>Strategy Market</h1>
 
-async function load(){
-
-const {data} = await supabase
-.from("strategies")
-.select("*")
-
-setStrategies(data || [])
-
-}
-
-return(
-
-<div>
-
-<h1 style={{marginBottom:20}}>
-Strategy Marketplace
-</h1>
-
-<div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:20}}>
-
-{strategies.map((s:any)=>(
-<div key={s.id} className="card">
-
-<h3>{s.name}</h3>
-
-<p className="muted">
-{s.description}
-</p>
-
-</div>
-))}
-
-</div>
-
-</div>
-
-)
-
+      {strategies.length === 0 ? (
+        <div className="empty-state">
+          No strategies yet. Create one in Strategy Builder.
+        </div>
+      ) : (
+        <div className="grid-3">
+          {strategies.map((strategy) => (
+            <div key={strategy.id} className="card">
+              <h3 style={{ marginTop: 0 }}>{strategy.name}</h3>
+              <div className="muted" style={{ marginBottom: 8 }}>
+                ${strategy.price || 0}
+              </div>
+              <p>{strategy.description || "No description."}</p>
+              {strategy.rules && (
+                <pre
+                  style={{
+                    whiteSpace: "pre-wrap",
+                    background: "#020817",
+                    border: "1px solid #1e293b",
+                    borderRadius: 10,
+                    padding: 12,
+                  }}
+                >
+                  {strategy.rules}
+                </pre>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }

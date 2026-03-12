@@ -8,6 +8,7 @@ const links=[
 {href:"/dashboard/trades",label:"Trades"},
 {href:"/dashboard/import",label:"Import Trades"},
 {href:"/dashboard/analytics",label:"Analytics"},
+{href:"/dashboard/ai-mistakes",label:"AI Mistakes"},
 {href:"/dashboard/equity",label:"Equity Curve"},
 {href:"/dashboard/risk",label:"Risk Analytics"},
 

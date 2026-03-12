@@ -3,40 +3,82 @@
 import {useEffect,useState} from "react"
 import {supabase} from "@/lib/supabase"
 
-export default function Feed(){
+export default function TraderFeed(){
 
-const [trades,setTrades]=useState<any[]>([])
+const [posts,setPosts]=useState<any[]>([])
+const [content,setContent]=useState("")
 
-useEffect(()=>{load()},[])
+useEffect(()=>{
+load()
+},[])
 
 async function load(){
 
 const {data}=await supabase
-.from("trades")
+.from("feed_posts")
 .select("*")
-.order("trade_date",{ascending:false})
-.limit(30)
+.order("created_at",{ascending:false})
 
-setTrades(data||[])
+setPosts(data||[])
+
+}
+
+async function post(){
+
+const {data:{user}}=await supabase.auth.getUser()
+
+if(!user)return
+
+await supabase
+.from("feed_posts")
+.insert({
+user_id:user.id,
+content
+})
+
+setContent("")
+
+load()
 
 }
 
 return(
 
-<div style={{padding:40}}>
+<div>
 
 <h1>Trader Feed</h1>
 
-{trades.map(t=>(
+<div className="card">
 
-<div key={t.id} style={{marginBottom:20}}>
+<textarea
+placeholder="Share trade insight..."
+value={content}
+onChange={e=>setContent(e.target.value)}
+/>
 
-<p>{t.symbol}</p>
-<p>PNL: {t.pnl}</p>
+<button onClick={post}>
+Post
+</button>
+
+</div>
+
+<div style={{marginTop:20}}>
+
+{posts.map(p=>(
+
+<div key={p.id} className="card" style={{marginBottom:15}}>
+
+<div>{p.content}</div>
+
+<div className="muted" style={{marginTop:10}}>
+{new Date(p.created_at).toLocaleString()}
+</div>
 
 </div>
 
 ))}
+
+</div>
 
 </div>
 

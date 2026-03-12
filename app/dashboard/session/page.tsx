@@ -2,11 +2,11 @@
 
 import {useEffect,useState} from "react"
 import {supabase} from "@/lib/supabase"
-import {analyzeSessions} from "@/lib/session-engine"
+import {sessionStats} from "@/lib/session-engine"
 
-export default function SessionPage(){
+export default function SessionAnalytics(){
 
-const [stats,setStats]=useState<any>(null)
+const [sessions,setSessions]=useState<any[]>([])
 
 useEffect(()=>{
 load()
@@ -16,28 +16,48 @@ async function load(){
 
 const {data:{user}}=await supabase.auth.getUser()
 
-if(!user)return
-
 const {data}=await supabase
 .from("trades")
 .select("*")
-.eq("user_id",user.id)
+.eq("user_id",user?.id)
 
-setStats(analyzeSessions(data||[]))
+const stats=sessionStats(data||[])
+
+setSessions(stats)
 
 }
 
-if(!stats)return <div>Loading...</div>
-
 return(
 
-<div style={{padding:40}}>
+<div>
 
-<h1>Session Analytics</h1>
+<h1>Session Performance</h1>
 
-<p>Asia: {stats.Asia}</p>
-<p>London: {stats.London}</p>
-<p>New York: {stats.NewYork}</p>
+<table>
+
+<thead>
+
+<tr>
+<th>Session</th>
+<th>Trades</th>
+<th>PnL</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{sessions.map(s=>(
+<tr key={s.session}>
+<td>{s.session}</td>
+<td>{s.trades}</td>
+<td>{s.pnl.toFixed(2)}</td>
+</tr>
+))}
+
+</tbody>
+
+</table>
 
 </div>
 

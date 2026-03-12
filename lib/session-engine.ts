@@ -1,29 +1,38 @@
-export function analyzeSessions(trades:any[]){
+export function detectSession(date:string){
 
-const stats={
-Asia:0,
-London:0,
-NewYork:0
+const hour=new Date(date).getUTCHours()
+
+if(hour>=0 && hour<8) return "Asia"
+if(hour>=8 && hour<13) return "London"
+if(hour>=13 && hour<21) return "NewYork"
+
+return "AfterHours"
+
 }
+
+export function sessionStats(trades:any[]){
+
+const sessions:Record<string,{pnl:number,trades:number}>={}
 
 trades.forEach(t=>{
 
-const hour=new Date(t.trade_date).getUTCHours()
+const session=detectSession(t.trade_date)
 
-let session="Asia"
-
-if(hour>=7 && hour<14){
-session="London"
+if(!sessions[session]){
+sessions[session]={pnl:0,trades:0}
 }
 
-if(hour>=14){
-session="NewYork"
-}
-
-stats[session]+=Number(t.pnl||0)
+sessions[session].pnl+=Number(t.pnl||0)
+sessions[session].trades++
 
 })
 
-return stats
+return Object.entries(sessions).map(([session,data])=>({
+
+session,
+pnl:data.pnl,
+trades:data.trades
+
+}))
 
 }

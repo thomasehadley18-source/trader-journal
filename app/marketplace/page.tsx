@@ -3,9 +3,9 @@
 import {useEffect,useState} from "react"
 import {supabase} from "@/lib/supabase"
 
-export default function Market(){
+export default function Marketplace(){
 
-const [rows,setRows]=useState<any[]>([])
+const [strategies,setStrategies]=useState<any[]>([])
 
 useEffect(()=>{
 load()
@@ -16,9 +16,8 @@ async function load(){
 const {data}=await supabase
 .from("strategies")
 .select("*")
-.order("created_at",{ascending:false})
 
-setRows(data||[])
+setStrategies(data||[])
 
 }
 
@@ -28,21 +27,19 @@ return(
 
 <h1>Strategy Market</h1>
 
-{rows.length===0 && (
+{strategies.length===0 && (
 
 <div className="card">
 
 No strategies yet.
 
-<br/><br/>
-
-Create one in Strategy Builder.
+Go to Strategy Builder to create one.
 
 </div>
 
 )}
 
-{rows.map(s=>(
+{strategies.map(s=>(
 
 <div key={s.id} className="card" style={{marginBottom:20}}>
 

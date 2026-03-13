@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
+import {useEffect,useState} from "react"
+import {supabase} from "@/lib/supabase"
+import {detectStrategies} from "@/lib/strategy-detection"
 
 export default function StrategyDetection(){
 
-const [strategies,setStrategies] = useState<any[]>([])
+const [strategies,setStrategies]=useState<any[]>([])
 
 useEffect(()=>{
 load()
@@ -13,53 +14,54 @@ load()
 
 async function load(){
 
-const { data:{user} } = await supabase.auth.getUser()
+const {data:{user}}=await supabase.auth.getUser()
 
-if(!user) return
-
-const { data } = await supabase
+const {data}=await supabase
 .from("trades")
 .select("*")
-.eq("user_id",user.id)
+.eq("user_id",user?.id)
 
-const map:any = {}
+const result=detectStrategies(data||[])
 
-data?.forEach((t)=>{
-
-const pair = t.pair || "unknown"
-
-if(!map[pair]){
-
-map[pair] = {
-pair,
-trades:0,
-pnl:0
-}
-
-}
-
-map[pair].trades++
-map[pair].pnl += Number(t.pnl || 0)
-
-})
-
-setStrategies(Object.values(map))
+setStrategies(result)
 
 }
 
 return(
 
-<div style={{padding:40,color:"white"}}>
+<div>
 
-<h1 style={{fontSize:30,marginBottom:20}}>
-Strategy Detection
-</h1>
+<h1>Strategy Detection</h1>
 
-{strategies.map((s:any)=>(
-<div key={s.pair} style={{marginBottom:15}}>
-{s.pair} — Trades: {s.trades} — PnL: {s.pnl}
-</div>
+<table style={{width:"100%",marginTop:20}}>
+
+<thead>
+
+<tr>
+<th>Strategy</th>
+<th>Trades</th>
+<th>Total PnL</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{strategies.map((s,i)=>(
+
+<tr key={i}>
+
+<td>{s.strategy}</td>
+<td>{s.trades}</td>
+<td>{s.pnl.toFixed(2)}</td>
+
+</tr>
+
 ))}
+
+</tbody>
+
+</table>
 
 </div>
 

@@ -10,8 +10,11 @@ const {
 user_id,
 pair,
 side,
-price,
-pnl
+entry,
+exit,
+lot,
+pnl,
+trade_date
 } = body
 
 const {error} = await supabase
@@ -20,10 +23,11 @@ const {error} = await supabase
 user_id,
 pair,
 side,
-entry:price,
-exit:price,
+entry,
+exit,
+lot,
 pnl,
-trade_date:new Date().toISOString()
+trade_date
 })
 
 if(error){
@@ -34,7 +38,7 @@ return Response.json({success:true})
 
 }catch(e){
 
-return Response.json({error:"TradingView import failed"},{status:500})
+return Response.json({error:"Import failed"},{status:500})
 
 }
 

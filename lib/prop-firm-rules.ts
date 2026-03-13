@@ -1,71 +1,60 @@
-export const PROP_FIRM_RULES = {
-
-FTMO: {
-maxDailyLoss: "5%",
-maxTotalLoss: "10%",
-profitTarget: "10%",
-minHolding: "1 minute",
-consistencyRule: "No single day > 40% of total profits",
-weekendHolding: "Allowed on Swing accounts",
-prohibitedStrategies: [
-"Latency arbitrage",
-"Tick scalping",
-"Server manipulation",
-"Reverse hedging"
+export const PROP_FIRMS = [
+"FTMO",
+"Apex",
+"FXIFY",
+"MyFundedFX",
+"E8",
+"Topstep",
+"Tradeify",
+"TopOneTrader",
+"The5ers",
+"FundedNext",
+"Lux Trading",
+"City Traders Imperium",
+"Alpha Capital",
+"True Forex Funds",
+"Funding Pips",
+"Goat Funded Trader",
+"SurgeTrader",
+"Fidelcrest",
+"Audacity Capital",
+"Blue Guardian",
+"Funded Trading Plus",
+"Traders With Edge",
+"Nordic Funder",
+"Earn2Trade",
+"TakeProfit Trader",
+"Elite Trader Funding",
+"Funded Engineer",
+"BrightFunded",
+"Skilled Funded Traders",
+"Ment Funding"
 ]
+
+export const PROP_FIRM_RULES:any = {
+
+FTMO:{
+dailyLoss:5,
+totalLoss:10,
+minHoldSeconds:60
 },
 
-E8: {
-maxDailyLoss: "5%",
-maxTotalLoss: "8%",
-profitTarget: "8%",
-minHolding: "1 minute",
-consistencyRule: "Max day cannot exceed 30% of profits",
-weekendHolding: "Allowed",
-prohibitedStrategies: [
-"Grid trading",
-"Latency arbitrage",
-"Tick scalping"
-]
+Apex:{
+dailyLoss:5,
+trailingDrawdown:true,
+minHoldSeconds:60
 },
 
-Topstep: {
-maxDailyLoss: "Trailing drawdown",
-maxTotalLoss: "Trailing drawdown",
-profitTarget: "Varies by account",
-minHolding: "1 minute",
-consistencyRule: "Must follow scaling plan",
-weekendHolding: "Allowed",
-prohibitedStrategies: [
-"HFT scalping",
-"Latency trading"
-]
+FXIFY:{
+dailyLoss:5,
+totalLoss:10,
+minHoldSeconds:60
 },
 
-Tradeify: {
-maxDailyLoss: "5%",
-maxTotalLoss: "10%",
-profitTarget: "8%",
-minHolding: "1 minute",
-consistencyRule: "Consistent trading required",
-weekendHolding: "Allowed",
-prohibitedStrategies: [
-"Latency arbitrage",
-"Copy trading external accounts"
-]
-},
-
-TopOneTrader: {
-maxDailyLoss: "5%",
-maxTotalLoss: "10%",
-profitTarget: "10%",
-minHolding: "1 minute",
-consistencyRule: "No oversized trades",
-weekendHolding: "Allowed",
-prohibitedStrategies: [
-"Tick scalping",
-"Latency trading"
-]
+MyFundedFX:{
+dailyLoss:5,
+totalLoss:10,
+minHoldSeconds:60
 }
 
 }

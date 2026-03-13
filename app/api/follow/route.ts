@@ -1,18 +1,21 @@
-import {createClient} from "@supabase/supabase-js"
+import { supabase } from "@/lib/supabase"
 
 export async function POST(req:Request){
 
-const {userId,targetId}=await req.json()
+const body = await req.json()
 
-const supabase=createClient(
-process.env.NEXT_PUBLIC_SUPABASE_URL!,
-process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+const {follower_id,following_id} = body
 
-await supabase.from("followers").insert({
-user_id:userId,
-target_id:targetId
+const {error} = await supabase
+.from("follows")
+.insert({
+follower_id,
+following_id
 })
+
+if(error){
+return Response.json({error:error.message},{status:400})
+}
 
 return Response.json({success:true})
 

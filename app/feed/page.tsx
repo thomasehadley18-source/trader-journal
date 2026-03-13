@@ -1,12 +1,10 @@
 "use client"
 
 import {useEffect,useState} from "react"
-import {supabase} from "@/lib/supabase"
 
-export default function TraderFeed(){
+export default function Feed(){
 
-const [posts,setPosts]=useState<any[]>([])
-const [content,setContent]=useState("")
+const [posts,setPosts] = useState<any[]>([])
 
 useEffect(()=>{
 load()
@@ -14,31 +12,10 @@ load()
 
 async function load(){
 
-const {data}=await supabase
-.from("feed_posts")
-.select("*")
-.order("created_at",{ascending:false})
+const res = await fetch("/api/feed")
+const data = await res.json()
 
-setPosts(data||[])
-
-}
-
-async function post(){
-
-const {data:{user}}=await supabase.auth.getUser()
-
-if(!user)return
-
-await supabase
-.from("feed_posts")
-.insert({
-user_id:user.id,
-content
-})
-
-setContent("")
-
-load()
+setPosts(data)
 
 }
 
@@ -46,39 +23,29 @@ return(
 
 <div>
 
-<h1>Trader Feed</h1>
+<h1>Community Feed</h1>
 
-<div className="card">
+{posts.map((p,i)=>(
+<div
+key={i}
+style={{
+background:"#0f172a",
+padding:20,
+borderRadius:10,
+marginBottom:20
+}}
+>
 
-<textarea
-placeholder="Share trade insight..."
-value={content}
-onChange={e=>setContent(e.target.value)}
-/>
+<h3>{p.pair}</h3>
 
-<button onClick={post}>
-Post
-</button>
+<p>Side: {p.side}</p>
 
-</div>
+<p>PnL: {p.pnl}</p>
 
-<div style={{marginTop:20}}>
-
-{posts.map(p=>(
-
-<div key={p.id} className="card" style={{marginBottom:15}}>
-
-<div>{p.content}</div>
-
-<div className="muted" style={{marginTop:10}}>
-{new Date(p.created_at).toLocaleString()}
-</div>
+<p>Date: {p.trade_date}</p>
 
 </div>
-
 ))}
-
-</div>
 
 </div>
 

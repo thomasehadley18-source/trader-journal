@@ -2,11 +2,11 @@
 
 import {useEffect,useState} from "react"
 import {supabase} from "@/lib/supabase"
-import {riskDashboard} from "@/lib/risk-dashboard"
+import {calculateRiskStats} from "@/lib/risk-engine"
 
-export default function RiskPage(){
+export default function RiskDashboard(){
 
-const [data,setData]=useState<any>(null)
+const [stats,setStats]=useState<any>(null)
 
 useEffect(()=>{
 load()
@@ -16,28 +16,48 @@ async function load(){
 
 const {data:{user}}=await supabase.auth.getUser()
 
-if(!user)return
-
 const {data}=await supabase
 .from("trades")
 .select("*")
-.eq("user_id",user.id)
+.eq("user_id",user?.id)
 
-setData(riskDashboard(data||[]))
+const s = calculateRiskStats(data || [])
+
+setStats(s)
 
 }
 
-if(!data)return <div>Loading...</div>
+if(!stats) return <div>Loading...</div>
 
 return(
 
-<div style={{padding:40}}>
+<div>
 
-<h1>Risk Dashboard</h1>
+<h1>Risk Analytics</h1>
 
-<p>Average Risk: {data.avgRisk}</p>
+<div className="grid-4">
 
-<p>Max Loss: {data.maxLoss}</p>
+<div className="card">
+<h3>Win Rate</h3>
+<p>{(stats.winRate*100).toFixed(2)}%</p>
+</div>
+
+<div className="card">
+<h3>Average Win</h3>
+<p>{stats.avgWin.toFixed(2)}</p>
+</div>
+
+<div className="card">
+<h3>Average Loss</h3>
+<p>{stats.avgLoss.toFixed(2)}</p>
+</div>
+
+<div className="card">
+<h3>Risk of Ruin</h3>
+<p>{(stats.riskOfRuin*100).toFixed(2)}%</p>
+</div>
+
+</div>
 
 </div>
 

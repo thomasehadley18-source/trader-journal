@@ -1,27 +1,45 @@
-export function riskMetrics(trades:any[]) {
+export function calculateRiskStats(trades:any[]) {
 
-  let equity=0
-  let peak=0
-  let maxDD=0
+if(!trades.length){
+return {
+winRate:0,
+avgWin:0,
+avgLoss:0,
+riskOfRuin:0
+}
+}
 
-  trades.forEach(t=>{
+const wins = trades.filter(t=>Number(t.pnl)>0)
+const losses = trades.filter(t=>Number(t.pnl)<0)
 
-    equity += t.pnl
+const winRate = wins.length / trades.length
 
-    if(equity>peak) peak=equity
+const avgWin =
+wins.reduce((a,b)=>a+Number(b.pnl),0) / (wins.length||1)
 
-    const dd = peak-equity
+const avgLoss =
+losses.reduce((a,b)=>a+Math.abs(Number(b.pnl)),0) / (losses.length||1)
 
-    if(dd>maxDD) maxDD=dd
+const edge =
+(winRate * avgWin) - ((1-winRate) * avgLoss)
 
-  })
+let riskOfRuin = 0
 
-  const wins = trades.filter(t=>t.pnl>0).length
+if(avgLoss>0){
+riskOfRuin = Math.max(
+0,
+Math.min(
+1,
+(1 - (edge / avgLoss))
+)
+)
+}
 
-  const winRate = wins / trades.length
+return {
+winRate,
+avgWin,
+avgLoss,
+riskOfRuin
+}
 
-  return {
-    maxDrawdown:maxDD,
-    winRate
-  }
 }

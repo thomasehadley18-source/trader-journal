@@ -24,6 +24,8 @@ const links = [
   { href: "/dashboard/prop-firms", label: "Prop Firm Analytics" },
   { href: "/dashboard/propfirm-rules", label: "Prop Firm Rules" },
   { href: "/dashboard/ai", label: "AI Coach" },
+  { href: "/dashboard/trade-review", label: "AI Trade Review" },
+  { href: "/dashboard/strategy-builder", label: "Strategy Builder" },
   { href: "/strategy-marketplace", label: "Strategy Market" },
   { href: "/copy-trading", label: "Copy Trading" },
   { href: "/leaderboard", label: "Leaderboard" },
@@ -33,18 +35,16 @@ const links = [
 ]
 
 export default function Sidebar() {
-
   async function logout() {
     await supabase.auth.signOut()
     window.location.href = "/login"
   }
 
   return (
-    <div style={{display:"flex",flexDirection:"column",height:"100%"}}>
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
+      <h2 style={{ marginBottom: 18 }}>Trader Journal</h2>
 
-      <h2 style={{marginBottom:20}}>Trader Journal</h2>
-
-      <div style={{flex:1}}>
+      <div style={{ flex: 1 }}>
         {links.map((link) => (
           <Link key={link.href} href={link.href} className="sidebar-link">
             {link.label}
@@ -54,16 +54,10 @@ export default function Sidebar() {
 
       <button
         onClick={logout}
-        style={{
-          marginTop:20,
-          padding:"10px",
-          background:"#ef4444",
-          borderRadius:6
-        }}
+        style={{ marginTop: 18, background: "#ef4444" }}
       >
         Logout
       </button>
-
     </div>
   )
 }

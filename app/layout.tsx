@@ -1,23 +1,18 @@
-import Sidebar from "@/components/sidebar"
-import DashboardHeader from "@/components/dashboard/header"
+import "./globals.css"
 
-export default function DashboardLayout({
+export const metadata = {
+  title: "Trader Journal",
+  description: "Professional trading journal platform",
+}
+
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <div className="dashboard">
-      <div className="sidebar">
-        <Sidebar />
-      </div>
-
-      <div style={{ flex: 1 }}>
-        <div className="content">
-          <DashboardHeader />
-          {children}
-        </div>
-      </div>
-    </div>
+    <html lang="en">
+      <body>{children}</body>
+    </html>
   )
 }

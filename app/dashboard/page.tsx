@@ -1,19 +1,16 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import EquityChart from "@/components/charts/equity-chart"
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<any>({
-    balance: 0,
-    profit: 0,
+  const [stats, setStats] = useState({
     trades: 0,
-    winrate: "0.0",
+    profit: 0,
+    wins: 0,
+    losses: 0,
   })
-
-  const [chart, setChart] = useState<any[]>([])
 
   useEffect(() => {
     load()
@@ -27,96 +24,74 @@ export default function DashboardPage() {
       .from("trades")
       .select("*")
       .eq("user_id", user.id)
-      .order("trade_date", { ascending: true })
 
     const trades = data || []
 
-    let wins = 0
-    let balance = 0
-    let profit = 0
-
-    const equity = trades.map((trade) => {
-      if (trade.pnl > 0) wins++
-      profit += Number(trade.pnl || 0)
-      balance += Number(trade.pnl || 0)
-
-      return {
-        date: new Date(trade.trade_date).toLocaleDateString(),
-        balance,
-      }
-    })
+    const wins = trades.filter((t: any) => Number(t.pnl || 0) > 0).length
+    const losses = trades.filter((t: any) => Number(t.pnl || 0) < 0).length
+    const profit = trades.reduce((a: number, b: any) => a + Number(b.pnl || 0), 0)
 
     setStats({
-      balance,
-      profit,
       trades: trades.length,
-      winrate: ((wins / (trades.length || 1)) * 100).toFixed(1),
+      profit,
+      wins,
+      losses,
     })
-
-    setChart(equity)
   }
 
   return (
     <div>
-      <h1>Trading Dashboard</h1>
-
       <div className="grid-4">
-        <div className="card">
-          <div className="muted">Account Balance</div>
-          <div className="stat">${stats.balance}</div>
-        </div>
-
-        <div className="card">
-          <div className="muted">Total Profit</div>
-          <div className="stat">${stats.profit}</div>
-        </div>
-
         <div className="card">
           <div className="muted">Total Trades</div>
           <div className="stat">{stats.trades}</div>
         </div>
 
         <div className="card">
-          <div className="muted">Win Rate</div>
-          <div className="stat">{stats.winrate}%</div>
+          <div className="muted">Net Profit</div>
+          <div className="stat">{stats.profit.toFixed(2)}</div>
+        </div>
+
+        <div className="card">
+          <div className="muted">Winning Trades</div>
+          <div className="stat">{stats.wins}</div>
+        </div>
+
+        <div className="card">
+          <div className="muted">Losing Trades</div>
+          <div className="stat">{stats.losses}</div>
         </div>
       </div>
 
-      <div className="grid-3" style={{ marginTop: 20 }}>
-        <Link href="/dashboard/ai" className="card">
-          <h3 style={{ marginTop: 0 }}>AI Coach</h3>
-          <div className="muted">Chat-style guidance for your trading</div>
+      <div className="grid-3" style={{ marginTop: 24 }}>
+        <Link href="/dashboard/trades" className="card">
+          <h3 style={{ marginBottom: 8 }}>Log Trades</h3>
+          <div className="muted">Add trades, screenshots, notes</div>
         </Link>
 
-        <Link href="/dashboard/trade-review" className="card">
-          <h3 style={{ marginTop: 0 }}>AI Trade Review</h3>
-          <div className="muted">Review each trade automatically</div>
+        <Link href="/dashboard/import" className="card">
+          <h3 style={{ marginBottom: 8 }}>Auto Import</h3>
+          <div className="muted">MT4, MT5, NinjaTrader, TradingView</div>
+        </Link>
+
+        <Link href="/dashboard/calendar" className="card">
+          <h3 style={{ marginBottom: 8 }}>Trading Calendar</h3>
+          <div className="muted">Green winning days, red losing days</div>
+        </Link>
+
+        <Link href="/dashboard/performance" className="card">
+          <h3 style={{ marginBottom: 8 }}>Performance</h3>
+          <div className="muted">Win rate, profit factor, pair analytics</div>
         </Link>
 
         <Link href="/dashboard/strategy-intelligence" className="card">
-          <h3 style={{ marginTop: 0 }}>Strategy Intelligence</h3>
-          <div className="muted">Find best pair, session, and strategy</div>
-        </Link>
-      </div>
-
-      <div className="card" style={{ marginTop: 24 }}>
-        <h2 style={{ marginTop: 0 }}>Equity Curve</h2>
-        <EquityChart data={chart} />
-      </div>
-
-      <div className="grid-2" style={{ marginTop: 24 }}>
-        <Link href="/dashboard/import" className="card">
-          <h3 style={{ marginTop: 0 }}>Auto Import Trades</h3>
-          <div className="muted">
-            MT4, MT5, NinjaTrader, Tradovate, CSV
-          </div>
+          <h3 style={{ marginBottom: 8 }}>Strategy Intelligence</h3>
+          <div className="muted">Best pairs, sessions, strategies</div>
         </Link>
 
-        <Link href="/strategy-marketplace" className="card">
-          <h3 style={{ marginTop: 0 }}>Strategy Market</h3>
-          <div className="muted">
-            Browse and publish strategies
-          </div>
+        <Link href="/dashboard/propfirm-rules" className="card">
+          <h3 style={{ marginBottom: 8 }}>Prop Firm Rules</h3>
+          <div className="muted">Hidden rules, min hold, prohibited strategies</div>
         </Link>
       </div>
     </div>

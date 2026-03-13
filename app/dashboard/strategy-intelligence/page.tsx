@@ -2,11 +2,11 @@
 
 import {useEffect,useState} from "react"
 import {supabase} from "@/lib/supabase"
-import {findEdges} from "@/lib/edge-finder"
+import {analyzeStrategyIntelligence} from "@/lib/strategy-intelligence"
 
 export default function StrategyIntelligence(){
 
-const [edges,setEdges]=useState<any|null>(null)
+const [data,setData]=useState<any>(null)
 
 useEffect(()=>{
 load()
@@ -15,20 +15,19 @@ load()
 async function load(){
 
 const {data:{user}}=await supabase.auth.getUser()
-if(!user)return
 
 const {data}=await supabase
 .from("trades")
 .select("*")
-.eq("user_id",user.id)
+.eq("user_id",user?.id)
 
-const trades=data||[]
+const result = analyzeStrategyIntelligence(data || [])
 
-setEdges(findEdges(trades))
+setData(result)
 
 }
 
-if(!edges) return <div>Loading...</div>
+if(!data) return <div>Loading...</div>
 
 return(
 
@@ -36,45 +35,89 @@ return(
 
 <h1>Strategy Intelligence</h1>
 
-<div className="grid-3">
+<h2>Best Pairs</h2>
 
-<div className="card">
+<table>
 
-<h3>Best Pair</h3>
+<thead>
+<tr>
+<th>Pair</th>
+<th>Trades</th>
+<th>PnL</th>
+</tr>
+</thead>
 
-{edges.bestPair && (
-<div>
-{edges.bestPair[0]} — ${edges.bestPair[1].toFixed(2)}
-</div>
-)}
+<tbody>
 
-</div>
+{data.pairs.map((p:any,i:number)=>(
 
-<div className="card">
+<tr key={i}>
+<td>{p.name}</td>
+<td>{p.trades}</td>
+<td>{p.pnl.toFixed(2)}</td>
+</tr>
 
-<h3>Best Strategy</h3>
+))}
 
-{edges.bestStrategy && (
-<div>
-{edges.bestStrategy[0]} — ${edges.bestStrategy[1].toFixed(2)}
-</div>
-)}
+</tbody>
 
-</div>
+</table>
 
-<div className="card">
+<h2 style={{marginTop:40}}>Best Strategies</h2>
 
-<h3>Best Session</h3>
+<table>
 
-{edges.bestSession && (
-<div>
-{edges.bestSession[0]} — ${edges.bestSession[1].toFixed(2)}
-</div>
-)}
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Trades</th>
+<th>PnL</th>
+</tr>
+</thead>
 
-</div>
+<tbody>
 
-</div>
+{data.strategies.map((s:any,i:number)=>(
+
+<tr key={i}>
+<td>{s.name}</td>
+<td>{s.trades}</td>
+<td>{s.pnl.toFixed(2)}</td>
+</tr>
+
+))}
+
+</tbody>
+
+</table>
+
+<h2 style={{marginTop:40}}>Best Sessions</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Session</th>
+<th>Trades</th>
+<th>PnL</th>
+</tr>
+</thead>
+
+<tbody>
+
+{data.sessions.map((s:any,i:number)=>(
+
+<tr key={i}>
+<td>{s.name}</td>
+<td>{s.trades}</td>
+<td>{s.pnl.toFixed(2)}</td>
+</tr>
+
+))}
+
+</tbody>
+
+</table>
 
 </div>
 

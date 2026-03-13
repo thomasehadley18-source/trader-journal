@@ -1,99 +1,117 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
 
-export default function DashboardPage() {
-  const [stats, setStats] = useState({
-    trades: 0,
-    profit: 0,
-    wins: 0,
-    losses: 0,
-  })
+const sections = [
+{
+title:"Trade Journal",
+items:[
+{href:"/dashboard/trades",label:"Trades"},
+{href:"/dashboard/calendar",label:"Calendar"},
+{href:"/dashboard/import",label:"Broker Import"},
+{href:"/dashboard/trade-replay",label:"Trade Replay"},
+]
+},
 
-  useEffect(() => {
-    load()
-  }, [])
+{
+title:"Analytics",
+items:[
+{href:"/dashboard/analytics",label:"Analytics"},
+{href:"/dashboard/performance",label:"Performance"},
+{href:"/dashboard/equity",label:"Equity Curve"},
+{href:"/dashboard/session",label:"Session Analytics"},
+{href:"/dashboard/patterns",label:"Patterns"},
+]
+},
 
-  async function load() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+{
+title:"Strategy Intelligence",
+items:[
+{href:"/dashboard/strategy-heatmap",label:"Strategy Heatmap"},
+{href:"/dashboard/strategy-detection",label:"Strategy Detection"},
+{href:"/dashboard/strategy-intelligence",label:"Strategy Intelligence"},
+{href:"/dashboard/strategy-builder",label:"Strategy Builder"},
+]
+},
 
-    const { data } = await supabase
-      .from("trades")
-      .select("*")
-      .eq("user_id", user.id)
+{
+title:"Risk + Mistakes",
+items:[
+{href:"/dashboard/mistakes",label:"Mistakes"},
+{href:"/dashboard/risk",label:"Risk Analytics"},
+{href:"/dashboard/trade-score",label:"Trade Score"},
+]
+},
 
-    const trades = data || []
+{
+title:"AI Tools",
+items:[
+{href:"/dashboard/ai",label:"AI Coach"},
+{href:"/dashboard/trade-review",label:"AI Trade Review"},
+{href:"/dashboard/ai-mistakes",label:"AI Mistake Detection"},
+]
+},
 
-    const wins = trades.filter((t: any) => Number(t.pnl || 0) > 0).length
-    const losses = trades.filter((t: any) => Number(t.pnl || 0) < 0).length
-    const profit = trades.reduce((a: number, b: any) => a + Number(b.pnl || 0), 0)
+{
+title:"Prop Firm Tools",
+items:[
+{href:"/dashboard/prop-firms",label:"Prop Firm Analytics"},
+{href:"/dashboard/propfirm-rules",label:"Prop Firm Rules"},
+]
+},
 
-    setStats({
-      trades: trades.length,
-      profit,
-      wins,
-      losses,
-    })
-  }
+{
+title:"Community",
+items:[
+{href:"/strategy-marketplace",label:"Strategy Market"},
+{href:"/copy-trading",label:"Copy Trading"},
+{href:"/leaderboard",label:"Leaderboard"},
+{href:"/competitions",label:"Competitions"},
+{href:"/feed",label:"Trader Feed"},
+]
+}
+]
 
-  return (
-    <div>
-      <div className="grid-4">
-        <div className="card">
-          <div className="muted">Total Trades</div>
-          <div className="stat">{stats.trades}</div>
-        </div>
+export default function Dashboard(){
 
-        <div className="card">
-          <div className="muted">Net Profit</div>
-          <div className="stat">{stats.profit.toFixed(2)}</div>
-        </div>
+return(
 
-        <div className="card">
-          <div className="muted">Winning Trades</div>
-          <div className="stat">{stats.wins}</div>
-        </div>
+<div>
 
-        <div className="card">
-          <div className="muted">Losing Trades</div>
-          <div className="stat">{stats.losses}</div>
-        </div>
-      </div>
+<h1>Trading Dashboard</h1>
 
-      <div className="grid-3" style={{ marginTop: 24 }}>
-        <Link href="/dashboard/trades" className="card">
-          <h3 style={{ marginBottom: 8 }}>Log Trades</h3>
-          <div className="muted">Add trades, screenshots, notes</div>
-        </Link>
+<div className="grid-3">
 
-        <Link href="/dashboard/import" className="card">
-          <h3 style={{ marginBottom: 8 }}>Auto Import</h3>
-          <div className="muted">MT4, MT5, NinjaTrader, TradingView</div>
-        </Link>
+{sections.map(section=>(
 
-        <Link href="/dashboard/calendar" className="card">
-          <h3 style={{ marginBottom: 8 }}>Trading Calendar</h3>
-          <div className="muted">Green winning days, red losing days</div>
-        </Link>
+<div className="card" key={section.title}>
 
-        <Link href="/dashboard/performance" className="card">
-          <h3 style={{ marginBottom: 8 }}>Performance</h3>
-          <div className="muted">Win rate, profit factor, pair analytics</div>
-        </Link>
+<h3>{section.title}</h3>
 
-        <Link href="/dashboard/strategy-intelligence" className="card">
-          <h3 style={{ marginBottom: 8 }}>Strategy Intelligence</h3>
-          <div className="muted">Best pairs, sessions, strategies</div>
-        </Link>
+<div style={{marginTop:10}}>
 
-        <Link href="/dashboard/propfirm-rules" className="card">
-          <h3 style={{ marginBottom: 8 }}>Prop Firm Rules</h3>
-          <div className="muted">Hidden rules, min hold, prohibited strategies</div>
-        </Link>
-      </div>
-    </div>
-  )
+{section.items.map(item=>(
+
+<Link
+key={item.href}
+href={item.href}
+className="sidebar-link"
+>
+{item.label}
+</Link>
+
+))}
+
+</div>
+
+</div>
+
+))}
+
+</div>
+
+</div>
+
+)
+
 }

@@ -5,18 +5,17 @@ import { createChart } from "lightweight-charts"
 
 export default function TradeReplayChart({ data }: { data: any[] }) {
 
-const chartContainerRef = useRef<HTMLDivElement | null>(null)
+const chartRef = useRef<HTMLDivElement>(null)
 
 useEffect(() => {
 
-if (!chartContainerRef.current) return
+if (!chartRef.current) return
 
-const chart = createChart(chartContainerRef.current, {
-width: chartContainerRef.current.clientWidth,
+const chart:any = createChart(chartRef.current, {
 height: 400,
 layout: {
 background: { color: "#020817" },
-textColor: "#e2e8f0"
+textColor: "#ffffff"
 },
 grid: {
 vertLines: { color: "#1e293b" },
@@ -24,10 +23,9 @@ horzLines: { color: "#1e293b" }
 }
 })
 
-/* FIX TYPESCRIPT ISSUE */
-const series = (chart as any).addCandlestickSeries()
+const candleSeries = chart.addCandlestickSeries()
 
-series.setData(data)
+candleSeries.setData(data)
 
 return () => {
 chart.remove()
@@ -35,16 +33,6 @@ chart.remove()
 
 }, [data])
 
-return (
-
-<div
-ref={chartContainerRef}
-style={{
-width: "100%",
-height: "400px"
-}}
-/>
-
-)
+return <div ref={chartRef} style={{ width: "100%" }} />
 
 }

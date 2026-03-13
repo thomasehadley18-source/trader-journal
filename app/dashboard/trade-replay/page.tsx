@@ -14,26 +14,25 @@ load()
 
 async function load(){
 
-const {data:{user}}=await supabase.auth.getUser()
-if(!user)return
+const {data:{user}} = await supabase.auth.getUser()
 
-const {data:trades}=await supabase
+const {data} = await supabase
 .from("trades")
 .select("*")
-.eq("user_id",user.id)
+.eq("user_id",user?.id)
 .order("trade_date",{ascending:true})
 
-const candles=(trades||[]).map(t=>({
+const chartData = (data || []).map(t=>({
 
-time:new Date(t.trade_date).toISOString().split("T")[0],
-open:t.entry,
-high:Math.max(t.entry,t.exit),
-low:Math.min(t.entry,t.exit),
-close:t.exit
+time: new Date(t.trade_date).getTime()/1000,
+open: Number(t.open || 0),
+high: Number(t.high || 0),
+low: Number(t.low || 0),
+close: Number(t.close || 0)
 
 }))
 
-setData(candles)
+setData(chartData)
 
 }
 
@@ -43,11 +42,7 @@ return(
 
 <h1>Trade Replay</h1>
 
-<div className="card">
-
-<TradeReplayChart data={data}/>
-
-</div>
+<TradeReplayChart data={data} />
 
 </div>
 

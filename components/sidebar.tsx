@@ -32,6 +32,7 @@ const links = [
   { href: "/competitions", label: "Competitions" },
   { href: "/feed", label: "Community Feed" },
   { href: "/profile", label: "Profile" },
+  { href: "/dashboard/ai-mistakes", label: "AI Mistake Detection" }
 ]
 
 export default function Sidebar() {

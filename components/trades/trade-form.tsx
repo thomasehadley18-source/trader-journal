@@ -3,98 +3,136 @@
 import { useState } from "react"
 import { supabase } from "@/lib/supabase"
 import InstrumentSelect from "./instrument-select"
+import ScreenshotUpload from "./screenshot-upload"
 
-export default function TradeForm({
-  onAdded
-}:{ 
-  onAdded?: () => void
-}){
+export default function TradeForm({ onAdded }: any) {
 
-const [pair,setPair] = useState("")
-const [pnl,setPnl] = useState("")
-const [date,setDate] = useState("")
-const [image,setImage] = useState<File | null>(null)
+  const [instrument,setInstrument] = useState("")
+  const [side,setSide] = useState("long")
+  const [size,setSize] = useState("")
+  const [entry,setEntry] = useState("")
+  const [exit,setExit] = useState("")
+  const [pnl,setPnl] = useState("")
+  const [notes,setNotes] = useState("")
+  const [tradeId,setTradeId] = useState<string | null>(null)
+  const [loading,setLoading] = useState(false)
 
-async function submit(){
+  async function addTrade(){
 
-const { data:{user} } = await supabase.auth.getUser()
-if(!user) return
+    setLoading(true)
 
-let screenshot:string | null = null
+    const {data:{user}} = await supabase.auth.getUser()
 
-if(image){
+    if(!user){
+      setLoading(false)
+      return
+    }
 
-const path=`${user.id}/${Date.now()}-${image.name}`
+    const {data,error} = await supabase
+      .from("trades")
+      .insert({
+        user_id:user.id,
+        instrument,
+        side,
+        size:Number(size),
+        entry:Number(entry),
+        exit:Number(exit),
+        pnl:Number(pnl),
+        notes
+      })
+      .select()
+      .single()
 
-const {data,error} = await supabase
-.storage
-.from("trade-screenshots")
-.upload(path,image)
+    setLoading(false)
 
-if(!error){
-screenshot=data.path
-}
+    if(error) return
 
-}
+    setTradeId(data.id)
 
-await supabase
-.from("trades")
-.insert({
-user_id:user.id,
-pair,
-pnl:Number(pnl),
-trade_date:date,
-screenshot
-})
+    setInstrument("")
+    setSide("long")
+    setSize("")
+    setEntry("")
+    setExit("")
+    setPnl("")
+    setNotes("")
 
-setPair("")
-setPnl("")
-setDate("")
-setImage(null)
+    if(onAdded) onAdded()
 
-if(onAdded){
-onAdded()
-}
+  }
 
-}
+  return (
 
-return(
+    <div className="card" style={{marginBottom:30}}>
 
-<div className="card">
+      <h2>Add Trade</h2>
 
-<h2>Add Trade</h2>
+      <label>Instrument</label>
+      <InstrumentSelect
+        value={instrument}
+        onChange={setInstrument}
+      />
 
-<InstrumentSelect
-value={pair}
-onChange={setPair}
-/>
+      <label>Side</label>
+      <select
+        value={side}
+        onChange={(e)=>setSide(e.target.value)}
+      >
+        <option value="long">Long</option>
+        <option value="short">Short</option>
+      </select>
 
-<input
-type="date"
-value={date}
-onChange={(e)=>setDate(e.target.value)}
-/>
+      <label>Position Size</label>
+      <input
+        value={size}
+        onChange={(e)=>setSize(e.target.value)}
+        placeholder="Size"
+      />
 
-<input
-type="number"
-placeholder="PnL"
-value={pnl}
-onChange={(e)=>setPnl(e.target.value)}
-/>
+      <label>Entry</label>
+      <input
+        value={entry}
+        onChange={(e)=>setEntry(e.target.value)}
+        placeholder="Entry price"
+      />
 
-<label>Screenshot</label>
+      <label>Exit</label>
+      <input
+        value={exit}
+        onChange={(e)=>setExit(e.target.value)}
+        placeholder="Exit price"
+      />
 
-<input
-type="file"
-onChange={(e)=>setImage(e.target.files?.[0] || null)}
-/>
+      <label>PnL</label>
+      <input
+        value={pnl}
+        onChange={(e)=>setPnl(e.target.value)}
+        placeholder="Profit / Loss"
+      />
 
-<button onClick={submit}>
-Add Trade
-</button>
+      <label>Notes</label>
+      <textarea
+        value={notes}
+        onChange={(e)=>setNotes(e.target.value)}
+        placeholder="Trade notes"
+      />
 
-</div>
+      <button
+        onClick={addTrade}
+        disabled={loading}
+      >
+        {loading ? "Saving..." : "Add Trade"}
+      </button>
 
-)
+      {tradeId && (
+        <div style={{marginTop:20}}>
+          <h3>Upload Screenshot</h3>
+          <ScreenshotUpload tradeId={tradeId}/>
+        </div>
+      )}
+
+    </div>
+
+  )
 
 }

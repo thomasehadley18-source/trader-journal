@@ -1,27 +1,53 @@
 "use client"
 
-export default function TradeScreenshotViewer({url}:any){
+import { useEffect,useState } from "react"
+import { supabase } from "@/lib/supabase"
 
-if(!url) return null
+export default function TradeScreenshotViewer({tradeId}:{tradeId:string}){
+
+const [images,setImages]=useState<any[]>([])
+
+useEffect(()=>{
+load()
+},[])
+
+async function load(){
+
+const {data} = await supabase
+.storage
+.from("trade-screenshots")
+.list(tradeId)
+
+if(!data) return
+
+const urls = data.map((file:any)=>{
+
+return supabase
+.storage
+.from("trade-screenshots")
+.getPublicUrl(`${tradeId}/${file.name}`)
+.data.publicUrl
+
+})
+
+setImages(urls)
+
+}
 
 return(
 
-<div
-style={{
-marginTop:20,
-border:"1px solid #1e293b",
-borderRadius:10,
-padding:10
-}}
->
+<div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
 
+{images.map((img,i)=>(
 <img
-src={url}
+key={i}
+src={img}
 style={{
-width:"100%",
+width:200,
 borderRadius:8
 }}
 />
+))}
 
 </div>
 

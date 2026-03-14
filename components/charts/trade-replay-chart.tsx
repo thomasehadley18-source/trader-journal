@@ -3,36 +3,72 @@
 import { useEffect, useRef } from "react"
 import { createChart } from "lightweight-charts"
 
-export default function TradeReplayChart({ data }: { data: any[] }) {
+export default function TradeReplayChart({ data }: any) {
 
-const chartRef = useRef<HTMLDivElement>(null)
+  const chartRef = useRef<HTMLDivElement | null>(null)
 
-useEffect(() => {
+  useEffect(() => {
 
-if (!chartRef.current) return
+    if (!chartRef.current) return
 
-const chart:any = createChart(chartRef.current, {
-height: 400,
-layout: {
-background: { color: "#020817" },
-textColor: "#ffffff"
-},
-grid: {
-vertLines: { color: "#1e293b" },
-horzLines: { color: "#1e293b" }
-}
-})
+    const chart = createChart(chartRef.current, {
+      width: chartRef.current.clientWidth,
+      height: 420,
+      layout: {
+        background: { color: "#020617" },
+        textColor: "#e2e8f0"
+      },
+      grid: {
+        vertLines: { color: "#1e293b" },
+        horzLines: { color: "#1e293b" }
+      },
+      rightPriceScale:{
+        borderColor:"#1e293b"
+      },
+      timeScale:{
+        borderColor:"#1e293b"
+      }
+    })
 
-const candleSeries = chart.addCandlestickSeries()
+    const candles = (chart as any).addCandlestickSeries()
 
-candleSeries.setData(data)
+    candles.setData(data || [])
 
-return () => {
-chart.remove()
-}
+    // ENTRY LINE
+    const entryLine = candles.createPriceLine({
+      price: data?.[1]?.close || 0,
+      color: "#22c55e",
+      lineWidth: 2,
+      title: "ENTRY"
+    })
 
-}, [data])
+    // STOP LINE
+    candles.createPriceLine({
+      price: (data?.[1]?.close || 0) * 0.98,
+      color: "#ef4444",
+      lineWidth: 2,
+      title: "STOP"
+    })
 
-return <div ref={chartRef} style={{ width: "100%" }} />
+    // TARGET LINE
+    candles.createPriceLine({
+      price: (data?.[1]?.close || 0) * 1.03,
+      color: "#3b82f6",
+      lineWidth: 2,
+      title: "TARGET"
+    })
 
+    return () => chart.remove()
+
+  }, [data])
+
+  return (
+    <div
+      ref={chartRef}
+      style={{
+        width: "100%",
+        height: 420
+      }}
+    />
+  )
 }

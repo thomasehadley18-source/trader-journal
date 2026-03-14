@@ -1,126 +1,42 @@
-"use client"
+export function analyzeStrategies(trades:any[]){
 
-import {useEffect,useState} from "react"
-import {supabase} from "@/lib/supabase"
-import {analyzeStrategyIntelligence} from "@/lib/strategy-intelligence"
+const map:any = {}
 
-export default function StrategyIntelligence(){
+trades.forEach(t=>{
 
-const [data,setData]=useState<any>(null)
+const strat = t.strategy || "Uncategorized"
 
-useEffect(()=>{
-load()
-},[])
-
-async function load(){
-
-const {data:{user}}=await supabase.auth.getUser()
-
-const {data}=await supabase
-.from("trades")
-.select("*")
-.eq("user_id",user?.id)
-
-const result = analyzeStrategyIntelligence(data || [])
-
-setData(result)
-
+if(!map[strat]){
+map[strat] = {
+wins:0,
+losses:0,
+pnl:0,
+trades:0
+}
 }
 
-if(!data) return <div>Loading...</div>
+map[strat].trades++
+map[strat].pnl += Number(t.pnl || 0)
 
-return(
+if(Number(t.pnl) > 0){
+map[strat].wins++
+}else{
+map[strat].losses++
+}
 
-<div>
+})
 
-<h1>Strategy Intelligence</h1>
+return Object.keys(map).map(name=>{
 
-<h2>Best Pairs</h2>
+const s = map[name]
 
-<table>
+return{
+strategy:name,
+trades:s.trades,
+winrate:s.trades>0 ? (s.wins/s.trades*100).toFixed(1) : 0,
+pnl:s.pnl.toFixed(2)
+}
 
-<thead>
-<tr>
-<th>Pair</th>
-<th>Trades</th>
-<th>PnL</th>
-</tr>
-</thead>
-
-<tbody>
-
-{data.pairs.map((p:any,i:number)=>(
-
-<tr key={i}>
-<td>{p.name}</td>
-<td>{p.trades}</td>
-<td>{p.pnl.toFixed(2)}</td>
-</tr>
-
-))}
-
-</tbody>
-
-</table>
-
-<h2 style={{marginTop:40}}>Best Strategies</h2>
-
-<table>
-
-<thead>
-<tr>
-<th>Strategy</th>
-<th>Trades</th>
-<th>PnL</th>
-</tr>
-</thead>
-
-<tbody>
-
-{data.strategies.map((s:any,i:number)=>(
-
-<tr key={i}>
-<td>{s.name}</td>
-<td>{s.trades}</td>
-<td>{s.pnl.toFixed(2)}</td>
-</tr>
-
-))}
-
-</tbody>
-
-</table>
-
-<h2 style={{marginTop:40}}>Best Sessions</h2>
-
-<table>
-
-<thead>
-<tr>
-<th>Session</th>
-<th>Trades</th>
-<th>PnL</th>
-</tr>
-</thead>
-
-<tbody>
-
-{data.sessions.map((s:any,i:number)=>(
-
-<tr key={i}>
-<td>{s.name}</td>
-<td>{s.trades}</td>
-<td>{s.pnl.toFixed(2)}</td>
-</tr>
-
-))}
-
-</tbody>
-
-</table>
-
-</div>
-
-)
+})
 
 }

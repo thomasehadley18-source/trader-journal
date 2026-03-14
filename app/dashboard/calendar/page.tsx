@@ -1,29 +1,67 @@
 "use client"
 
-import {useEffect,useState} from "react"
-import {supabase} from "@/lib/supabase"
-import {buildCalendar} from "@/lib/calendar-engine"
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
 
-export default function CalendarPage(){
+export default function TradingCalendar(){
 
-const [days,setDays]=useState<any[]>([])
+const [days,setDays] = useState<any>({})
 
 useEffect(()=>{
+
 load()
+
 },[])
 
 async function load(){
 
-const {data:{user}}=await supabase.auth.getUser()
+const {data:{user}} = await supabase.auth.getUser()
 
-const {data}=await supabase
+if(!user) return
+
+const {data} = await supabase
 .from("trades")
 .select("*")
-.eq("user_id",user?.id)
+.eq("user_id",user.id)
 
-const calendar=buildCalendar(data||[])
+const map:any = {}
 
-setDays(calendar)
+data?.forEach((t:any)=>{
+
+const day = new Date(t.created_at).toISOString().split("T")[0]
+
+if(!map[day]) map[day] = 0
+
+map[day] += Number(t.pnl || 0)
+
+})
+
+setDays(map)
+
+}
+
+const today = new Date()
+
+const year = today.getFullYear()
+const month = today.getMonth()
+
+const firstDay = new Date(year,month,1).getDay()
+const totalDays = new Date(year,month+1,0).getDate()
+
+const cells:any[] = []
+
+for(let i=0;i<firstDay;i++){
+cells.push(null)
+}
+
+for(let d=1;d<=totalDays;d++){
+
+const date = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`
+
+cells.push({
+day:d,
+pnl:days[date] || 0
+})
 
 }
 
@@ -33,33 +71,47 @@ return(
 
 <h1>Trading Calendar</h1>
 
-<div className="grid-4">
+<div
+style={{
+display:"grid",
+gridTemplateColumns:"repeat(7,1fr)",
+gap:10,
+marginTop:20
+}}
+>
 
-{days.map(day=>{
+{cells.map((c,i)=>{
 
-const color=
-day.pnl>0
-? "#064e3b"
-: day.pnl<0
+if(!c){
+
+return <div key={i}></div>
+
+}
+
+const color =
+c.pnl > 0
+? "#14532d"
+: c.pnl < 0
 ? "#7f1d1d"
-: "#1e293b"
+: "#0f172a"
 
 return(
 
 <div
-key={day.date}
+key={i}
 style={{
+padding:14,
+borderRadius:8,
 background:color,
-padding:20,
-borderRadius:10
+textAlign:"center"
 }}
 >
 
-<div>{day.date}</div>
+<div>{c.day}</div>
 
-<div>Trades: {day.trades}</div>
-
-<div>PnL: {day.pnl.toFixed(2)}</div>
+<div style={{fontSize:12}}>
+{c.pnl !==0 && c.pnl.toFixed(2)}
+</div>
 
 </div>
 

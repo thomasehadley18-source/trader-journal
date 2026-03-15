@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect,useState } from "react"
-import { supabase } from "@/lib/supabase"
-import { reviewTrade } from "@/lib/ai-trade-review"
+import {useEffect,useState} from "react"
+import {supabase} from "@/lib/supabase"
+import {reviewTrade} from "@/lib/trade-review-engine"
 
 export default function TradeReview(){
 
@@ -23,37 +23,50 @@ const {data} = await supabase
 .select("*")
 .eq("user_id",user.id)
 
-const r = (data || []).map(reviewTrade)
+if(!data) return
 
-setReviews(r)
+const results = data.map(t=>({
+
+trade:t,
+review:reviewTrade(t)
+
+}))
+
+setReviews(results)
 
 }
 
 return(
 
-<div style={{padding:40}}>
+<div>
 
-<h1>AI Trade Reviews</h1>
+<h1>AI Trade Review</h1>
+
+<div className="grid-2">
 
 {reviews.map((r,i)=>(
 
-<div
-key={i}
-style={{
-border:"1px solid #1e293b",
-padding:20,
-marginBottom:20,
-borderRadius:10
-}}
->
+<div key={i} className="card">
 
-<p>R:R Ratio: {r.rr?.toFixed(2)}</p>
-<p>{r.rating}</p>
-<p>{r.mistake}</p>
+<h3>{r.trade.instrument}</h3>
+
+<p>Grade: {r.review.grade}</p>
+
+<p>Score: {r.review.score}</p>
+
+<ul>
+
+{r.review.notes.map((n:string,j:number)=>(
+<li key={j}>{n}</li>
+))}
+
+</ul>
 
 </div>
 
 ))}
+
+</div>
 
 </div>
 

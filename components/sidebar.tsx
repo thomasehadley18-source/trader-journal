@@ -20,6 +20,8 @@ const links = [
 {href:"/copy-trading",label:"Copy Trading"},
 {href:"/leaderboard",label:"Leaderboard"}
 {href:"/dashboard/monte-carlo",label:"Monte Carlo Risk"}
+{href:"/dashboard/trade-review",label:"AI Trade Review"}
+
 
 
 ]

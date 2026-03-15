@@ -1,21 +1,39 @@
-export function rankTraders(traders:any[]){
+export function rankTraders(trades:any[]) {
 
-return traders
-.map(t=>{
+const map:any = {}
 
-const winrate = t.trades ? t.wins / t.trades : 0
+trades.forEach(t=>{
 
-const score =
-(t.pnl * 0.5) +
-(winrate * 100 * 0.3) -
-((t.drawdown || 0) * 0.2)
+const trader = t.user_id
 
-return {
-...t,
-score
+if(!map[trader]){
+map[trader] = {
+trades:0,
+wins:0,
+pnl:0
+}
+}
+
+map[trader].trades++
+map[trader].pnl += Number(t.pnl || 0)
+
+if(Number(t.pnl) > 0){
+map[trader].wins++
 }
 
 })
-.sort((a,b)=>b.score-a.score)
+
+return Object.keys(map).map(id=>{
+
+const t = map[id]
+
+return {
+user_id:id,
+trades:t.trades,
+winrate:t.trades ? (t.wins/t.trades*100).toFixed(1) : "0",
+pnl:t.pnl.toFixed(2)
+}
+
+}).sort((a,b)=>Number(b.pnl) - Number(a.pnl))
 
 }

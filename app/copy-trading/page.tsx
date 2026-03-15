@@ -1,12 +1,12 @@
 "use client"
 
-import {useEffect,useState} from "react"
-import {supabase} from "@/lib/supabase"
-import {rankTraders} from "@/lib/copy-trading"
+import { useEffect,useState } from "react"
+import { supabase } from "@/lib/supabase"
+import { rankTraders } from "@/lib/copy-trading"
 
 export default function CopyTrading(){
 
-const [traders,setTraders]=useState<any[]>([])
+const [rows,setRows] = useState<any[]>([])
 
 useEffect(()=>{
 load()
@@ -14,13 +14,30 @@ load()
 
 async function load(){
 
-const {data}=await supabase
-.from("traders")
+const {data} = await supabase
+.from("trades")
 .select("*")
 
 const ranked = rankTraders(data || [])
 
-setTraders(ranked)
+setRows(ranked)
+
+}
+
+async function follow(traderId:string){
+
+const {data:{user}} = await supabase.auth.getUser()
+
+if(!user) return
+
+await supabase
+.from("followers")
+.insert({
+follower:user.id,
+leader:traderId
+})
+
+alert("Now copying this trader")
 
 }
 
@@ -28,32 +45,51 @@ return(
 
 <div>
 
-<h1>Copy Trading Marketplace</h1>
+<h1>Copy Trading</h1>
 
-<div className="grid-3">
+<div className="card">
 
-{traders.map(t=>(
+<table>
 
-<div key={t.id} className="card">
+<thead>
+<tr>
+<th>Trader</th>
+<th>Trades</th>
+<th>Winrate</th>
+<th>PnL</th>
+<th></th>
+</tr>
+</thead>
 
-<h3>{t.username}</h3>
+<tbody>
 
-<div className="muted">PnL</div>
-<div>${t.pnl}</div>
+{rows.map((r,i)=>(
 
-<div className="muted">Win Rate</div>
-<div>{(t.wins/t.trades*100).toFixed(1)}%</div>
+<tr key={i}>
 
-<div className="muted">Drawdown</div>
-<div>${t.drawdown}</div>
+<td>{r.user_id}</td>
 
-<button style={{marginTop:10}}>
-Copy Strategy
+<td>{r.trades}</td>
+
+<td>{r.winrate}%</td>
+
+<td>{r.pnl}</td>
+
+<td>
+
+<button onClick={()=>follow(r.user_id)}>
+Copy Trader
 </button>
 
-</div>
+</td>
+
+</tr>
 
 ))}
+
+</tbody>
+
+</table>
 
 </div>
 

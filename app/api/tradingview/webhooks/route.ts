@@ -2,40 +2,22 @@ import { supabase } from "@/lib/supabase"
 
 export async function POST(req:Request){
 
-try{
-
 const body = await req.json()
 
-const {
-user_id,
-pair,
-side,
-price,
-pnl
-} = body
-
-const {error} = await supabase
-.from("trades")
-.insert({
-user_id,
-pair,
-side,
-entry:price,
-exit:price,
-pnl,
-trade_date:new Date().toISOString()
-})
-
-if(error){
-return Response.json({error:error.message},{status:400})
+const trade = {
+instrument: body.symbol,
+side: body.side,
+size: body.size,
+entry: body.entry,
+exit: body.exit,
+pnl: body.pnl,
+user_id: body.user_id
 }
+
+await supabase
+.from("trades")
+.insert(trade)
 
 return Response.json({success:true})
-
-}catch(e){
-
-return Response.json({error:"TradingView import failed"},{status:500})
-
-}
 
 }

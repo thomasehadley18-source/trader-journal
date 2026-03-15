@@ -18,9 +18,11 @@ const links = [
 {href:"/dashboard/prop-firms",label:"Prop Firm Analytics"},
 {href:"/strategy-marketplace",label:"Strategy Market"},
 {href:"/copy-trading",label:"Copy Trading"},
-{href:"/leaderboard",label:"Leaderboard"}
-{href:"/dashboard/monte-carlo",label:"Monte Carlo Risk"}
-{href:"/dashboard/trade-review",label:"AI Trade Review"}
+{href:"/leaderboard",label:"Leaderboard"},
+{href:"/dashboard/monte-carlo",label:"Monte Carlo Risk"},
+{href:"/dashboard/trade-review",label:"AI Trade Review"},
+{href:"/dashboard/edge-decay",label:"Edge Decay"}
+
 
 
 

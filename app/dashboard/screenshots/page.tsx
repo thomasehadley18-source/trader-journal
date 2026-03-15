@@ -1,22 +1,41 @@
 "use client"
 
-import {useEffect,useState} from "react"
-import {supabase} from "@/lib/supabase"
+import { useEffect,useState } from "react"
+import { supabase } from "@/lib/supabase"
+import ScreenshotAnnotator from "@/components/trades/screenshot-annotator"
 
 export default function Screenshots(){
 
-const [shots,setShots]=useState<any[]>([])
+const [images,setImages] = useState<string[]>([])
 
-useEffect(()=>{load()},[])
+useEffect(()=>{
+load()
+},[])
 
 async function load(){
 
-const {data}=await supabase
+const {data:{user}} = await supabase.auth.getUser()
+
+if(!user) return
+
+const {data} = await supabase
 .storage
 .from("trade-screenshots")
 .list()
 
-setShots(data||[])
+if(!data) return
+
+const urls = data.map((f:any)=>{
+
+return supabase
+.storage
+.from("trade-screenshots")
+.getPublicUrl(f.name)
+.data.publicUrl
+
+})
+
+setImages(urls)
 
 }
 
@@ -26,18 +45,19 @@ return(
 
 <h1>Trade Screenshots</h1>
 
-{shots.map(s=>(
+<div className="grid-2">
 
-<div key={s.name}>
+{images.map((img,i)=>(
 
-<img
-src={`https://YOURPROJECT.supabase.co/storage/v1/object/public/trade-screenshots/${s.name}`}
-width={400}
-/>
+<div key={i} className="card">
+
+<ScreenshotAnnotator image={img} />
 
 </div>
 
 ))}
+
+</div>
 
 </div>
 

@@ -2,16 +2,12 @@
 
 import { useEffect,useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { PROP_FIRMS } from "@/lib/prop-firm-rules"
-import { analyzePropAccount } from "@/lib/prop-analytics"
+import { PROP_FIRM_RULES } from "@/lib/prop-firm-rules"
+import { detectPropViolations } from "@/lib/prop-violation-engine"
 
 export default function PropFirmPage(){
 
-const [accounts,setAccounts] = useState<any[]>([])
-const [analysis,setAnalysis] = useState<any[]>([])
-
-const [firm,setFirm] = useState("FTMO")
-const [size,setSize] = useState(100000)
+const [violations,setViolations] = useState<any[]>([])
 
 useEffect(()=>{
 load()
@@ -23,107 +19,56 @@ const {data:{user}} = await supabase.auth.getUser()
 
 if(!user) return
 
-const {data:accountsData} = await supabase
-.from("prop_accounts")
-.select("*")
-.eq("user_id",user.id)
-
-const {data:trades} = await supabase
+const {data} = await supabase
 .from("trades")
 .select("*")
 .eq("user_id",user.id)
 
-setAccounts(accountsData || [])
+const rules = PROP_FIRM_RULES["FTMO"]
 
-const results = (accountsData || []).map(acc=>{
+const results = detectPropViolations(data || [],rules)
 
-return analyzePropAccount(trades || [],acc)
-
-})
-
-setAnalysis(results)
-
-}
-
-async function create(){
-
-const {data:{user}} = await supabase.auth.getUser()
-
-const rules = PROP_FIRMS[firm]
-
-await supabase
-.from("prop_accounts")
-.insert({
-
-user_id:user?.id,
-
-firm,
-
-account_size:size,
-
-profit_target:size*rules.profit_target,
-
-daily_drawdown:size*rules.daily_drawdown,
-
-max_drawdown:size*rules.max_drawdown,
-
-min_trading_days:rules.min_trading_days
-
-})
-
-load()
+setViolations(results)
 
 }
 
 return(
 
-<div style={{padding:40}}>
+<div>
 
-<h1>Prop Firm Dashboard</h1>
+<h1>Prop Firm Rule Violations</h1>
 
-<h2>Add Account</h2>
+<div className="card">
 
-<select onChange={(e)=>setFirm(e.target.value)}>
+{violations.length===0 && (
+<p>No rule violations detected.</p>
+)}
 
-{Object.keys(PROP_FIRMS).map(f=>(
-<option key={f}>{f}</option>
-))}
+{violations.map((v,i)=>(
 
-</select>
+<div
+key={i}
+style={{
+padding:12,
+borderBottom:"1px solid #1e293b"
+}}
+>
 
-<input
-type="number"
-value={size}
-onChange={(e)=>setSize(Number(e.target.value))}
-/>
+<strong>{v.type}</strong>
 
-<button onClick={create}>
-Add Prop Account
-</button>
+<div className="muted">
+Instrument: {v.trade.instrument}
+</div>
 
-<h2 style={{marginTop:40}}>Accounts</h2>
-
-{accounts.map((acc,i)=>(
-
-<div key={acc.id} className="card">
-
-<h3>{acc.firm}</h3>
-
-<p>Account Size: {acc.account_size}</p>
-
-<p>Profit Target: {acc.profit_target}</p>
-
-<p>Daily Drawdown: {acc.daily_drawdown}</p>
-
-<p>Max Drawdown: {acc.max_drawdown}</p>
-
-<p>Trading Days: {analysis[i]?.tradingDays}</p>
-
-<p>Profit Progress: {(analysis[i]?.profitProgress*100).toFixed(1)}%</p>
+<div className="muted">
+PnL: {v.trade.pnl}
+</div>
 
 </div>
 
 ))}
+
+</div>
 
 </div>
 

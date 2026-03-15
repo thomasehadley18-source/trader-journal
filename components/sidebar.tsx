@@ -21,7 +21,8 @@ const links = [
 {href:"/leaderboard",label:"Leaderboard"},
 {href:"/dashboard/monte-carlo",label:"Monte Carlo Risk"},
 {href:"/dashboard/trade-review",label:"AI Trade Review"},
-{href:"/dashboard/edge-decay",label:"Edge Decay"}
+{href:"/dashboard/edge-decay",label:"Edge Decay"},
+{href:"/dashboard/session-analysis",label:"Session Analytics"}
 
 
 

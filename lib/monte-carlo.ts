@@ -1,27 +1,38 @@
-export function runMonteCarlo(trades:any[],simulations=500){
+export function runMonteCarlo(trades:any[], runs:number = 500){
 
-if(trades.length===0) return []
+if(trades.length === 0) return []
 
-const returns = trades.map(t=>Number(t.pnl))
+const pnl = trades.map(t => Number(t.pnl || 0))
 
-const results:any[] = []
+const results:number[][] = []
 
-for(let i=0;i<simulations;i++){
+for(let r=0;r<runs;r++){
 
-let equity = 0
+let balance = 0
+const curve:number[] = []
 
-for(let j=0;j<returns.length;j++){
+for(let i=0;i<pnl.length;i++){
 
-const r = returns[Math.floor(Math.random()*returns.length)]
+const rand = pnl[Math.floor(Math.random()*pnl.length)]
 
-equity += r
+balance += rand
+curve.push(balance)
 
 }
 
-results.push(equity)
+results.push(curve)
 
 }
 
 return results
+
+}
+
+export function riskOfRuin(trades:any[]){
+
+const losses = trades.filter(t=>Number(t.pnl) < 0).length
+const winrate = 1 - losses / trades.length
+
+return Math.max(0, 1 - winrate*1.5)
 
 }

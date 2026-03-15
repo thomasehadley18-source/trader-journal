@@ -19,6 +19,8 @@ const links = [
 {href:"/strategy-marketplace",label:"Strategy Market"},
 {href:"/copy-trading",label:"Copy Trading"},
 {href:"/leaderboard",label:"Leaderboard"}
+{href:"/dashboard/monte-carlo",label:"Monte Carlo Risk"}
+
 
 ]
 

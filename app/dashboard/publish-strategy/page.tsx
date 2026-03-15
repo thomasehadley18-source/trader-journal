@@ -5,78 +5,43 @@ import { supabase } from "@/lib/supabase"
 
 export default function PublishStrategy(){
 
-const [title,setTitle]=useState("")
-const [description,setDescription]=useState("")
-const [price,setPrice]=useState("")
+const [name,setName] = useState("")
+const [description,setDescription] = useState("")
 
 async function publish(){
 
 const {data:{user}} = await supabase.auth.getUser()
 
-await fetch("/api/marketplace/publish",{
+if(!user) return
 
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-title,
-description,
-price,
-userId:user?.id
+await supabase
+.from("strategies")
+.insert({
+user_id:user.id,
+name,
+description
 })
 
-})
-
-alert("Strategy Published")
+alert("Strategy published")
 
 }
 
 return(
 
-<div style={{padding:"40px"}}>
+<div>
 
-<h1 style={{fontSize:32,marginBottom:20}}>
+<h1>Publish Strategy</h1>
+
+<div className="card">
+
+<label>Strategy Name</label>
+<input value={name} onChange={(e)=>setName(e.target.value)} />
+
+<label>Description</label>
+<textarea value={description} onChange={(e)=>setDescription(e.target.value)} />
+
+<button onClick={publish}>
 Publish Strategy
-</h1>
-
-<div style={{
-maxWidth:"500px",
-display:"grid",
-gap:"15px"
-}}>
-
-<input
-placeholder="Strategy Name"
-value={title}
-onChange={(e)=>setTitle(e.target.value)}
-/>
-
-<textarea
-placeholder="Strategy Description"
-value={description}
-onChange={(e)=>setDescription(e.target.value)}
-/>
-
-<input
-placeholder="Price"
-value={price}
-onChange={(e)=>setPrice(e.target.value)}
-/>
-
-<button
-onClick={publish}
-style={{
-background:"#2563eb",
-padding:"12px",
-border:"none",
-borderRadius:"8px",
-color:"white"
-}}
->
-Publish
 </button>
 
 </div>
@@ -84,4 +49,5 @@ Publish
 </div>
 
 )
+
 }

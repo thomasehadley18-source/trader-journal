@@ -2,10 +2,11 @@
 
 import { useEffect,useState } from "react"
 import { supabase } from "@/lib/supabase"
+import { buildStrategyStats } from "@/lib/marketplace-engine"
 
-export default function StrategyMarket(){
+export default function StrategyMarketplace(){
 
-const [strategies,setStrategies]=useState<any[]>([])
+const [rows,setRows] = useState<any[]>([])
 
 useEffect(()=>{
 load()
@@ -13,41 +14,49 @@ load()
 
 async function load(){
 
-const {data} = await supabase
-.from("strategies")
-.select("*")
-.order("created_at",{ascending:false})
+const {data:{user}} = await supabase.auth.getUser()
 
-setStrategies(data || [])
+if(!user) return
+
+const {data} = await supabase
+.from("trades")
+.select("*")
+.eq("user_id",user.id)
+
+const stats = buildStrategyStats(data || [])
+
+setRows(stats)
 
 }
 
 return(
 
-<div style={{padding:40}}>
+<div>
 
 <h1>Strategy Marketplace</h1>
 
-{strategies.length===0 && (
-<p>No strategies uploaded yet.</p>
-)}
-
 <div className="grid-3">
 
-{strategies.map(s=>(
+{rows.map((s,i)=>(
 
-<div key={s.id} className="card">
+<div key={i} className="card">
 
 <h3>{s.name}</h3>
 
-<p>{s.description}</p>
+<p className="muted">
+Trades: {s.trades}
+</p>
 
-<div>Win Rate: {s.win_rate}%</div>
+<p className="muted">
+Winrate: {s.winrate}%
+</p>
 
-<div>Trades: {s.trades}</div>
+<p>
+PnL: {s.pnl}
+</p>
 
 <button>
-Copy Strategy
+View Strategy
 </button>
 
 </div>

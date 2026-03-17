@@ -1,42 +1,31 @@
-"use client"
+"use client";
+import { useEffect, useState } from "react";
+import { Box, Heading, Text } from "@chakra-ui/react";
+import { createClient } from "@supabase/supabase-js";
+import LogoutButton from "../../components/LogoutButton";
+import ProtectedRoute from "../../components/ProtectedRoute";
 
-import {useEffect,useState} from "react"
-import {supabase} from "@/lib/supabase"
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
-export default function Profile(){
+export default function ProfilePage() {
+  const [user, setUser] = useState<any>(null);
 
-const [profile,setProfile]=useState<any>(null)
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+  }, []);
 
-useEffect(()=>{load()},[])
+  if (!user) return null;
 
-async function load(){
-
-const {data:{user}}=await supabase.auth.getUser()
-
-if(!user)return
-
-const {data}=await supabase
-.from("trader_profiles")
-.select("*")
-.eq("user_id",user.id)
-.single()
-
-setProfile(data)
-
-}
-
-if(!profile)return<div>Loading...</div>
-
-return(
-
-<div style={{padding:40}}>
-
-<h1>{profile.username}</h1>
-
-<p>{profile.bio}</p>
-
-</div>
-
-)
-
+  return (
+    <ProtectedRoute>
+      <Box maxW="400px" mx="auto" mt={10}>
+        <Heading mb={4}>Profile</Heading>
+        <Text mb={2}><b>Email:</b> {user.email}</Text>
+        <LogoutButton />
+      </Box>
+    </ProtectedRoute>
+  );
 }

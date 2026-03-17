@@ -1,18 +1,26 @@
-import "./globals.css"
+import { ChakraProvider } from "@chakra-ui/react";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 
 export const metadata = {
-  title: "Trader Journal",
-  description: "Professional trading journal platform",
-}
+  title: "Pro Trading Journal",
+  description: "Professional trading analytics, AI trade review, and more.",
+  openGraph: {
+    title: "Pro Trading Journal",
+    description: "Compete with TradeZella. Institutional analytics for traders.",
+    type: "website",
+  },
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ChakraProvider>
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+        </ChakraProvider>
+      </body>
     </html>
-  )
+  );
 }

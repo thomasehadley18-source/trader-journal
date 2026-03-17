@@ -1,51 +1,21 @@
-"use client"
+import { Box, Heading, Text, SimpleGrid, Button } from "@chakra-ui/react";
 
-export default function Pricing(){
-
-async function subscribe(){
-
-const res=await fetch("/api/checkout",{method:"POST"})
-
-const data=await res.json()
-
-window.location.href=data.url
-
-}
-
-return(
-
-<div className="container">
-
-<h1 className="text-4xl mb-10">
-Pricing
-</h1>
-
-<div className="card">
-
-<h2>Pro Plan</h2>
-
-<p>$29/month</p>
-
-<ul>
-<li>Unlimited trades</li>
-<li>AI trading coach</li>
-<li>Advanced analytics</li>
-<li>Broker imports</li>
-</ul>
-
-<button
-className="mt-4 bg-primary px-4 py-2 rounded"
-onClick={subscribe}
->
-
-Start Subscription
-
-</button>
-
-</div>
-
-</div>
-
-)
-
+export default function PricingPage() {
+  return (
+    <Box maxW="800px" mx="auto" mt={10}>
+      <Heading mb={6}>Pricing</Heading>
+      <SimpleGrid columns={[1, 2]} spacing={8}>
+        <Box p={6} borderWidth={1} borderRadius="lg">
+          <Heading size="md" mb={2}>Free</Heading>
+          <Text mb={4}>Basic analytics, manual trade journal, community support.</Text>
+          <Button isDisabled>Current Plan</Button>
+        </Box>
+        <Box p={6} borderWidth={2} borderColor="blue.500" borderRadius="lg">
+          <Heading size="md" mb={2}>Pro</Heading>
+          <Text mb={4}>All analytics, AI trade review, prop firm tools, priority support.</Text>
+          <Button colorScheme="blue" as="a" href="/upgrade">Upgrade</Button>
+        </Box>
+      </SimpleGrid>
+    </Box>
+  );
 }

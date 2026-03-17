@@ -1,81 +1,19 @@
-"use client"
+import { Box, Stack, Text } from "@chakra-ui/react";
+import Link from "next/link";
 
-import Link from "next/link"
-import { supabase } from "@/lib/supabase"
-
-const links = [
-
-{href:"/dashboard",label:"Dashboard"},
-{href:"/dashboard/trades",label:"Trades"},
-{href:"/dashboard/calendar",label:"Calendar"},
-{href:"/dashboard/import",label:"Broker Import"},
-{href:"/dashboard/analytics",label:"Analytics"},
-{href:"/dashboard/performance",label:"Performance"},
-{href:"/dashboard/strategy-intelligence",label:"Strategy Intelligence"},
-{href:"/dashboard/ai-mistakes",label:"AI Mistake Detection"},
-{href:"/dashboard/trade-replay",label:"Trade Replay"},
-{href:"/dashboard/screenshots",label:"Chart Annotations"},
-{href:"/dashboard/prop-firms",label:"Prop Firm Analytics"},
-{href:"/strategy-marketplace",label:"Strategy Market"},
-{href:"/copy-trading",label:"Copy Trading"},
-{href:"/leaderboard",label:"Leaderboard"},
-{href:"/dashboard/monte-carlo",label:"Monte Carlo Risk"},
-{href:"/dashboard/trade-review",label:"AI Trade Review"},
-{href:"/dashboard/edge-decay",label:"Edge Decay"},
-{href:"/dashboard/session-analysis",label:"Session Analytics"}
-
-
-
-
-]
-
-export default function Sidebar(){
-
-async function logout(){
-await supabase.auth.signOut()
-window.location.href="/login"
-}
-
-return(
-
-<div style={{display:"flex",flexDirection:"column",height:"100%"}}>
-
-<h2 style={{marginBottom:20}}>
-Trader Journal
-</h2>
-
-<div style={{flex:1}}>
-
-{links.map(l=>(
-
-<Link
-key={l.href}
-href={l.href}
-className="sidebar-link"
->
-{l.label}
-</Link>
-
-))}
-
-</div>
-
-<button
-onClick={logout}
-style={{
-marginTop:20,
-padding:"10px",
-background:"#ef4444",
-borderRadius:6
-}}
->
-
-Logout
-
-</button>
-
-</div>
-
-)
-
+export default function Sidebar() {
+  return (
+    <Box as="nav" bg="gray.900" color="white" minH="100vh" w="220px" p={4}>
+      <Stack direction="column" spacing={4}>
+        <Link href="/dashboard"><Text>Dashboard</Text></Link>
+        <Link href="/onboarding"><Text>Onboarding</Text></Link>
+        <Link href="/profile"><Text>Profile</Text></Link>
+        <Link href="/upgrade"><Text>Upgrade to Pro</Text></Link>
+        <Link href="/pricing"><Text>Pricing</Text></Link>
+        <Link href="/contact"><Text>Contact</Text></Link>
+        <Link href="/terms"><Text>Terms & Privacy</Text></Link>
+        {/* Add more links as needed */}
+      </Stack>
+    </Box>
+  );
 }

@@ -1,77 +1,31 @@
-"use client"
+import { detectPropViolations } from "../../../lib/prop-violation-engine";
 
-import { useEffect,useState } from "react"
-import { supabase } from "@/lib/supabase"
-import { PROP_FIRM_RULES } from "@/lib/prop-firm-rules"
-import { detectPropViolations } from "@/lib/prop-violation-engine"
+export default function PropFirmPage() {
+  // Example dummy data
+  const trades = [
+    { id: 1, pnl: 100 },
+    { id: 2, pnl: -50 }
+  ];
+  const rules = {
+    maxDrawdown: 500,
+    dailyLoss: 200
+  };
 
-export default function PropFirmPage(){
+  // Call the dummy engine
+  const violations = detectPropViolations(trades, rules);
 
-const [violations,setViolations] = useState<any[]>([])
-
-useEffect(()=>{
-load()
-},[])
-
-async function load(){
-
-const {data:{user}} = await supabase.auth.getUser()
-
-if(!user) return
-
-const {data} = await supabase
-.from("trades")
-.select("*")
-.eq("user_id",user.id)
-
-const rules = PROP_FIRM_RULES["FTMO"]
-
-const results = detectPropViolations(data || [],rules)
-
-setViolations(results)
-
-}
-
-return(
-
-<div>
-
-<h1>Prop Firm Rule Violations</h1>
-
-<div className="card">
-
-{violations.length===0 && (
-<p>No rule violations detected.</p>
-)}
-
-{violations.map((v,i)=>(
-
-<div
-key={i}
-style={{
-padding:12,
-borderBottom:"1px solid #1e293b"
-}}
->
-
-<strong>{v.type}</strong>
-
-<div className="muted">
-Instrument: {v.trade.instrument}
-</div>
-
-<div className="muted">
-PnL: {v.trade.pnl}
-</div>
-
-</div>
-
-))}
-
-</div>
-
-</div>
-
-)
-
+  return (
+    <div style={{ padding: "2rem" }}>
+      <h1>Prop Firm Rule Violations</h1>
+      {violations.length === 0 ? (
+        <p>No violations detected.</p>
+      ) : (
+        <ul>
+          {violations.map((v, idx) => (
+            <li key={idx}>{JSON.stringify(v)}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }

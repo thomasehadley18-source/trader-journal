@@ -30,7 +30,15 @@ export default function ImportPage() {
     if (!file) return;
     setIsProcessing(true);
 
-    // Simulated upload delay to verify UI state
+    toast({
+      title: "Import Started",
+      description: `Processing ${file.name}...`,
+      status: "info",
+      duration: 3000,
+      isClosable: true,
+    });
+
+    // Simulated processing delay
     setTimeout(() => {
       setIsProcessing(false);
       setFile(null);
@@ -86,7 +94,7 @@ export default function ImportPage() {
               w={12} 
               h={12} 
               color={file ? "green.400" : "blue.500"}
-              animation={isProcessing ? "spin 2s linear infinite" : undefined}
+              className={isProcessing ? "animate-spin" : ""}
             />
             <Box textAlign="center">
               <Text color="white" fontWeight="bold">

@@ -95,6 +95,7 @@ export default function ImportPage() {
           }}
           onClick={() => document.getElementById('file-input')?.click()}
           transition="all 0.2s"
+          _hover={{ borderColor: "blue.400", bg: "whiteAlpha.50" }}
         >
           <input 
             type="file" 

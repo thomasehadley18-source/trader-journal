@@ -18,7 +18,6 @@ import {
 import { LucideHistory, LucideFilter, LucideDownload } from "lucide-react";
 
 export default function TradesPage() {
-  // Mock data for the UI layout
   const trades = [
     { id: 1, pair: "EURUSD", type: "Long", entry: "1.0850", exit: "1.0920", pnl: "+$700.00", status: "Win", date: "2026-03-18" },
     { id: 2, pair: "XAUUSD", type: "Short", entry: "2150.00", exit: "2165.00", pnl: "-$1,500.00", status: "Loss", date: "2026-03-17" },

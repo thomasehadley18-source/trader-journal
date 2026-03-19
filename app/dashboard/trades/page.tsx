@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import {
   Box,
   Table,
@@ -13,17 +14,26 @@ import {
   Text,
   Icon,
   Button,
-  VStack
+  VStack,
+  Input,
+  InputGroup,
+  InputLeftElement,
 } from "@chakra-ui/react";
-import { LucideHistory, LucideFilter, LucideDownload } from "lucide-react";
+import { LucideHistory, LucideFilter, LucideDownload, LucideSearch } from "lucide-react";
 
 export default function TradesPage() {
+  const [search, setSearch] = useState("");
+
   const trades = [
     { id: 1, pair: "EURUSD", type: "Long", entry: "1.0850", exit: "1.0920", pnl: "+$700.00", status: "Win", date: "2026-03-18" },
     { id: 2, pair: "XAUUSD", type: "Short", entry: "2150.00", exit: "2165.00", pnl: "-$1,500.00", status: "Loss", date: "2026-03-17" },
     { id: 3, pair: "GBPUSD", type: "Long", entry: "1.2740", exit: "1.2800", pnl: "+$600.00", status: "Win", date: "2026-03-17" },
     { id: 4, pair: "USDJPY", type: "Short", entry: "149.50", exit: "149.10", pnl: "+$400.00", status: "Win", date: "2026-03-16" },
   ];
+
+  const filteredTrades = trades.filter(t => 
+    t.pair.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <Box maxW="1200px" mx="auto" py={8} px={4}>
@@ -37,11 +47,22 @@ export default function TradesPage() {
         </VStack>
         
         <HStack gap={4}>
-          <Button leftIcon={<LucideFilter size={18} />} variant="outline" colorScheme="whiteAlpha" color="white">
-            Filters
-          </Button>
+          <InputGroup maxW="300px">
+            <InputLeftElement pointerEvents="none">
+              <Icon as={LucideSearch} color="gray.500" />
+            </InputLeftElement>
+            <Input 
+              placeholder="Search pairs..." 
+              bg="gray.800" 
+              border="1px solid" 
+              borderColor="whiteAlpha.200"
+              color="white"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </InputGroup>
           <Button leftIcon={<LucideDownload size={18} />} colorScheme="blue">
-            Export CSV
+            Export
           </Button>
         </HStack>
       </HStack>
@@ -60,8 +81,13 @@ export default function TradesPage() {
             </Tr>
           </Thead>
           <Tbody>
-            {trades.map((trade) => (
-              <Tr key={trade.id} _hover={{ bg: "whiteAlpha.50" }} transition="0.2s">
+            {filteredTrades.map((trade) => (
+              <Tr 
+                key={trade.id} 
+                _hover={{ bg: "whiteAlpha.100", cursor: "pointer" }} 
+                transition="0.2s"
+                onClick={() => alert(`Opening details for ${trade.pair}`)}
+              >
                 <Td color="gray.300" fontSize="sm">{trade.date}</Td>
                 <Td fontWeight="bold" color="white">{trade.pair}</Td>
                 <Td>

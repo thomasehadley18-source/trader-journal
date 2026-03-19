@@ -12,6 +12,7 @@ import {
   SimpleGrid,
   List,
   ListItem,
+  keyframes,
 } from "@chakra-ui/react";
 import { 
   LucideUploadCloud, 
@@ -20,11 +21,18 @@ import {
   LucideLoader2 
 } from "lucide-react";
 
+const spin = keyframes`
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+`;
+
 export default function ImportPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const toast = useToast();
+
+  const spinAnimation = `${spin} infinite 2s linear`;
 
   const handleUpload = async () => {
     if (!file) return;
@@ -38,7 +46,6 @@ export default function ImportPage() {
       isClosable: true,
     });
 
-    // Simulated processing delay
     setTimeout(() => {
       setIsProcessing(false);
       setFile(null);
@@ -94,7 +101,7 @@ export default function ImportPage() {
               w={12} 
               h={12} 
               color={file ? "green.400" : "blue.500"}
-              className={isProcessing ? "animate-spin" : ""}
+              animation={isProcessing ? spinAnimation : undefined}
             />
             <Box textAlign="center">
               <Text color="white" fontWeight="bold">

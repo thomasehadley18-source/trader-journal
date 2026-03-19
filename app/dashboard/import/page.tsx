@@ -19,12 +19,14 @@ export default function ImportPage() {
     setUploading(true);
 
     try {
+      // 1. Get current user
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError || !userData.user) throw new Error("User not authenticated");
 
       const user = userData.user;
       const filePath = `${user.id}/${Date.now()}_${file.name}`;
 
+      // 2. Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from("trade-imports")
         .upload(filePath, file);

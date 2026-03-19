@@ -11,13 +11,11 @@ import {
   SimpleGrid,
   Progress,
   Badge,
-  Divider,
 } from "@chakra-ui/react";
 import { 
   LucideBrainCircuit, 
   LucideTrendingUp, 
   LucideAlertTriangle, 
-  LucideCheckCircle,
   LucideSparkles
 } from "lucide-react";
 

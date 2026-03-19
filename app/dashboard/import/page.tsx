@@ -17,23 +17,19 @@ export default function ImportPage() {
     if (!file) return;
     setUploading(true);
     try {
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      if (userError || !userData.user) throw new Error("User not authenticated");
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData?.user;
+      if (!user) throw new Error("User not found");
 
-      const user = userData.user;
       const filePath = `${user.id}/${Date.now()}_${file.name}`;
-
       const { error: uploadError } = await supabase.storage
         .from("trade-imports")
         .upload(filePath, file);
 
-      if (uploadError) {
-        alert("Upload Failed: " + uploadError.message);
-      } else {
-        alert("Success! Your trades are being processed.");
-      }
+      if (uploadError) throw uploadError;
+      alert("Success! Statement uploaded.");
     } catch (err: any) {
-      alert("Error: " + (err.message || "An unexpected error occurred."));
+      alert("Error: " + err.message);
     } finally {
       setUploading(false);
     }

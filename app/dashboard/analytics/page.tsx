@@ -12,7 +12,7 @@ export default function AnalyticsPage() {
   return (
     <Box maxW="1200px" mx="auto" py={8} px={4}>
       <Heading size="lg" mb={8} color="white">Strategy Intelligence</Heading>
-      
+
       <SimpleGrid columns={{ base: 1, md: 3 }} gap={6} mb={10}>
         {strategyData.map((s) => (
           <VStack 

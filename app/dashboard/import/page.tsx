@@ -17,11 +17,12 @@ export default function ImportPage() {
     if (!file) return;
     setUploading(true);
     try {
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData?.user;
-      if (!user) throw new Error("User not found");
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError || !userData?.user) throw new Error("User not found");
 
+      const user = userData.user;
       const filePath = `${user.id}/${Date.now()}_${file.name}`;
+
       const { error: uploadError } = await supabase.storage
         .from("trade-imports")
         .upload(filePath, file);

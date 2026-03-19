@@ -19,7 +19,7 @@ import {
   InputGroup,
   InputLeftElement,
 } from "@chakra-ui/react";
-import { LucideHistory, LucideFilter, LucideDownload, LucideSearch } from "lucide-react";
+import { LucideHistory, LucideDownload, LucideSearch } from "lucide-react";
 
 export default function TradesPage() {
   const [search, setSearch] = useState("");

@@ -1,6 +1,6 @@
 "use client";
 import { Box, SimpleGrid, Heading, Text, Badge, Icon, Flex, VStack } from "@chakra-ui/react";
-import { LucideTrendingUp, LucideAlertTriangle, LucideCheckCircle, LucideClock } from "lucide-react";
+import { LucideClock } from "lucide-react";
 
 export default function AnalyticsPage() {
   const strategyData = [
@@ -37,8 +37,8 @@ export default function AnalyticsPage() {
             </Box>
             <Box w="full">
               <Text color="gray.400" fontSize="xs" mb={1} fontWeight="bold">WIN RATE: {s.winRate}</Text>
-              <Box h="8px" bg="gray.700" borderRadius="full">
-                <Box h="full" w={s.winRate} bg={`${s.color}.400`} borderRadius="full" />
+              <Box h="8px" bg="gray.700" borderRadius="full" overflow="hidden">
+                <Box h="full" w={s.winRate} bg={`${s.color}.400`} />
               </Box>
             </Box>
           </VStack>

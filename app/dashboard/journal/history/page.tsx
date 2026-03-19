@@ -39,7 +39,6 @@ export default function JournalHistoryPage() {
       strategy: "Silver Bullet", 
       emotion: "Neutral", 
       pnl: "+$450", 
-      tags: ["Trend Following"],
       notes: "Waited for the FVG to fill. Entry was clean. Exit hit TP1 exactly.",
       aiAudit: "Great discipline. You avoided entering early despite initial volatility."
     },
@@ -50,7 +49,6 @@ export default function JournalHistoryPage() {
       strategy: "London Breakout", 
       emotion: "Anxious", 
       pnl: "-$200", 
-      tags: ["FOMO", "Early Exit"],
       notes: "Chased the candle because I thought I missed the move.",
       aiAudit: "Behavioral alert: You entered 5 minutes before the session open."
     },
@@ -61,7 +59,6 @@ export default function JournalHistoryPage() {
       strategy: "S&D", 
       emotion: "Confident", 
       pnl: "+$890", 
-      tags: ["Patience"],
       notes: "Held through the retracement. Supply zone held firm.",
       aiAudit: "Excellent trade management. Your win rate on S&D remains strong."
     },

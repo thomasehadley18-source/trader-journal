@@ -13,24 +13,12 @@ import {
   Badge,
   HStack,
   Input,
-  InputGroup,
-  InputLeftElement,
   Button,
   VStack,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-  useDisclosure,
 } from "@chakra-ui/react";
-import { LucideSearch, LucideExternalLink, LucideBrain } from "lucide-react";
+import { LucideSearch, LucideExternalLink } from "lucide-react";
 
 export default function JournalHistoryPage() {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedTrade, setSelectedTrade] = useState<any>(null);
-
   const historyData = [
     { 
       id: "1", 
@@ -39,8 +27,6 @@ export default function JournalHistoryPage() {
       strategy: "Silver Bullet", 
       emotion: "Neutral", 
       pnl: "+$450", 
-      notes: "Waited for the FVG to fill. Entry was clean. Exit hit TP1 exactly.",
-      aiAudit: "Great discipline. You avoided entering early despite initial volatility."
     },
     { 
       id: "2", 
@@ -49,8 +35,6 @@ export default function JournalHistoryPage() {
       strategy: "London Breakout", 
       emotion: "Anxious", 
       pnl: "-$200", 
-      notes: "Chased the candle because I thought I missed the move.",
-      aiAudit: "Behavioral alert: You entered 5 minutes before the session open."
     },
     { 
       id: "3", 
@@ -59,15 +43,8 @@ export default function JournalHistoryPage() {
       strategy: "S&D", 
       emotion: "Confident", 
       pnl: "+$890", 
-      notes: "Held through the retracement. Supply zone held firm.",
-      aiAudit: "Excellent trade management. Your win rate on S&D remains strong."
     },
   ];
-
-  const handleView = (trade: any) => {
-    setSelectedTrade(trade);
-    onOpen();
-  };
 
   return (
     <Box maxW="1200px" mx="auto" py={8} px={4}>
@@ -78,83 +55,57 @@ export default function JournalHistoryPage() {
         </Box>
 
         <HStack w="full" gap={4}>
-          <InputGroup maxW="400px">
-            <InputLeftElement pointerEvents="none">
+          <Box pos="relative" maxW="400px" w="full">
+            <Box pos="absolute" left="3" top="50%" transform="translateY(-50%)" zIndex="1">
               <LucideSearch color="gray" size={18} />
-            </InputLeftElement>
+            </Box>
             <Input 
+              pl="10"
               placeholder="Search by symbol..." 
               bg="gray.800" 
               border="none" 
               color="white" 
               _focus={{ boxShadow: "0 0 0 1px #3182ce" }}
             />
-          </InputGroup>
-          <Button variant="outline" colorScheme="blue">Filter</Button>
+          </Box>
+          <Button variant="outline" colorPalette="blue">Filter</Button>
         </HStack>
 
-        <Box w="full" overflowX="auto" bg="gray.800" borderRadius="xl" border="1px solid" borderColor="whiteAlpha.100">
-          <Table variant="simple">
-            <Thead bg="whiteAlpha.50">
-              <Tr>
-                <Th color="gray.500">Date</Th>
-                <Th color="gray.500">Symbol</Th>
-                <Th color="gray.500">PnL</Th>
-                <Th color="gray.500">Emotion</Th>
-                <Th color="gray.500"></Th>
-              </Tr>
-            </Thead>
-            <Tbody>
+        <Box w="full" overflowX="auto" bg="gray.900" borderRadius="xl" border="1px solid" borderColor="whiteAlpha.100">
+          <Table.Root variant="simple">
+            <Table.Header bg="whiteAlpha.50">
+              <Table.Row>
+                <Table.ColumnHeader color="gray.500">Date</Table.ColumnHeader>
+                <Table.ColumnHeader color="gray.500">Symbol</Table.ColumnHeader>
+                <Table.ColumnHeader color="gray.500">PnL</Table.ColumnHeader>
+                <Table.ColumnHeader color="gray.500">Emotion</Table.ColumnHeader>
+                <Table.ColumnHeader color="gray.500"></Table.ColumnHeader>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
               {historyData.map((row) => (
-                <Tr key={row.id} _hover={{ bg: "whiteAlpha.50" }}>
-                  <Td color="gray.300" fontSize="sm">{row.date}</Td>
-                  <Td color="white" fontWeight="bold">{row.symbol}</Td>
-                  <Td color={row.pnl.startsWith('+') ? "green.400" : "red.400"}>{row.pnl}</Td>
-                  <Td>
-                    <Badge colorScheme={row.emotion === "Anxious" ? "orange" : "blue"}>{row.emotion}</Badge>
-                  </Td>
-                  <Td>
+                <Table.Row key={row.id} _hover={{ bg: "whiteAlpha.50" }}>
+                  <Table.Cell color="gray.300" fontSize="sm">{row.date}</Table.Cell>
+                  <Table.Cell color="white" fontWeight="bold">{row.symbol}</Table.Cell>
+                  <Table.Cell color={row.pnl.startsWith('+') ? "green.400" : "red.400"}>{row.pnl}</Table.Cell>
+                  <Table.Cell>
+                    <Badge colorPalette={row.emotion === "Anxious" ? "orange" : "blue"}>{row.emotion}</Badge>
+                  </Table.Cell>
+                  <Table.Cell>
                     <Button 
                       size="xs" 
                       variant="ghost" 
-                      colorScheme="blue" 
-                      leftIcon={<LucideExternalLink size={14} />}
-                      onClick={() => handleView(row)}
+                      colorPalette="blue" 
                     >
-                      View
+                      <LucideExternalLink size={14} style={{ marginRight: '4px' }} /> View
                     </Button>
-                  </Td>
-                </Tr>
+                  </Table.Cell>
+                </Table.Row>
               ))}
-            </Tbody>
-          </Table>
+            </Table.Body>
+          </Table.Root>
         </Box>
       </VStack>
-
-      <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
-        <ModalOverlay backdropFilter="blur(4px)" />
-        <ModalContent bg="gray.900" border="1px solid" borderColor="whiteAlpha.200" color="white" borderRadius="2xl">
-          <ModalHeader borderBottom="1px solid" borderColor="whiteAlpha.100">
-            {selectedTrade?.symbol} Detail
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody py={6}>
-            <VStack align="start" gap={6}>
-              <Box>
-                <Text color="gray.500" fontSize="xs" fontWeight="bold" mb={2}>NOTES</Text>
-                <Text color="gray.300">{selectedTrade?.notes}</Text>
-              </Box>
-              <Box p={4} bg="whiteAlpha.50" borderRadius="lg" w="full" borderLeft="4px solid" borderColor="purple.500">
-                <HStack mb={2}>
-                  <LucideBrain size={16} color="#B794F4" />
-                  <Text color="purple.300" fontWeight="bold" fontSize="sm">AI AUDIT</Text>
-                </HStack>
-                <Text color="gray.200" fontSize="sm" fontStyle="italic">"{selectedTrade?.aiAudit}"</Text>
-              </Box>
-            </VStack>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
     </Box>
   );
 }

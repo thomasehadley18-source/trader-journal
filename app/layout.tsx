@@ -1,25 +1,21 @@
-import { ChakraProvider } from "@chakra-ui/react";
-import { ErrorBoundary } from "../components/ErrorBoundary";
+import { Provider } from "../components/ui/provider";
+import { ErrorBoundary } from "../components/ErrorBoundary"; // Add curly braces here
+import { Toaster } from "../components/ui/toaster";
 
-export const metadata = {
-  title: "Pro Trading Journal",
-  description: "Professional trading analytics, AI trade review, and more.",
-  openGraph: {
-    title: "Pro Trading Journal",
-    description: "Compete with TradeZella. Institutional analytics for traders.",
-    type: "website",
-  },
-};
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en">
-      <body>
-        <ChakraProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body style={{ backgroundColor: "#0a0a0a", minHeight: "100vh" }}>
+        <Provider>
           <ErrorBoundary>
             {children}
           </ErrorBoundary>
-        </ChakraProvider>
+          <Toaster />
+        </Provider>
       </body>
     </html>
   );

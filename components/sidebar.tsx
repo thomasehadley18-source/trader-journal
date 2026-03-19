@@ -1,84 +1,130 @@
 "use client";
-import { Box, VStack, Text, Icon, Link as ChakraLink } from "@chakra-ui/react";
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  LucideLayoutDashboard, 
-  LucideTrendingUp, 
-  LucideUploadCloud, 
-  LucideShieldAlert, 
-  LucideSettings 
+import {
+  Box,
+  VStack,
+  Text,
+  HStack,
+  Heading,
+} from "@chakra-ui/react";
+import {
+  LucideLayoutDashboard,
+  LucideBookOpen,
+  LucideHistory,
+  LucideSettings,
+  LucideTrendingUp,
+  LucideBrain,
 } from "lucide-react";
 
-export default function Sidebar() {
-  const pathname = usePathname();
+const NAV_ITEMS = [
+  { name: "Dashboard", href: "/dashboard", icon: LucideLayoutDashboard },
+  { name: "New Entry", href: "/dashboard/journal", icon: LucideBookOpen },
+  { name: "History", href: "/dashboard/journal/history", icon: LucideHistory },
+  { name: "AI Insights", href: "/dashboard/insights", icon: LucideBrain },
+  { name: "Performance", href: "/dashboard/performance", icon: LucideTrendingUp },
+  { name: "Settings", href: "/dashboard/settings", icon: LucideSettings },
+];
 
-  const navItems = [
-    { label: "Dashboard", href: "/dashboard", icon: LucideLayoutDashboard },
-    { label: "Strategy Intelligence", href: "/dashboard/analytics", icon: LucideTrendingUp },
-    { label: "Import Trades", href: "/dashboard/import", icon: LucideUploadCloud },
-    { label: "Rules Watchdog", href: "/dashboard/rules", icon: LucideShieldAlert },
-    { label: "Settings", href: "/dashboard/settings", icon: LucideSettings },
-  ];
+export function Sidebar() {
+  const pathname = usePathname();
 
   return (
     <Box
       as="nav"
       pos="fixed"
       left="0"
-      h="full"
-      w="280px"
-      bg="gray.900"
+      top="0"
+      h="100vh"
+      w="260px"
+      bg="#0f0f12"
       borderRight="1px solid"
-      borderColor="whiteAlpha.200"
+      borderColor="whiteAlpha.100"
       p={6}
       zIndex="sticky"
     >
-      <VStack align="stretch" gap={2}>
-        <Text fontSize="xl" fontWeight="black" mb={8} color="blue.400" px={4} letterSpacing="wider">
-          TRADER.IO
-        </Text>
-        
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link key={item.href} href={item.href} passHref legacyBehavior>
-              <ChakraLink
-                display="flex"
-                alignItems="center"
-                p={4}
-                borderRadius="xl"
-                bg={isActive ? "blue.600" : "transparent"}
-                color={isActive ? "white" : "gray.400"}
-                _hover={{
-                  bg: isActive ? "blue.600" : "whiteAlpha.100",
-                  color: "white",
-                  textDecoration: "none"
-                }}
-                transition="all 0.2s"
+      <VStack align="start" gap={8} w="full">
+        <HStack gap={3} px={2}>
+          <Box
+            bg="blue.500"
+            p={2}
+            borderRadius="lg"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <LucideTrendingUp size={20} color="white" />
+          </Box>
+          <Heading size="md" color="white" letterSpacing="tight">
+            TRADER<Text as="span" color="blue.400">AI</Text>
+          </Heading>
+        </HStack>
+
+        {/* Replaced Divider with a simple div to avoid "undefined" error */}
+        <Box w="full" h="1px" bg="whiteAlpha.100" />
+
+        <VStack align="start" gap={2} w="full">
+          <Text
+            fontSize="xs"
+            fontWeight="bold"
+            color="gray.500"
+            textTransform="uppercase"
+            letterSpacing="widest"
+            mb={2}
+            px={2}
+          >
+            Menu
+          </Text>
+          
+          {NAV_ITEMS.map((item) => {
+            const isActive = pathname === item.href;
+            const IconComponent = item.icon;
+            return (
+              <Link 
+                key={item.href} 
+                href={item.href} 
+                style={{ textDecoration: 'none', width: '100%' }}
               >
-                <Icon as={item.icon} mr={4} w={5} h={5} />
-                <Text fontWeight="bold">{item.label}</Text>
-              </ChakraLink>
-            </Link>
-          );
-        })}
+                <HStack
+                  w="full"
+                  p={3}
+                  borderRadius="xl"
+                  bg={isActive ? "blue.500" : "transparent"}
+                  color={isActive ? "white" : "gray.400"}
+                  cursor="pointer"
+                  transition="all 0.2s"
+                  _hover={!isActive ? {
+                    bg: "whiteAlpha.100",
+                    color: "white",
+                  } : {}}
+                  gap={4}
+                >
+                  <IconComponent size={20} />
+                  <Text fontWeight={isActive ? "bold" : "medium"}>
+                    {item.name}
+                  </Text>
+                </HStack>
+              </Link>
+            );
+          })}
+        </VStack>
       </VStack>
 
       <Box pos="absolute" bottom={8} left={6} right={6}>
-        <Box w="full" h="1px" bg="whiteAlpha.200" mb={6} />
-        <Link href="/dashboard/settings" passHref legacyBehavior>
-          <ChakraLink
-            display="flex"
-            alignItems="center"
-            p={4}
-            color="gray.500"
-            _hover={{ color: "white", textDecoration: "none" }}
-          >
-            <Box borderRadius="full" bg="gray.700" w={8} h={8} mr={3} />
-            <Text fontSize="sm" fontWeight="bold">My Account</Text>
-          </ChakraLink>
-        </Link>
+        <Box
+          p={4}
+          bgGradient="to-br"
+          bg="blue.600"
+          borderRadius="2xl"
+          overflow="hidden"
+          pos="relative"
+        >
+          <VStack align="start" gap={1} pos="relative" zIndex={1}>
+            <Text color="white" fontWeight="bold" fontSize="sm">Pro Plan</Text>
+            <Text color="whiteAlpha.800" fontSize="xs">Unlimited AI Audits</Text>
+          </VStack>
+        </Box>
       </Box>
     </Box>
   );

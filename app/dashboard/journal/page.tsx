@@ -13,23 +13,18 @@ import {
   HStack,
   Select,
   SimpleGrid,
-  useToast,
   Tag,
-  TagLabel,
-  TagCloseButton,
 } from "@chakra-ui/react";
+import { toaster } from "@/components/ui/toaster"; // Import this instead
 
 export default function JournalPage() {
-  const toast = useToast();
   const [tags, setTags] = useState(["FOMO", "Trend Following"]);
 
   const handleSave = () => {
-    toast({
+    toaster.create({
       title: "Journal Entry Saved",
       description: "Data successfully synced for AI analysis.",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
+      type: "success",
     });
   };
 
@@ -54,90 +49,37 @@ export default function JournalPage() {
         <SimpleGrid columns={{ base: 1, md: 2 }} gap={6} w="full">
           <VStack gap={4}>
             <FormControl>
-              <FormLabel color="gray.300">Trade ID / Symbol</FormLabel>
-              <Input 
-                placeholder="e.g. EURUSD #12345" 
-                bg="gray.800" 
-                border="none" 
-                color="white" 
-                _focus={{ boxShadow: "0 0 0 1px #3182ce" }}
-              />
+              <FormLabel color="gray.300">Symbol</FormLabel>
+              <Input bg="gray.800" border="none" color="white" placeholder="e.g. EURUSD" />
             </FormControl>
-
             <FormControl>
-              <FormLabel color="gray.300">Strategy Used</FormLabel>
-              <Select 
-                bg="gray.800" 
-                border="none" 
-                color="white" 
-                _focus={{ boxShadow: "0 0 0 1px #3182ce" }}
-              >
-                <option value="silver-bullet">ICT Silver Bullet</option>
-                <option value="london">London Breakout</option>
-                <option value="snd">Supply & Demand</option>
-              </Select>
-            </FormControl>
-
-            <FormControl>
-              <FormLabel color="gray.300">Emotional State</FormLabel>
-              <Select 
-                bg="gray.800" 
-                border="none" 
-                color="white" 
-                _focus={{ boxShadow: "0 0 0 1px #3182ce" }}
-              >
-                <option value="neutral">Neutral / Calm</option>
-                <option value="anxious">Anxious / Impatient</option>
-                <option value="greedy">Greedy / Over-leveraged</option>
-                <option value="confident">Confident / Focused</option>
+              <FormLabel color="gray.300">Strategy</FormLabel>
+              <Select bg="gray.800" border="none" color="white">
+                <option value="silver-bullet">Silver Bullet</option>
+                <option value="snd">S&D</option>
               </Select>
             </FormControl>
           </VStack>
 
-          <VStack gap={4}>
-            <FormControl h="full">
-              <FormLabel color="gray.300">Trade Notes & Lessons</FormLabel>
-              <Textarea 
-                placeholder="What did you see? What did you feel? What will you do differently next time?" 
-                bg="gray.800" 
-                border="none" 
-                color="white" 
-                h="185px"
-                resize="none"
-                _focus={{ boxShadow: "0 0 0 1px #3182ce" }}
-              />
-            </FormControl>
-          </VStack>
+          <FormControl h="full">
+            <FormLabel color="gray.300">Notes</FormLabel>
+            <Textarea bg="gray.800" border="none" color="white" h="full" />
+          </FormControl>
         </SimpleGrid>
 
         <Box w="full">
-          <FormLabel color="gray.300">Mistake Tags & Labels</FormLabel>
-          <HStack spacing={2} mb={3} wrap="wrap">
-            {tags.map((tag) => (
-              <Tag key={tag} borderRadius="full" variant="solid" colorScheme="purple">
-                <TagLabel>{tag}</TagLabel>
-                <TagCloseButton onClick={() => setTags(tags.filter(t => t !== tag))} />
-              </Tag>
+          <FormLabel color="gray.300">Tags</FormLabel>
+          <HStack wrap="wrap" mb={2}>
+            {tags.map(tag => (
+              <Tag.Root key={tag} colorPalette="purple" variant="solid">
+                <Tag.Label>{tag}</Tag.Label>
+              </Tag.Root>
             ))}
           </HStack>
-          <Input 
-            placeholder="Add tag (e.g. Revenge Trading) and press Enter" 
-            bg="gray.800" 
-            border="none" 
-            color="white" 
-            onKeyDown={addTag}
-            _focus={{ boxShadow: "0 0 0 1px #3182ce" }}
-          />
+          <Input placeholder="Add tag..." bg="gray.800" border="none" onKeyDown={addTag} />
         </Box>
 
-        <Button 
-          colorScheme="blue" 
-          size="lg" 
-          w={{ base: "full", md: "200px" }} 
-          onClick={handleSave}
-          _hover={{ transform: "translateY(-2px)", boxShadow: "xl" }}
-          transition="all 0.2s"
-        >
+        <Button colorScheme="blue" size="lg" onClick={handleSave}>
           Save Entry
         </Button>
       </VStack>

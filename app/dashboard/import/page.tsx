@@ -13,12 +13,20 @@ import {
   List,
   ListItem,
   keyframes,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Badge,
 } from "@chakra-ui/react";
 import { 
   LucideUploadCloud, 
   LucideCheckCircle2, 
   LucideAlertCircle,
-  LucideLoader2 
+  LucideLoader2,
+  LucideHistory 
 } from "lucide-react";
 
 const spin = keyframes`
@@ -60,7 +68,7 @@ export default function ImportPage() {
   };
 
   return (
-    <Box maxW="800px" mx="auto" py={12} px={4}>
+    <Box maxW="1000px" mx="auto" py={12} px={4}>
       <VStack align="start" gap={8}>
         <Box>
           <Heading size="lg" color="white" mb={2}>Broker Import</Heading>
@@ -69,7 +77,7 @@ export default function ImportPage() {
 
         <Box
           w="full"
-          h="300px"
+          h="250px"
           border="2px dashed"
           borderColor={isDragging ? "blue.400" : "whiteAlpha.300"}
           bg={isDragging ? "whiteAlpha.100" : "transparent"}
@@ -107,7 +115,7 @@ export default function ImportPage() {
               <Text color="white" fontWeight="bold">
                 {file ? file.name : "Click or drag CSV file here"}
               </Text>
-              <Text color="gray.500" fontSize="sm">MT4, MT5, cTrader, and TradingView supported</Text>
+              <Text color="gray.500" fontSize="sm">MT4, MT5, cTrader supported</Text>
             </Box>
             {file && !isProcessing && (
               <Button 
@@ -130,7 +138,6 @@ export default function ImportPage() {
               <ListItem>MetaTrader 4 (CSV Export)</ListItem>
               <ListItem>MetaTrader 5 (Report HTML/CSV)</ListItem>
               <ListItem>cTrader (Statements CSV)</ListItem>
-              <ListItem>Generic CSV (Custom Mapping)</ListItem>
             </List>
           </Box>
 
@@ -140,10 +147,40 @@ export default function ImportPage() {
               <Text fontWeight="bold" color="white">Data Requirements</Text>
             </HStack>
             <Text color="gray.400" fontSize="sm">
-              For best results, ensure your export includes: Open/Close Time, Symbol, Lots, and Net Profit.
+              Include: Open/Close Time, Symbol, Lots, and Net Profit.
             </Text>
           </Box>
         </SimpleGrid>
+
+        <Box w="full" pt={4}>
+          <HStack mb={4}>
+            <Icon as={LucideHistory} color="blue.400" />
+            <Heading size="md" color="white">Recent Imports</Heading>
+          </HStack>
+          <Box bg="gray.800" borderRadius="xl" border="1px solid" borderColor="whiteAlpha.100" overflow="hidden">
+            <Table variant="simple" size="sm">
+              <Thead bg="whiteAlpha.50">
+                <Tr>
+                  <Th color="gray.500">File Name</Th>
+                  <Th color="gray.500">Date</Th>
+                  <Th color="gray.500">Status</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                <Tr>
+                  <Td color="white">mt4_statement_march.csv</Td>
+                  <Td color="gray.400">2026-03-18</Td>
+                  <Td><Badge colorScheme="green">Completed</Badge></Td>
+                </Tr>
+                <Tr>
+                  <Td color="white">ctrader_export_final.csv</Td>
+                  <Td color="gray.400">2026-03-15</Td>
+                  <Td><Badge colorScheme="green">Completed</Badge></Td>
+                </Tr>
+              </Tbody>
+            </Table>
+          </Box>
+        </Box>
       </VStack>
     </Box>
   );

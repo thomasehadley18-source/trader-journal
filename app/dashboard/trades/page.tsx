@@ -12,7 +12,8 @@ import {
   HStack,
   Text,
   Icon,
-  Button
+  Button,
+  VStack
 } from "@chakra-ui/react";
 import { LucideHistory, LucideFilter, LucideDownload } from "lucide-react";
 
@@ -27,7 +28,7 @@ export default function TradesPage() {
 
   return (
     <Box maxW="1200px" mx="auto" py={8} px={4}>
-      <HStack justify="space-between" mb={8}>
+      <HStack justify="space-between" mb={8} wrap="wrap" gap={4}>
         <VStack align="start" gap={1}>
           <HStack gap={3}>
             <Icon as={LucideHistory} w={6} h={6} color="blue.400" />
@@ -46,11 +47,11 @@ export default function TradesPage() {
         </HStack>
       </HStack>
 
-      <Box bg="gray.800" borderRadius="2xl" border="1px solid" borderColor="whiteAlpha.100" overflow="hidden">
+      <Box bg="gray.800" borderRadius="2xl" border="1px solid" borderColor="whiteAlpha.100" overflowX="auto">
         <Table variant="simple">
           <Thead bg="whiteAlpha.50">
             <Tr>
-              <Th color="gray.400">Date</Th>
+              <Th color="gray.400" py={5}>Date</Th>
               <Th color="gray.400">Asset</Th>
               <Th color="gray.400">Type</Th>
               <Th color="gray.400">Entry</Th>

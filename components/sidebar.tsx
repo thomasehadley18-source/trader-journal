@@ -1,5 +1,5 @@
 "use client";
-import { Box, VStack, Text, Icon, Flex, Link as ChakraLink } from "@chakra-ui/react";
+import { Box, VStack, Text, Icon, Link as ChakraLink } from "@chakra-ui/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
@@ -32,9 +32,10 @@ export default function Sidebar() {
       borderRight="1px solid"
       borderColor="whiteAlpha.200"
       p={6}
+      zIndex="sticky"
     >
       <VStack align="stretch" gap={2}>
-        <Text fontSize="xl" fontWeight="black" mb={8} color="blue.400" px={4}>
+        <Text fontSize="xl" fontWeight="black" mb={8} color="blue.400" px={4} letterSpacing="wider">
           TRADER.IO
         </Text>
         
@@ -63,6 +64,23 @@ export default function Sidebar() {
           );
         })}
       </VStack>
+
+      {/* Account Section at Bottom */}
+      <Box pos="absolute" bottom={8} left={6} right={6}>
+        <Box w="full" h="1px" bg="whiteAlpha.200" mb={6} />
+        <Link href="/dashboard/settings" passHref legacyBehavior>
+          <ChakraLink
+            display="flex"
+            alignItems="center"
+            p={4}
+            color="gray.500"
+            _hover={{ color: "white", textDecoration: "none" }}
+          >
+            <Box borderRadius="full" bg="gray.700" w={8} h={8} mr={3} />
+            <Text fontSize="sm" fontWeight="bold">My Account</Text>
+          </ChakraLink>
+        </Link>
+      </Box>
     </Box>
   );
 }

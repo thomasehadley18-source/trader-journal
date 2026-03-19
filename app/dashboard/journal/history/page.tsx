@@ -151,7 +151,6 @@ export default function JournalHistoryPage() {
         </Box>
       </VStack>
 
-      {/* Trade Details Modal */}
       <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
         <ModalOverlay backdropFilter="blur(4px)" />
         <ModalContent bg="gray.900" border="1px solid" borderColor="whiteAlpha.200" color="white" borderRadius="2xl">
@@ -170,14 +169,11 @@ export default function JournalHistoryPage() {
                   </Text>
                 </HStack>
               </Box>
-
               <Box>
                 <Text color="gray.500" fontSize="xs" fontWeight="bold" mb={1}>MY NOTES</Text>
                 <Text color="gray.300">{selectedTrade?.notes}</Text>
               </Box>
-
               <Divider borderColor="whiteAlpha.100" />
-
               <Box p={4} bg="purple.900" borderRadius="lg" w="full" style={{ backgroundColor: 'rgba(107, 70, 193, 0.1)' }}>
                 <HStack mb={2}>
                   <LucideBrain size={16} color="#B794F4" />

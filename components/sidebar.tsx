@@ -65,7 +65,6 @@ export default function Sidebar() {
         })}
       </VStack>
 
-      {/* Account Section at Bottom */}
       <Box pos="absolute" bottom={8} left={6} right={6}>
         <Box w="full" h="1px" bg="whiteAlpha.200" mb={6} />
         <Link href="/dashboard/settings" passHref legacyBehavior>

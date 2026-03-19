@@ -61,7 +61,7 @@ export default function DashboardPage() {
   return (
     <Box maxW="1200px" mx="auto" py={8} px={4}>
       <VStack align="start" gap={10}>
-        {/* Header */}
+        {/* Header Section */}
         <Box>
           <Heading size="lg" color="white" mb={2}>Welcome Back, Trader</Heading>
           <Text color="gray.400">Here is your performance overview for the last 30 days.</Text>
@@ -83,8 +83,8 @@ export default function DashboardPage() {
                   <StatLabel color="gray.400" fontWeight="bold">{stat.label}</StatLabel>
                   <Icon as={stat.icon} color={stat.color} w={5} h={5} />
                 </HStack>
-                <StatNumber fontSize="3xl" fontWeight="black">{stat.value}</StatNumber>
-                <StatHelpText>
+                <StatNumber fontSize="3xl" fontWeight="black" color="white">{stat.value}</StatNumber>
+                <StatHelpText color="gray.500">
                   <StatArrow type={stat.type as "increase" | "decrease"} />
                   {stat.help} vs last month
                 </StatHelpText>
@@ -93,7 +93,7 @@ export default function DashboardPage() {
           ))}
         </SimpleGrid>
 
-        {/* Resource Sections */}
+        {/* Resource Navigation Sections */}
         <SimpleGrid columns={{ base: 1, md: 3 }} gap={8} w="full">
           {sections.map((section) => (
             <VStack 
@@ -132,7 +132,7 @@ export default function DashboardPage() {
           ))}
         </SimpleGrid>
 
-        {/* Placeholder for Equity Curve */}
+        {/* Equity Curve Placeholder */}
         <Box 
           w="full" 
           h="300px" 

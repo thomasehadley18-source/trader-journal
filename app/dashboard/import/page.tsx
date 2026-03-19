@@ -1,50 +1,64 @@
 "use client";
 import { useState } from "react";
-import { Box, Heading, VStack, Text, Button, Input, useToast, Icon } from "@chakra-ui/react";
-import { LucideUploadCloud, LucideFileText } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { Box, Heading, VStack, Text, Button, Input, Icon } from "@chakra-ui/react";
+import { LucideUploadCloud } from "lucide-react";
+import { createClient } from "@supabase/supabase-js";
+
+// Initialize Supabase Client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function ImportPage() {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const toast = useToast();
 
   const handleUpload = async () => {
     if (!file) return;
     setUploading(true);
     
-    // Logic: In a real app, you'd parse CSV here. For now, we store the file.
-    const { data: { user } } = await supabase.auth.getUser();
-    const filePath = `${user?.id}/${Date.now()}_${file.name}`;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const filePath = `${user?.id}/${Date.now()}_${file.name}`;
 
-    const { error } = await supabase.storage
-      .from("trade-imports")
-      .upload(filePath, file);
+      const { error } = await supabase.storage
+        .from("trade-imports")
+        .upload(filePath, file);
 
-    if (error) {
-      toast({ title: "Upload Failed", description: error.message, status: "error" });
-    } else {
-      toast({ title: "Success!", description: "Trades are being processed.", status: "success" });
+      if (error) {
+        alert("Upload Failed: " + error.message);
+      } else {
+        alert("Success! Your trades are being processed.");
+      }
+    } catch (err: any) {
+      alert("An unexpected error occurred.");
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
   };
 
   return (
-    <Box maxW="container.md" mx="auto" py={10}>
-      <VStack spacing={6} p={10} bg="gray.800" borderRadius="2xl" border="2px dashed" borderColor="gray.600">
+    <Box maxW="600px" mx="auto" py={10}>
+      <VStack gap={6} p={10} bg="gray.800" borderRadius="2xl" border="2px dashed" borderColor="whiteAlpha.300">
         <Icon as={LucideUploadCloud} w={12} h={12} color="blue.400" />
-        <Heading size="lg">Import Your Trades</Heading>
-        <Text color="gray.400" textAlign="center">Upload your CSV export from MT4, MT5, or TradingView.</Text>
+        <Heading size="lg">Import Trades</Heading>
+        <Text color="gray.400" textAlign="center">
+          Upload your CSV export from MetaTrader or TradingView.
+        </Text>
         
         <Input 
           type="file" 
           accept=".csv" 
           pt={1}
+          border="none"
           onChange={(e) => setFile(e.target.files?.[0] || null)} 
         />
         
         <Button 
-          colorScheme="blue" 
+          bg="blue.600" 
+          color="white"
+          _hover={{ bg: "blue.500" }}
           w="full" 
           isLoading={uploading} 
           onClick={handleUpload}

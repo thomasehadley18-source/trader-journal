@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import {
   Box,
   Heading,
@@ -16,15 +17,61 @@ import {
   InputLeftElement,
   Button,
   VStack,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  Divider,
 } from "@chakra-ui/react";
-import { LucideSearch, LucideExternalLink } from "lucide-react";
+import { LucideSearch, LucideExternalLink, LucideBrain } from "lucide-react";
 
 export default function JournalHistoryPage() {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedTrade, setSelectedTrade] = useState<any>(null);
+
   const historyData = [
-    { id: "1", date: "2026-03-18", symbol: "EURUSD", strategy: "Silver Bullet", emotion: "Neutral", pnl: "+$450", tags: ["Trend Following"] },
-    { id: "2", date: "2026-03-17", symbol: "NAS100", strategy: "London Breakout", emotion: "Anxious", pnl: "-$200", tags: ["FOMO", "Early Exit"] },
-    { id: "3", date: "2026-03-15", symbol: "GBPUSD", strategy: "S&D", emotion: "Confident", pnl: "+$890", tags: ["Patience"] },
+    { 
+      id: "1", 
+      date: "2026-03-18", 
+      symbol: "EURUSD", 
+      strategy: "Silver Bullet", 
+      emotion: "Neutral", 
+      pnl: "+$450", 
+      tags: ["Trend Following"],
+      notes: "Waited for the FVG to fill. Entry was clean. Exit hit TP1 exactly.",
+      aiAudit: "Great discipline. You avoided entering early despite the initial volatility."
+    },
+    { 
+      id: "2", 
+      date: "2026-03-17", 
+      symbol: "NAS100", 
+      strategy: "London Breakout", 
+      emotion: "Anxious", 
+      pnl: "-$200", 
+      tags: ["FOMO", "Early Exit"],
+      notes: "Chased the candle because I thought I missed the move.",
+      aiAudit: "Behavioral alert: You entered 5 minutes before the session open. Stick to the timing rules."
+    },
+    { 
+      id: "3", 
+      date: "2026-03-15", 
+      symbol: "GBPUSD", 
+      strategy: "S&D", 
+      emotion: "Confident", 
+      pnl: "+$890", 
+      tags: ["Patience"],
+      notes: "Held through the retracement. Supply zone held firm.",
+      aiAudit: "Excellent trade management. Your win rate on S&D remains your strongest edge."
+    },
   ];
+
+  const handleView = (trade: any) => {
+    setSelectedTrade(trade);
+    onOpen();
+  };
 
   return (
     <Box maxW="1200px" mx="auto" py={8} px={4}>
@@ -87,7 +134,13 @@ export default function JournalHistoryPage() {
                     </HStack>
                   </Td>
                   <Td>
-                    <Button size="xs" variant="ghost" colorScheme="blue" leftIcon={<LucideExternalLink size={14} />}>
+                    <Button 
+                      size="xs" 
+                      variant="ghost" 
+                      colorScheme="blue" 
+                      leftIcon={<LucideExternalLink size={14} />}
+                      onClick={() => handleView(row)}
+                    >
                       View
                     </Button>
                   </Td>
@@ -97,6 +150,45 @@ export default function JournalHistoryPage() {
           </Table>
         </Box>
       </VStack>
+
+      {/* Trade Details Modal */}
+      <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
+        <ModalOverlay backdropFilter="blur(4px)" />
+        <ModalContent bg="gray.900" border="1px solid" borderColor="whiteAlpha.200" color="white" borderRadius="2xl">
+          <ModalHeader borderBottom="1px solid" borderColor="whiteAlpha.100">
+            {selectedTrade?.symbol} - {selectedTrade?.date}
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody py={6}>
+            <VStack align="start" gap={4}>
+              <Box>
+                <Text color="gray.500" fontSize="xs" fontWeight="bold" mb={1}>STRATEGY & PNL</Text>
+                <HStack>
+                  <Badge colorScheme="blue">{selectedTrade?.strategy}</Badge>
+                  <Text color={selectedTrade?.pnl.startsWith('+') ? "green.400" : "red.400"} fontWeight="bold">
+                    {selectedTrade?.pnl}
+                  </Text>
+                </HStack>
+              </Box>
+
+              <Box>
+                <Text color="gray.500" fontSize="xs" fontWeight="bold" mb={1}>MY NOTES</Text>
+                <Text color="gray.300">{selectedTrade?.notes}</Text>
+              </Box>
+
+              <Divider borderColor="whiteAlpha.100" />
+
+              <Box p={4} bg="purple.900" borderRadius="lg" w="full" style={{ backgroundColor: 'rgba(107, 70, 193, 0.1)' }}>
+                <HStack mb={2}>
+                  <LucideBrain size={16} color="#B794F4" />
+                  <Text color="purple.300" fontWeight="bold" fontSize="sm">AI BEHAVIORAL AUDIT</Text>
+                </HStack>
+                <Text color="gray.200" fontSize="sm italic">"{selectedTrade?.aiAudit}"</Text>
+              </Box>
+            </VStack>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 }

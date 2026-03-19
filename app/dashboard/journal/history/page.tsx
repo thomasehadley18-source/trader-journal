@@ -41,7 +41,7 @@ export default function JournalHistoryPage() {
       pnl: "+$450", 
       tags: ["Trend Following"],
       notes: "Waited for the FVG to fill. Entry was clean. Exit hit TP1 exactly.",
-      aiAudit: "Great discipline. You avoided entering early despite the initial volatility."
+      aiAudit: "Great discipline. You avoided entering early despite initial volatility."
     },
     { 
       id: "2", 
@@ -52,7 +52,7 @@ export default function JournalHistoryPage() {
       pnl: "-$200", 
       tags: ["FOMO", "Early Exit"],
       notes: "Chased the candle because I thought I missed the move.",
-      aiAudit: "Behavioral alert: You entered 5 minutes before the session open. Stick to the timing rules."
+      aiAudit: "Behavioral alert: You entered 5 minutes before the session open."
     },
     { 
       id: "3", 
@@ -63,7 +63,7 @@ export default function JournalHistoryPage() {
       pnl: "+$890", 
       tags: ["Patience"],
       notes: "Held through the retracement. Supply zone held firm.",
-      aiAudit: "Excellent trade management. Your win rate on S&D remains your strongest edge."
+      aiAudit: "Excellent trade management. Your win rate on S&D remains strong."
     },
   ];
 
@@ -86,14 +86,14 @@ export default function JournalHistoryPage() {
               <LucideSearch color="gray" size={18} />
             </InputLeftElement>
             <Input 
-              placeholder="Search by symbol or strategy..." 
+              placeholder="Search by symbol..." 
               bg="gray.800" 
               border="none" 
               color="white" 
               _focus={{ boxShadow: "0 0 0 1px #3182ce" }}
             />
           </InputGroup>
-          <Button variant="outline" colorScheme="blue" size="md">Filter</Button>
+          <Button variant="outline" colorScheme="blue">Filter</Button>
         </HStack>
 
         <Box w="full" overflowX="auto" bg="gray.800" borderRadius="xl" border="1px solid" borderColor="whiteAlpha.100">
@@ -102,35 +102,19 @@ export default function JournalHistoryPage() {
               <Tr>
                 <Th color="gray.500">Date</Th>
                 <Th color="gray.500">Symbol</Th>
-                <Th color="gray.500">Strategy</Th>
-                <Th color="gray.500">Emotion</Th>
                 <Th color="gray.500">PnL</Th>
-                <Th color="gray.500">Tags</Th>
+                <Th color="gray.500">Emotion</Th>
                 <Th color="gray.500"></Th>
               </Tr>
             </Thead>
             <Tbody>
               {historyData.map((row) => (
-                <Tr key={row.id} _hover={{ bg: "whiteAlpha.50" }} transition="0.2s">
+                <Tr key={row.id} _hover={{ bg: "whiteAlpha.50" }}>
                   <Td color="gray.300" fontSize="sm">{row.date}</Td>
                   <Td color="white" fontWeight="bold">{row.symbol}</Td>
-                  <Td color="gray.300">{row.strategy}</Td>
+                  <Td color={row.pnl.startsWith('+') ? "green.400" : "red.400"}>{row.pnl}</Td>
                   <Td>
-                    <Badge colorScheme={row.emotion === "Anxious" ? "orange" : "blue"} variant="subtle">
-                      {row.emotion}
-                    </Badge>
-                  </Td>
-                  <Td color={row.pnl.startsWith('+') ? "green.400" : "red.400"} fontWeight="bold">
-                    {row.pnl}
-                  </Td>
-                  <Td>
-                    <HStack spacing={1}>
-                      {row.tags.map(tag => (
-                        <Badge key={tag} fontSize="xs" colorScheme="purple" variant="solid" borderRadius="full">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </HStack>
+                    <Badge colorScheme={row.emotion === "Anxious" ? "orange" : "blue"}>{row.emotion}</Badge>
                   </Td>
                   <Td>
                     <Button 
@@ -154,30 +138,21 @@ export default function JournalHistoryPage() {
         <ModalOverlay backdropFilter="blur(4px)" />
         <ModalContent bg="gray.900" border="1px solid" borderColor="whiteAlpha.200" color="white" borderRadius="2xl">
           <ModalHeader borderBottom="1px solid" borderColor="whiteAlpha.100">
-            {selectedTrade?.symbol} - {selectedTrade?.date}
+            {selectedTrade?.symbol} Detail
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody py={6}>
-            <VStack align="start" gap={4}>
+            <VStack align="start" gap={6}>
               <Box>
-                <Text color="gray.500" fontSize="xs" fontWeight="bold" mb={1}>STRATEGY & PNL</Text>
-                <HStack>
-                  <Badge colorScheme="blue">{selectedTrade?.strategy}</Badge>
-                  <Text color={selectedTrade?.pnl.startsWith('+') ? "green.400" : "red.400"} fontWeight="bold">
-                    {selectedTrade?.pnl}
-                  </Text>
-                </HStack>
-              </Box>
-              <Box>
-                <Text color="gray.500" fontSize="xs" fontWeight="bold" mb={1}>MY NOTES</Text>
+                <Text color="gray.500" fontSize="xs" fontWeight="bold" mb={2}>NOTES</Text>
                 <Text color="gray.300">{selectedTrade?.notes}</Text>
               </Box>
-              <Box p={4} bg="purple.900" borderRadius="lg" w="full" style={{ backgroundColor: 'rgba(107, 70, 193, 0.1)' }}>
+              <Box p={4} bg="whiteAlpha.50" borderRadius="lg" w="full" borderLeft="4px solid" borderColor="purple.500">
                 <HStack mb={2}>
                   <LucideBrain size={16} color="#B794F4" />
-                  <Text color="purple.300" fontWeight="bold" fontSize="sm">AI BEHAVIORAL AUDIT</Text>
+                  <Text color="purple.300" fontWeight="bold" fontSize="sm">AI AUDIT</Text>
                 </HStack>
-                <Text color="gray.200" fontSize="sm italic">"{selectedTrade?.aiAudit}"</Text>
+                <Text color="gray.200" fontSize="sm" fontStyle="italic">"{selectedTrade?.aiAudit}"</Text>
               </Box>
             </VStack>
           </ModalBody>

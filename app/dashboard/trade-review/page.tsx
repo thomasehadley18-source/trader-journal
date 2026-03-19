@@ -1,75 +1,63 @@
-"use client"
+"use client";
+import { useState } from "react";
+import { Box, Heading, VStack, Text, Button, Input, Select, Textarea, useToast, Icon, Badge } from "@chakra-ui/react";
+import { LucideZap, LucideBrain } from "lucide-react";
 
-import {useEffect,useState} from "react"
-import {supabase} from "@/lib/supabase"
-import {reviewTrade} from "@/lib/trade-review-engine"
+export default function AIReviewPage() {
+  const [trade, setTrade] = useState({ symbol: "", entry: "", exit: "", notes: "" });
+  const [review, setReview] = useState("");
+  const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
-export default function TradeReview(){
+  const getAIReview = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/ai-review", {
+        method: "POST",
+        body: JSON.stringify({ tradeData: trade }),
+      });
+      const data = await res.json();
+      setReview(data.review);
+    } catch (err) {
+      toast({ title: "AI Error", description: "Could not reach the AI brain.", status: "error" });
+    }
+    setLoading(false);
+  };
 
-const [reviews,setReviews] = useState<any[]>([])
+  return (
+    <Box maxW="800px" mx="auto" py={10}>
+      <VStack spacing={8} align="stretch">
+        <Box p={6} bg="gray.800" borderRadius="xl" border="1px solid" borderColor="blue.500">
+          <Heading size="md" mb={4} display="flex" alignItems="center">
+            <Icon as={LucideBrain} mr={2} color="blue.400" /> New AI Trade Review
+          </Heading>
+          
+          <VStack spacing={4}>
+            <Box w="full">
+              <Text fontSize="sm" mb={1} color="gray.400">Asset (e.g., NAS100, Gold)</Text>
+              <Input placeholder="Symbol" value={trade.symbol} onChange={e => setTrade({...trade, symbol: e.target.value})} bg="gray.700" border="none" />
+            </Box>
+            
+            <Box w="full">
+              <Text fontSize="sm" mb={1} color="gray.400">Trading Notes / Strategy</Text>
+              <Textarea placeholder="Why did you take this trade?" value={trade.notes} onChange={e => setTrade({...trade, notes: e.target.value})} bg="gray.700" border="none" />
+            </Box>
 
-useEffect(()=>{
-load()
-},[])
+            <Button colorScheme="blue" w="full" leftIcon={<LucideZap size={18} />} isLoading={loading} onClick={getAIReview}>
+              Analyze Trade
+            </Button>
+          </VStack>
+        </Box>
 
-async function load(){
-
-const {data:{user}} = await supabase.auth.getUser()
-
-if(!user) return
-
-const {data} = await supabase
-.from("trades")
-.select("*")
-.eq("user_id",user.id)
-
-if(!data) return
-
-const results = data.map(t=>({
-
-trade:t,
-review:reviewTrade(t)
-
-}))
-
-setReviews(results)
-
-}
-
-return(
-
-<div>
-
-<h1>AI Trade Review</h1>
-
-<div className="grid-2">
-
-{reviews.map((r,i)=>(
-
-<div key={i} className="card">
-
-<h3>{r.trade.instrument}</h3>
-
-<p>Grade: {r.review.grade}</p>
-
-<p>Score: {r.review.score}</p>
-
-<ul>
-
-{r.review.notes.map((n:string,j:number)=>(
-<li key={j}>{n}</li>
-))}
-
-</ul>
-
-</div>
-
-))}
-
-</div>
-
-</div>
-
-)
-
+        {review && (
+          <Box p={8} bg="blue.900" borderRadius="2xl" border="1px solid" borderColor="blue.400" animation="fadeIn 0.5s">
+            <Badge colorScheme="blue" mb={4}>AI Feedback</Badge>
+            <Text whiteSpace="pre-wrap" color="blue.50" fontSize="lg" lineHeight="tall">
+              {review}
+            </Text>
+          </Box>
+        )}
+      </VStack>
+    </Box>
+  );
 }

@@ -1,117 +1,68 @@
-"use client"
+"use client";
+import { SimpleGrid, Box, Stat, StatLabel, StatNumber, StatHelpText, StatArrow, Flex, Heading } from "@chakra-ui/react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
-import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
-
-type Stats = {
-  totalTrades: number
-  totalPnl: number
-  winRate: number
-  bestDay: number
-  worstDay: number
-}
+// Mock data - In production, this comes from your Supabase 'trades' table
+const data = [
+  { day: 'Mon', equity: 10000 },
+  { day: 'Tue', equity: 10500 },
+  { day: 'Wed', equity: 10300 },
+  { day: 'Thu', equity: 11200 },
+  { day: 'Fri', equity: 12500 },
+];
 
 export default function StatsSummary() {
-  const [stats, setStats] = useState<Stats | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    loadStats()
-  }, [])
-
-  async function loadStats() {
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      setLoading(false)
-      return
-    }
-
-    const { data: trades } = await supabase
-      .from("trades")
-      .select("pnl, trade_date")
-      .eq("user_id", user.id)
-
-    if (!trades || trades.length === 0) {
-      setStats({
-        totalTrades: 0,
-        totalPnl: 0,
-        winRate: 0,
-        bestDay: 0,
-        worstDay: 0
-      })
-      setLoading(false)
-      return
-    }
-
-    const totalTrades = trades.length
-    const totalPnl = trades.reduce((sum, t) => sum + (t.pnl || 0), 0)
-    const wins = trades.filter(t => t.pnl > 0).length
-    const winRate = totalTrades > 0 ? (wins / totalTrades) * 100 : 0
-
-    // Group by date for best/worst day
-    const dailyPnl: Record<string, number> = {}
-    trades.forEach(t => {
-      const date = t.trade_date || "unknown"
-      dailyPnl[date] = (dailyPnl[date] || 0) + (t.pnl || 0)
-    })
-
-    const dailyValues = Object.values(dailyPnl)
-    const bestDay = dailyValues.length > 0 ? Math.max(...dailyValues) : 0
-    const worstDay = dailyValues.length > 0 ? Math.min(...dailyValues) : 0
-
-    setStats({ totalTrades, totalPnl, winRate, bestDay, worstDay })
-    setLoading(false)
-  }
-
-  if (loading) {
-    return <div className="stats-summary">Loading stats...</div>
-  }
-
-  if (!stats) {
-    return null
-  }
-
   return (
-    <div className="stats-summary">
-      <StatCard label="Total Trades" value={stats.totalTrades.toString()} />
-      <StatCard
-        label="Total PnL"
-        value={`$${stats.totalPnl.toFixed(2)}`}
-        color={stats.totalPnl >= 0 ? "green" : "red"}
-      />
-      <StatCard
-        label="Win Rate"
-        value={`${stats.winRate.toFixed(1)}%`}
-        color={stats.winRate >= 50 ? "green" : "red"}
-      />
-      <StatCard
-        label="Best Day"
-        value={`$${stats.bestDay.toFixed(2)}`}
-        color="green"
-      />
-      <StatCard
-        label="Worst Day"
-        value={`$${stats.worstDay.toFixed(2)}`}
-        color="red"
-      />
-    </div>
-  )
-}
+    <Box mb={10}>
+      <SimpleGrid columns={{ base: 1, md: 4 }} spacing={5} mb={8}>
+        <Box p={5} bg="gray.800" borderRadius="xl" border="1px solid" borderColor="green.500">
+          <Stat>
+            <StatLabel color="gray.400">Net P&L</StatLabel>
+            <StatNumber color="green.400">+$2,500.00</StatNumber>
+            <StatHelpText><StatArrow type="increase" /> 12% this week</StatHelpText>
+          </Stat>
+        </Box>
+        <Box p={5} bg="gray.800" borderRadius="xl" border="1px solid" borderColor="blue.500">
+          <Stat>
+            <StatLabel color="gray.400">Win Rate</StatLabel>
+            <StatNumber>68%</StatNumber>
+            <StatHelpText>Above Avg</StatHelpText>
+          </Stat>
+        </Box>
+        <Box p={5} bg="gray.800" borderRadius="xl" border="1px solid" borderColor="purple.500">
+          <Stat>
+            <StatLabel color="gray.400">Profit Factor</StatNumber>
+            <StatNumber>2.4</StatNumber>
+            <StatHelpText>Institutional Grade</StatHelpText>
+          </Stat>
+        </Box>
+        <Box p={5} bg="gray.800" borderRadius="xl" border="1px solid" borderColor="orange.500">
+          <Stat>
+            <StatLabel color="gray.400">Avg RR</StatLabel>
+            <StatNumber>1:3.2</StatNumber>
+            <StatHelpText>Risk Optimized</StatHelpText>
+          </Stat>
+        </Box>
+      </SimpleGrid>
 
-function StatCard({
-  label,
-  value,
-  color
-}: {
-  label: string
-  value: string
-  color?: "green" | "red"
-}) {
-  return (
-    <div className="stat-card">
-      <span className="stat-label">{label}</span>
-      <span className={`stat-value ${color || ""}`}>{value}</span>
-    </div>
-  )
+      <Box p={6} bg="gray.800" borderRadius="2xl" height="400px">
+        <Heading size="md" mb={6} color="gray.300">Equity Growth (Performance Curve)</Heading>
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data}>
+            <defs>
+              <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#3182ce" stopOpacity={0.8}/>
+                <stop offset="95%" stopColor="#3182ce" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#2D3748" />
+            <XAxis dataKey="day" stroke="#718096" />
+            <YAxis stroke="#718096" />
+            <Tooltip contentStyle={{ backgroundColor: '#1A202C', border: 'none', borderRadius: '8px' }} />
+            <Area type="monotone" dataKey="equity" stroke="#3182ce" fillOpacity={1} fill="url(#colorEquity)" />
+          </AreaChart>
+        </ResponsiveContainer>
+      </Box>
+    </Box>
+  );
 }

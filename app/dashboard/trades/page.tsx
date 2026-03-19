@@ -1,21 +1,9 @@
-"use client"
-
-import { useState } from "react"
-import TradeForm from "@/components/trades/trade-form"
-import TradeTable from "@/components/trades/trade-table"
-
-export default function TradesPage() {
-  const [refresh, setRefresh] = useState(0)
-
-  function reload() {
-    setRefresh((r) => r + 1)
-  }
-
-  return (
-    <div>
-      <h1>Trades</h1>
-      <TradeForm onAdded={reload} />
-      <TradeTable refresh={refresh} />
-    </div>
-  )
-}
+// Inside your trade entry form components
+<Select placeholder="Did you make a mistake?" bg="gray.700">
+  <option value="none">Perfect Execution</option>
+  <option value="fomo">FOMO Entry</option>
+  <option value="revenge">Revenge Trading</option>
+  <option value="early_exit">Exited Too Early (Paper Hands)</option>
+  <option value="oversize">Over-leveraged</option>
+  <option value="news">Traded into News</option>
+</Select>

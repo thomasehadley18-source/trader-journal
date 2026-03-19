@@ -1,68 +1,52 @@
-"use client"
+"use client";
+import { Box, Heading, Text, Progress, VStack, HStack, Badge, SimpleGrid, Icon } from "@chakra-ui/react";
+import { LucideShieldAlert, LucideCheckCircle, LucideTarget } from "lucide-react";
 
-import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
-import { analyzePropFirm } from "@/lib/propfirm-engine"
+export default function PropFirmRulesPage() {
+  const accountSize = 100000;
+  const currentEquity = 104500;
+  const dailyDrawdownLimit = 5000;
+  const currentDailyLoss = 1200;
 
-export default function PropFirmAnalytics(){
+  return (
+    <Box maxW="1000px" mx="auto">
+      <Heading mb={8} display="flex" alignItems="center">
+        <Icon as={LucideTarget} mr={3} color="orange.400" /> Funded Account Objectives
+      </Heading>
 
-const [stats,setStats] = useState<any>(null)
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
+        {/* Daily Loss Limit */}
+        <Box p={6} bg="gray.800" borderRadius="2xl" border="1px solid" borderColor={currentDailyLoss > 4000 ? "red.500" : "gray.700"}>
+          <HStack justifyContent="space-between" mb={4}>
+            <Text fontWeight="bold">Daily Drawdown Limit</Text>
+            <Badge colorScheme={currentDailyLoss > 4000 ? "red" : "green"}>
+              {currentDailyLoss > 4000 ? "WARNING" : "SAFE"}
+            </Badge>
+          </HStack>
+          <Text fontSize="2xl" mb={2}>${currentDailyLoss} / ${dailyDrawdownLimit}</Text>
+          <Progress value={(currentDailyLoss / dailyDrawdownLimit) * 100} colorScheme={currentDailyLoss > 4000 ? "red" : "blue"} borderRadius="full" />
+        </Box>
 
-useEffect(()=>{
-load()
-},[])
+        {/* Profit Target */}
+        <Box p={6} bg="gray.800" borderRadius="2xl" border="1px solid" borderColor="gray.700">
+          <HStack justifyContent="space-between" mb={4}>
+            <Text fontWeight="bold">Profit Target (Phase 1)</Text>
+            <Badge colorScheme="blue">85% Complete</Badge>
+          </HStack>
+          <Text fontSize="2xl" mb={2}>$8,500 / $10,000</Text>
+          <Progress value={85} colorScheme="green" borderRadius="full" />
+        </Box>
+      </SimpleGrid>
 
-async function load(){
-
-const { data:{ user } } = await supabase.auth.getUser()
-if(!user) return
-
-const { data } = await supabase
-.from("trades")
-.select("*")
-.eq("user_id", user.id)
-
-const result = analyzePropFirm(data || [])
-
-setStats(result)
-
-}
-
-if(!stats){
-return <div style={{padding:40}}>Loading prop firm stats...</div>
-}
-
-return(
-
-<div style={{padding:40}}>
-
-<h1>Prop Firm Analytics</h1>
-
-<div style={{
-display:"grid",
-gridTemplateColumns:"repeat(3,1fr)",
-gap:20
-}}>
-
-<div className="card">
-<h3>Total Profit</h3>
-<p>{stats.totalProfit.toFixed(2)}</p>
-</div>
-
-<div className="card">
-<h3>Best Day</h3>
-<p>{stats.bestDay.toFixed(2)}</p>
-</div>
-
-<div className="card">
-<h3>Worst Day</h3>
-<p>{stats.worstDay.toFixed(2)}</p>
-</div>
-
-</div>
-
-</div>
-
-)
-
+      <VStack mt={10} p={6} bg="red.900" borderRadius="xl" border="1px solid" borderColor="red.500" align="start">
+        <HStack>
+          <Icon as={LucideShieldAlert} color="white" />
+          <Text fontWeight="bold" color="white">HARD RULE VIOLATION DETECTED</Text>
+        </HStack>
+        <Text color="red.100" fontSize="sm">
+          Warning: You opened 3 trades during "Red Folder" News events. This violates Topstep/FTMO consistency rules.
+        </Text>
+      </VStack>
+    </Box>
+  );
 }

@@ -1,84 +1,44 @@
-"use client"
+"use client";
+import { Box, SimpleGrid, Heading, Text, Table, Tbody, Tr, Td, Badge, Icon, Flex } from "@chakra-ui/react";
+import { LucideFlame, LucideClock, LucideTarget } from "lucide-react";
 
-import {useEffect,useState} from "react"
-import {supabase} from "@/lib/supabase"
-import EquityChart from "@/components/charts/equity-chart"
-import {
-calculateEquity,
-pairPerformance,
-sessionPerformance
-} from "@/lib/analytics-engine"
+export default function AnalyticsPage() {
+  const stats = [
+    { strategy: "ICT Silver Bullet", winRate: "72%", pnl: "+$4,200", status: "Hot" },
+    { strategy: "Supply/Demand", winRate: "45%", pnl: "-$1,100", status: "Cold" },
+    { strategy: "London Breakout", winRate: "60%", pnl: "+$2,800", status: "Stable" },
+  ];
 
-export default function Analytics(){
+  return (
+    <Box maxW="1200px" mx="auto" py={6}>
+      <Heading size="lg" mb={8}>Strategy Intelligence</Heading>
+      
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mb={10}>
+        {stats.map((s) => (
+          <Box key={s.strategy} p={6} bg="gray.800" borderRadius="2xl" border="1px solid" borderColor={s.status === "Hot" ? "orange.500" : "gray.700"}>
+            <Flex justify="space-between" align="center" mb={4}>
+              <Text fontWeight="bold" fontSize="lg">{s.strategy}</Text>
+              <Badge colorScheme={s.status === "Hot" ? "orange" : "gray"}>{s.status}</Badge>
+            </Flex>
+            <Text color="gray.400" fontSize="sm">Win Rate: <Text as="span" color="white" fontWeight="bold">{s.winRate}</Text></Text>
+            <Text color={s.pnl.startsWith("+") ? "green.400" : "red.400"} fontSize="xl" fontWeight="black" mt={2}>{s.pnl}</Text>
+          </Box>
+        ))}
+      </SimpleGrid>
 
-const [equity,setEquity]=useState<any[]>([])
-const [pairs,setPairs]=useState<any[]>([])
-const [sessions,setSessions]=useState<any[]>([])
-
-useEffect(()=>{
-load()
-},[])
-
-async function load(){
-
-const {data:{user}}=await supabase.auth.getUser()
-if(!user)return
-
-const {data}=await supabase
-.from("trades")
-.select("*")
-.eq("user_id",user.id)
-.order("trade_date",{ascending:true})
-
-const trades=data||[]
-
-setEquity(calculateEquity(trades))
-setPairs(pairPerformance(trades))
-setSessions(sessionPerformance(trades))
-
-}
-
-return(
-
-<div>
-
-<h1>Trading Analytics</h1>
-
-<div className="card">
-<h2>Equity Curve</h2>
-<EquityChart data={equity}/>
-</div>
-
-<div className="grid-2" style={{marginTop:20}}>
-
-<div className="card">
-
-<h3>Pair Performance</h3>
-
-{pairs.map((p:any)=>(
-<div key={p.symbol}>
-{p.symbol} — {p.pnl}
-</div>
-))}
-
-</div>
-
-<div className="card">
-
-<h3>Session Performance</h3>
-
-{sessions.map((s:any)=>(
-<div key={s.name}>
-{s.name} — {s.pnl}
-</div>
-))}
-
-</div>
-
-</div>
-
-</div>
-
-)
-
+      <Box p={8} bg="gray.800" borderRadius="2xl">
+        <Heading size="md" mb={6} display="flex" alignItems="center">
+          <Icon as={LucideClock} mr={2} color="blue.400" /> Best Trading Hours
+        </Heading>
+        <SimpleGrid columns={6} spacing={2}>
+          {[...Array(24)].map((_, i) => (
+            <Box key={i} h="40px" bg={i > 8 && i < 12 ? "green.600" : "gray.700"} borderRadius="md" display="flex" alignItems="center" justifyContent="center" fontSize="xs" fontWeight="bold">
+              {i}:00
+            </Box>
+          ))}
+        </SimpleGrid>
+        <Text mt={4} fontSize="sm" color="gray.400">Green indicates your highest probability windows (New York Open).</Text>
+      </Box>
+    </Box>
+  );
 }

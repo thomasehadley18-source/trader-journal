@@ -66,7 +66,12 @@ export default function JournalPage() {
 
             <FormControl>
               <FormLabel color="gray.300">Strategy Used</FormLabel>
-              <Select bg="gray.800" border="none" color="white" _focus={{ boxShadow: "0 0 0 1px #3182ce" }}>
+              <Select 
+                bg="gray.800" 
+                border="none" 
+                color="white" 
+                _focus={{ boxShadow: "0 0 0 1px #3182ce" }}
+              >
                 <option value="silver-bullet">ICT Silver Bullet</option>
                 <option value="london">London Breakout</option>
                 <option value="snd">Supply & Demand</option>
@@ -75,7 +80,12 @@ export default function JournalPage() {
 
             <FormControl>
               <FormLabel color="gray.300">Emotional State</FormLabel>
-              <Select bg="gray.800" border="none" color="white" _focus={{ boxShadow: "0 0 0 1px #3182ce" }}>
+              <Select 
+                bg="gray.800" 
+                border="none" 
+                color="white" 
+                _focus={{ boxShadow: "0 0 0 1px #3182ce" }}
+              >
                 <option value="neutral">Neutral / Calm</option>
                 <option value="anxious">Anxious / Impatient</option>
                 <option value="greedy">Greedy / Over-leveraged</option>

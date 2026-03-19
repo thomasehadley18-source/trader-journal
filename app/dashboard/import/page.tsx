@@ -4,7 +4,6 @@ import { Box, Heading, VStack, Text, Button, Input, Icon } from "@chakra-ui/reac
 import { LucideUploadCloud } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 
-// Initialize Supabase Client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -17,16 +16,13 @@ export default function ImportPage() {
   const handleUpload = async () => {
     if (!file) return;
     setUploading(true);
-
     try {
-      // 1. Get current user
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError || !userData.user) throw new Error("User not authenticated");
 
       const user = userData.user;
       const filePath = `${user.id}/${Date.now()}_${file.name}`;
 
-      // 2. Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from("trade-imports")
         .upload(filePath, file);
@@ -45,40 +41,12 @@ export default function ImportPage() {
 
   return (
     <Box maxW="600px" mx="auto" py={10} px={4}>
-      <VStack 
-        gap={6} 
-        p={10} 
-        bg="gray.800" 
-        borderRadius="2xl" 
-        border="2px dashed" 
-        borderColor="whiteAlpha.300"
-        align="center"
-      >
+      <VStack gap={6} p={10} bg="gray.800" borderRadius="2xl" border="2px dashed" borderColor="whiteAlpha.300" align="center">
         <Icon as={LucideUploadCloud} w={12} h={12} color="blue.400" />
         <Heading size="lg" textAlign="center">Import Trades</Heading>
-        <Text color="gray.400" textAlign="center">
-          Upload your CSV export from MetaTrader or TradingView.
-        </Text>
-
-        <Input 
-          type="file" 
-          accept=".csv" 
-          pt={1}
-          border="none"
-          _focus={{ outline: "none" }}
-          onChange={(e) => setFile(e.target.files?.[0] || null)} 
-        />
-
-        <Button 
-          bg="blue.600" 
-          color="white"
-          _hover={{ bg: "blue.500" }}
-          w="full" 
-          size="lg"
-          isLoading={uploading} 
-          onClick={handleUpload}
-          isDisabled={!file}
-        >
+        <Text color="gray.400" textAlign="center">Upload your CSV export from MetaTrader or TradingView.</Text>
+        <Input type="file" accept=".csv" pt={1} border="none" _focus={{ outline: "none" }} onChange={(e) => setFile(e.target.files?.[0] || null)} />
+        <Button bg="blue.600" color="white" _hover={{ bg: "blue.500" }} w="full" size="lg" isLoading={uploading} onClick={handleUpload} isDisabled={!file}>
           Process Statement
         </Button>
       </VStack>

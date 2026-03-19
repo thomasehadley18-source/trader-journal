@@ -47,7 +47,6 @@ export default function AnalysisPage() {
         </HStack>
 
         <SimpleGrid columns={{ base: 1, md: 3 }} gap={6} w="full">
-          {/* Performance Score Card */}
           <Box p={6} bg="gray.800" borderRadius="2xl" border="1px solid" borderColor="whiteAlpha.100">
             <VStack align="start" gap={4}>
               <HStack w="full" justify="space-between">
@@ -60,7 +59,6 @@ export default function AnalysisPage() {
             </VStack>
           </Box>
 
-          {/* Key Insight 1 */}
           <Box p={6} bg="gray.800" borderRadius="2xl" border="1px solid" borderColor="whiteAlpha.100">
             <VStack align="start" gap={3}>
               <Icon as={LucideTrendingUp} color="green.400" w={6} h={6} />
@@ -71,7 +69,6 @@ export default function AnalysisPage() {
             </VStack>
           </Box>
 
-          {/* Key Insight 2 */}
           <Box p={6} bg="gray.800" borderRadius="2xl" border="1px solid" borderColor="whiteAlpha.100">
             <VStack align="start" gap={3}>
               <Icon as={LucideAlertTriangle} color="orange.400" w={6} h={6} />

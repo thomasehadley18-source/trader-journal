@@ -111,7 +111,6 @@ export default function SettingsPage() {
             border="1px solid" 
             borderColor="red.900" 
             borderRadius="lg" 
-            bg="red.900" 
             style={{ backgroundColor: 'rgba(155, 44, 44, 0.1)' }}
           >
             <HStack justify="space-between" wrap="wrap" gap={4}>

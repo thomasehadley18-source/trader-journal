@@ -12,9 +12,12 @@ import {
   SimpleGrid,
   List,
   ListItem,
-  ListIcon,
 } from "@chakra-ui/react";
-import { LucideUploadCloud, LucideFileText, LucideCheckCircle2, LucideAlertCircle } from "lucide-react";
+import { 
+  LucideUploadCloud, 
+  LucideCheckCircle2, 
+  LucideAlertCircle 
+} from "lucide-react";
 
 export default function ImportPage() {
   const [isDragging, setIsDragging] = useState(false);
@@ -24,7 +27,6 @@ export default function ImportPage() {
   const handleUpload = () => {
     if (!file) return;
     
-    // Placeholder for actual parsing logic
     toast({
       title: "Import Started",
       description: `Processing ${file.name}...`,

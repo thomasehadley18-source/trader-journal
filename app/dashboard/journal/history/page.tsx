@@ -24,7 +24,6 @@ import {
   ModalBody,
   ModalCloseButton,
   useDisclosure,
-  Divider,
 } from "@chakra-ui/react";
 import { LucideSearch, LucideExternalLink, LucideBrain } from "lucide-react";
 
@@ -173,7 +172,6 @@ export default function JournalHistoryPage() {
                 <Text color="gray.500" fontSize="xs" fontWeight="bold" mb={1}>MY NOTES</Text>
                 <Text color="gray.300">{selectedTrade?.notes}</Text>
               </Box>
-              <Divider borderColor="whiteAlpha.100" />
               <Box p={4} bg="purple.900" borderRadius="lg" w="full" style={{ backgroundColor: 'rgba(107, 70, 193, 0.1)' }}>
                 <HStack mb={2}>
                   <LucideBrain size={16} color="#B794F4" />

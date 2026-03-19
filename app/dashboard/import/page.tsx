@@ -17,22 +17,25 @@ export default function ImportPage() {
   const handleUpload = async () => {
     if (!file) return;
     setUploading(true);
-    
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      const filePath = `${user?.id}/${Date.now()}_${file.name}`;
 
-      const { error } = await supabase.storage
+    try {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError || !userData.user) throw new Error("User not authenticated");
+
+      const user = userData.user;
+      const filePath = `${user.id}/${Date.now()}_${file.name}`;
+
+      const { error: uploadError } = await supabase.storage
         .from("trade-imports")
         .upload(filePath, file);
 
-      if (error) {
-        alert("Upload Failed: " + error.message);
+      if (uploadError) {
+        alert("Upload Failed: " + uploadError.message);
       } else {
         alert("Success! Your trades are being processed.");
       }
     } catch (err: any) {
-      alert("An unexpected error occurred.");
+      alert("Error: " + (err.message || "An unexpected error occurred."));
     } finally {
       setUploading(false);
     }
@@ -46,7 +49,7 @@ export default function ImportPage() {
         <Text color="gray.400" textAlign="center">
           Upload your CSV export from MetaTrader or TradingView.
         </Text>
-        
+
         <Input 
           type="file" 
           accept=".csv" 
@@ -54,7 +57,7 @@ export default function ImportPage() {
           border="none"
           onChange={(e) => setFile(e.target.files?.[0] || null)} 
         />
-        
+
         <Button 
           bg="blue.600" 
           color="white"

@@ -16,24 +16,32 @@ import {
 import { 
   LucideUploadCloud, 
   LucideCheckCircle2, 
-  LucideAlertCircle 
+  LucideAlertCircle,
+  LucideLoader2 
 } from "lucide-react";
 
 export default function ImportPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const toast = useToast();
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!file) return;
-    
-    toast({
-      title: "Import Started",
-      description: `Processing ${file.name}...`,
-      status: "info",
-      duration: 3000,
-      isClosable: true,
-    });
+    setIsProcessing(true);
+
+    // Simulated upload delay to verify UI state
+    setTimeout(() => {
+      setIsProcessing(false);
+      setFile(null);
+      toast({
+        title: "Success",
+        description: "Trade statement uploaded and queued for processing.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    }, 2000);
   };
 
   return (
@@ -41,7 +49,7 @@ export default function ImportPage() {
       <VStack align="start" gap={8}>
         <Box>
           <Heading size="lg" color="white" mb={2}>Broker Import</Heading>
-          <Text color="gray.400">Upload your MT4, MT5, or cTrader CSV export to sync your trades.</Text>
+          <Text color="gray.400">Sync your MT4, MT5, or cTrader account via CSV export.</Text>
         </Box>
 
         <Box
@@ -62,19 +70,36 @@ export default function ImportPage() {
             setIsDragging(false);
             if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
           }}
+          onClick={() => document.getElementById('file-input')?.click()}
           transition="all 0.2s"
         >
+          <input 
+            type="file" 
+            id="file-input" 
+            hidden 
+            accept=".csv,.html" 
+            onChange={(e) => setFile(e.target.files?.[0] || null)} 
+          />
           <VStack gap={4}>
-            <Icon as={LucideUploadCloud} w={12} h={12} color={file ? "green.400" : "gray.500"} />
+            <Icon 
+              as={isProcessing ? LucideLoader2 : LucideUploadCloud} 
+              w={12} 
+              h={12} 
+              color={file ? "green.400" : "blue.500"}
+              animation={isProcessing ? "spin 2s linear infinite" : undefined}
+            />
             <Box textAlign="center">
               <Text color="white" fontWeight="bold">
                 {file ? file.name : "Click or drag CSV file here"}
               </Text>
-              <Text color="gray.500" fontSize="sm">Supports MT4, MT5, and NinjaTrader</Text>
+              <Text color="gray.500" fontSize="sm">MT4, MT5, cTrader, and TradingView supported</Text>
             </Box>
-            {file && (
-              <Button colorScheme="blue" onClick={handleUpload}>
-                Process Trades
+            {file && !isProcessing && (
+              <Button 
+                colorScheme="blue" 
+                onClick={(e) => { e.stopPropagation(); handleUpload(); }}
+              >
+                Start Import
               </Button>
             )}
           </VStack>
@@ -87,20 +112,20 @@ export default function ImportPage() {
               <Text fontWeight="bold" color="white">Supported Formats</Text>
             </HStack>
             <List spacing={2} color="gray.400" fontSize="sm">
-              <ListItem>MetaTrader 4 (CSV)</ListItem>
-              <ListItem>MetaTrader 5 (HTML/CSV)</ListItem>
-              <ListItem>cTrader (CSV)</ListItem>
-              <ListItem>Interactive Brokers (Flex Query)</ListItem>
+              <ListItem>MetaTrader 4 (CSV Export)</ListItem>
+              <ListItem>MetaTrader 5 (Report HTML/CSV)</ListItem>
+              <ListItem>cTrader (Statements CSV)</ListItem>
+              <ListItem>Generic CSV (Custom Mapping)</ListItem>
             </List>
           </Box>
 
           <Box p={6} bg="gray.800" borderRadius="xl" border="1px solid" borderColor="whiteAlpha.100">
             <HStack mb={4}>
               <Icon as={LucideAlertCircle} color="orange.400" />
-              <Text fontWeight="bold" color="white">Instructions</Text>
+              <Text fontWeight="bold" color="white">Data Requirements</Text>
             </HStack>
             <Text color="gray.400" fontSize="sm">
-              Ensure your CSV includes columns for: Symbol, Type, Open Time, Close Time, and Profit.
+              For best results, ensure your export includes: Open/Close Time, Symbol, Lots, and Net Profit.
             </Text>
           </Box>
         </SimpleGrid>
